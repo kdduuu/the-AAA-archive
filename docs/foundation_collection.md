@@ -1,50 +1,69 @@
-# Foundation Collection - The AAA Archive
+# Foundation Collection — The AAA Archive
 
 # Objetivo
 
-A **Foundation Collection** representa a coleção permanente do projeto **The AAA Archive**.
+A **Foundation Collection** representa o núcleo editorial do **The AAA Archive**.
 
-Ela reúne os jogos considerados fundamentais para compreender a evolução dos videogames AAA Single Player.
+Ela reúne uma seleção cuidadosamente curada de jogos considerados fundamentais para compreender a evolução da indústria dos videogames.
 
-Esta coleção serve como base para todas as análises, visualizações e estudos desenvolvidos ao longo do projeto.
+Toda a estrutura do projeto é construída a partir desta coleção, que serve como base para o backend, a API, o website, os dashboards e futuras análises.
 
-Após sua definição, a Foundation Collection será considerada estável.
+Após sua definição, a Foundation Collection passa a ser considerada uma coleção permanente.
 
-Novos jogos serão adicionados apenas através das futuras **Expansion Collections**, preservando a identidade da coleção original.
+Novos títulos deverão ser incorporados apenas através das futuras **Expansion Collections**, preservando a identidade histórica da coleção original.
 
 ---
 
 # Filosofia da Coleção
 
-A Foundation Collection não busca reunir apenas os jogos com maiores notas ou maior sucesso comercial.
+A Foundation Collection não busca reunir apenas os jogos com maior nota ou maior sucesso comercial.
 
-Seu objetivo é representar diferentes momentos da evolução da indústria, contemplando:
+Seu objetivo é representar diferentes momentos da evolução da indústria, considerando aspectos como:
 
 * inovação tecnológica;
 * impacto cultural;
 * relevância histórica;
 * influência sobre outros jogos;
-* qualidade reconhecida pela crítica;
-* importância editorial para o projeto.
+* reconhecimento da crítica;
+* importância editorial para o The AAA Archive.
+
+Cada jogo presente na coleção contribui para contar uma parte da história dos videogames.
 
 ---
 
 # Critérios de Inclusão
 
-Um jogo pode integrar a Foundation Collection quando atende a um ou mais dos seguintes critérios:
+Um jogo poderá integrar a Foundation Collection quando atender a um ou mais dos seguintes critérios:
 
-* Representa um marco importante para a indústria.
-* Influenciou outros jogos ou gêneros.
-* Introduziu mecânicas relevantes.
-* Tornou-se referência dentro de sua franquia.
-* Possui reconhecimento crítico consistente.
-* Faz parte da proposta editorial do The AAA Archive.
+* representar um marco importante para a indústria;
+* influenciar outros jogos ou gêneros;
+* introduzir mecânicas relevantes;
+* tornar-se referência dentro de sua franquia;
+* possuir reconhecimento crítico consistente;
+* contribuir para a proposta editorial do projeto.
+
+A inclusão de um título depende da avaliação conjunta desses fatores, e não apenas de notas ou vendas.
 
 ---
 
 # Organização
 
-A coleção é organizada cronologicamente de acordo com o lançamento original de cada jogo.
+A coleção é organizada cronologicamente conforme o lançamento original de cada jogo.
+
+Essa organização facilita análises históricas, estatísticas e futuras visualizações da evolução da indústria.
+
+---
+
+# Relação com o Game Awards
+
+O histórico do **Game Awards** faz parte do The AAA Archive, porém é mantido de forma independente da Foundation Collection.
+
+Isso significa que:
+
+* um jogo pode fazer parte da Foundation Collection sem nunca ter sido indicado ao GOTY;
+* um indicado ou vencedor do GOTY pode não fazer parte da Foundation Collection.
+
+Caso um jogo esteja presente em ambas as bases, essas informações poderão ser relacionadas automaticamente pelo sistema.
 
 ---
 
@@ -146,33 +165,34 @@ A coleção é organizada cronologicamente de acordo com o lançamento original 
 
 ---
 
-# Expansão da Coleção
+# Expansion Collections
 
-A Foundation Collection será preservada como coleção permanente.
+A Foundation Collection permanecerá preservada como a coleção base do The AAA Archive.
 
-Novos títulos deverão ser adicionados apenas através das Expansion Collections.
+Novos jogos deverão ser adicionados apenas através das futuras **Expansion Collections**, permitindo que a coleção original permaneça estável ao longo do tempo.
 
 Exemplos:
 
 * Expansion Collection 2027
 * Expansion Collection 2028
 
-Essa abordagem garante estabilidade para as análises e facilita comparações ao longo do tempo.
+Essa abordagem garante consistência para análises históricas, estatísticas e comparações futuras.
 
 ---
 
 # Princípios da Curadoria
 
-A seleção dos jogos não segue exclusivamente critérios técnicos ou comerciais.
+A seleção dos jogos representa a visão editorial do The AAA Archive.
 
-Ela representa a visão editorial do projeto.
-
-Sempre que houver dúvida sobre a inclusão de um novo título, serão considerados:
+Sempre que houver dúvida sobre a inclusão de um novo título, deverão ser considerados:
 
 * relevância histórica;
 * influência na indústria;
 * qualidade reconhecida;
-* alinhamento com a proposta do projeto.
+* impacto cultural;
+* alinhamento com a proposta editorial do projeto.
+
+Esses princípios orientam toda a evolução da Foundation Collection.
 
 ---
 
@@ -180,6 +200,6 @@ Sempre que houver dúvida sobre a inclusão de um novo título, serão considera
 
 **Versão:** 1.0
 
-**Status:** Congelada
+**Status:** Coleção Base (Congelada)
 
-A Foundation Collection representa oficialmente a coleção base do The AAA Archive.
+A Foundation Collection representa oficialmente a coleção permanente do The AAA Archive e constitui a principal referência editorial para todas as futuras expansões do projeto.

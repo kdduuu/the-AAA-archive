@@ -1,78 +1,74 @@
-# Project Conventions - The AAA Archive
+# Project Conventions — The AAA Archive
 
-## Objetivo
+# Objetivo
 
-Este documento define os padrões utilizados durante o desenvolvimento do The AAA Archive.
+Este documento define os padrões adotados durante o desenvolvimento do **The AAA Archive**.
 
-Seu objetivo é garantir consistência na organização do projeto, facilitar futuras manutenções e servir como referência para qualquer desenvolvedor que participe do projeto.
+Seu objetivo é garantir consistência, organização e qualidade ao longo de toda a evolução do projeto, servindo como referência para futuras implementações e manutenções.
 
 ---
 
 # Filosofia do Projeto
 
-O The AAA Archive é um projeto pessoal desenvolvido com foco em:
+O The AAA Archive é um projeto pessoal desenvolvido para estudar:
 
-- Aprendizado de Análise de Dados;
-- Engenharia de Software;
-- Banco de Dados;
-- Visualização de Dados;
-- Desenvolvimento Full Stack.
+* Análise de Dados;
+* Engenharia de Software;
+* Banco de Dados;
+* Desenvolvimento Backend;
+* Desenvolvimento Web;
+* Desenvolvimento Full Stack.
 
-Apesar de possuir finalidade educacional, todas as decisões devem seguir padrões profissionais.
+Embora possua finalidade educacional, todas as decisões devem seguir padrões profissionais de desenvolvimento.
+
+Cada funcionalidade implementada deve possuir uma aplicação real dentro do sistema.
 
 ---
 
-# Tecnologias
+# Stack Tecnológica
 
-## Linguagem
+## Backend
 
-Python 3
+* Python
+* Pandas
+* PostgreSQL
+* FastAPI
 
-## Análise de Dados
+## Frontend
 
-Pandas
+* HTML
+* CSS
+* JavaScript
 
-## Banco de Dados
+## Visualização de Dados
 
-PostgreSQL
+* Streamlit
 
-## Interface
+## Ferramentas
 
-Streamlit
-
-## Controle de Versão
-
-Git
-
-GitHub
+* Git
+* GitHub
+* VS Code
 
 ---
 
 # Estrutura do Projeto
 
+```text
 The-AAA-Archive/
 
-├── data/
-│   ├── raw/
-│   ├── processed/
-│   └── games.csv
-│
-├── docs/
-│   ├── data_dictionary.md
-│   ├── foundation_collection.md
-│   └── project_conventions.md
-│
-├── notebooks/
-│
-├── scripts/
-│
-├── dashboard/
-│
-├── assets/
-│
-├── README.md
-├── requirements.txt
-└── .gitignore
+assets/
+data/
+docs/
+notebooks/
+scripts/
+
+README.md
+requirements.txt
+.gitignore
+```
+
+A estrutura poderá evoluir conforme o crescimento do projeto, preservando sempre a organização e a separação de responsabilidades.
 
 ---
 
@@ -80,147 +76,181 @@ The-AAA-Archive/
 
 ## Arquivos
 
-Sempre utilizar:
-
-snake_case
+Utilizar sempre **snake_case**.
 
 Exemplos:
 
-games.csv
+* games.csv
+* load_data.py
+* filters.py
+* search.py
+* site_statistics.py
 
-data_dictionary.md
-
-foundation_collection.md
-
-player_statistics.py
-
-Nunca utilizar:
-
-MeuArquivo.py
-
-Dados Jogos.csv
-
-Projeto Final.py
+Evitar nomes genéricos ou inconsistentes.
 
 ---
 
-## Variáveis Python
+## Variáveis
 
-Sempre utilizar:
+Utilizar sempre **snake_case**.
 
-snake_case
+Exemplos:
 
-Exemplo:
-
+```python
 game_name
-
 release_year
-
 developer_name
+```
 
 ---
 
 ## Classes
 
-Sempre utilizar:
+Utilizar **PascalCase**.
 
-PascalCase
+Exemplos:
 
-Exemplo:
-
+```python
 Game
-
 Developer
-
-Dashboard
+GameAwards
+```
 
 ---
 
 ## Constantes
 
-Sempre utilizar:
-
-UPPER_CASE
-
-Exemplo:
-
-MAX_SCORE
-
-DEFAULT_PATH
-
-PROJECT_VERSION
-
----
-
-# Organização dos Dados
-
-Durante a Fase 1, o projeto utilizará apenas um arquivo principal:
-
-games.csv
-
-Durante a evolução para PostgreSQL, os dados serão normalizados em múltiplas tabelas.
-
----
-
-# Padrão dos Commits
-
-Utilizar mensagens curtas e objetivas.
+Utilizar **UPPER_CASE**.
 
 Exemplos:
 
-docs: create data dictionary
-
-docs: add foundation collection
-
-data: add first games
-
-feat: create pandas loader
-
-feat: first dashboard
-
-refactor: improve project structure
-
-fix: correct metacritic values
+```python
+DEFAULT_PATH
+MAX_SCORE
+PROJECT_VERSION
+```
 
 ---
 
 # Organização do Código
 
-Cada script deve possuir apenas uma responsabilidade.
+Cada arquivo deve possuir apenas uma responsabilidade.
+
+Exemplos:
+
+* `load_data.py` → carregamento dos dados.
+* `filters.py` → filtros da coleção.
+* `search.py` → pesquisas.
+* `site_statistics.py` → estatísticas do website.
+* `goty.py` → informações do Game Awards.
+
+Evitar misturar diferentes responsabilidades no mesmo módulo.
+
+---
+
+# Organização das Funções
+
+Cada função deve resolver apenas um problema.
+
+Sempre que possível:
+
+* receber dados;
+* executar uma única tarefa;
+* retornar um resultado.
+
+Funções pequenas são mais fáceis de testar, reutilizar e manter.
+
+---
+
+# Comentários
+
+Os comentários possuem finalidade didática.
+
+Devem:
+
+* explicar conceitos importantes;
+* contextualizar decisões;
+* facilitar o aprendizado durante o desenvolvimento.
+
+Evitar comentários que apenas repitam o que o código já informa.
+
+---
+
+# Filosofia de Desenvolvimento
+
+O desenvolvimento do The AAA Archive segue uma abordagem incremental.
+
+Antes de implementar qualquer funcionalidade, deve-se responder:
+
+> **Qual parte do sistema utilizará este código?**
+
+Toda funcionalidade deverá possuir uma aplicação prática no produto final.
 
 Exemplo:
 
-load_data.py
+* Home → `site_statistics.py`
+* Archive → `filters.py` e `search.py`
+* Game Awards → `goty.py`
+* Dashboard → estatísticas do backend
 
-Responsável apenas por carregar dados.
-
-Nunca misturar:
-
-- carregamento
-- análise
-- gráficos
-- dashboard
-
-no mesmo arquivo.
+Essa abordagem evita código desnecessário e mantém o projeto orientado ao produto.
 
 ---
 
 # Organização dos Dados
 
-Todos os dados deverão possuir uma fonte conhecida.
+Durante a Fase 1, o projeto utiliza um único dataset:
 
-Fontes oficiais:
+```text
+data/games.csv
+```
 
-- IGDB
-- Metacritic
+A estrutura oficial desse arquivo encontra-se documentada em **`data_dictionary.md`**.
 
-Conteúdo editorial:
+No futuro, os dados serão normalizados em PostgreSQL.
 
-- Descrição
-- Nota Kadu
-- Nota Pavã
-- Histórico Importante
-- Histórico Influente
+---
+
+# Fontes dos Dados
+
+Sempre que possível, utilizar fontes oficiais.
+
+## Dados técnicos
+
+* IGDB
+* Metacritic
+
+## Conteúdo editorial
+
+Produzido exclusivamente para o The AAA Archive:
+
+* descrição;
+* nota Kadu;
+* nota Pavã;
+* histórico importante;
+* histórico influente.
+
+---
+
+# Padrão dos Commits
+
+Utilizar mensagens curtas, objetivas e descritivas.
+
+Exemplos:
+
+```text
+docs: update project blueprint
+
+feat: create search module
+
+feat: add site statistics
+
+refactor: improve filters
+
+fix: correct metacritic values
+
+data: update foundation collection
+```
 
 ---
 
@@ -228,61 +258,21 @@ Conteúdo editorial:
 
 Durante todo o desenvolvimento serão seguidos os seguintes princípios:
 
-- Clareza acima de complexidade.
-- Organização acima de velocidade.
-- Qualidade acima de quantidade.
-- Documentação antes da implementação.
-- Evolução incremental.
-- Código reutilizável.
-- Projeto orientado a portfólio.
-
----
-
-# Roadmap Oficial
-
-Planejamento
-
-↓
-
-Modelagem dos Dados
-
-↓
-
-Dataset (CSV)
-
-↓
-
-Pandas
-
-↓
-
-Análise Exploratória
-
-↓
-
-PostgreSQL
-
-↓
-
-Streamlit
-
-↓
-
-Deploy
+* Clareza acima da complexidade.
+* Organização acima da velocidade.
+* Qualidade acima da quantidade.
+* Documentação antes da implementação.
+* Evolução incremental.
+* Código limpo.
+* Código reutilizável.
+* Responsabilidade única por módulo.
+* Backend antes do frontend.
+* Projeto orientado a portfólio.
 
 ---
 
 # Objetivo Final
 
-Construir um arquivo histórico dos jogos AAA Single Player utilizando práticas profissionais de Engenharia de Software, Ciência de Dados e Desenvolvimento Web.
+Construir um sistema completo para preservar, organizar e disponibilizar informações sobre videogames através de um backend modular, uma API, um website e um dashboard analítico.
 
-O projeto deverá servir como portfólio técnico e demonstrar conhecimentos em:
-
-- Python
-- Pandas
-- PostgreSQL
-- Streamlit
-- Git
-- GitHub
-- Modelagem de Dados
-- Visualização de Dados
+Todo o desenvolvimento deverá priorizar simplicidade, organização e escalabilidade, permitindo que o projeto evolua continuamente sem perder sua consistência arquitetural.

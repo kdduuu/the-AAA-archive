@@ -1,10 +1,12 @@
-# Data Dictionary - The AAA Archive
+# Data Dictionary — The AAA Archive
 
-## Objetivo
+# Objetivo
 
-Este documento define oficialmente a estrutura dos dados utilizados pelo projeto **The AAA Archive**.
+Este documento especifica oficialmente a estrutura do arquivo **`games.csv`**, utilizado na **Fase 1** do projeto **The AAA Archive**.
 
-Seu objetivo é garantir consistência durante todas as fases do desenvolvimento, servindo como referência para a criação do dataset, análises em Pandas e futura migração para PostgreSQL.
+Seu objetivo é definir os tipos de dados, regras de preenchimento, convenções e padrões adotados durante o desenvolvimento do backend.
+
+Todas as análises, filtros, estatísticas, API e futuras migrações para PostgreSQL utilizarão esta especificação como referência.
 
 ---
 
@@ -20,42 +22,32 @@ Cada coluna representa **uma característica desse jogo**.
 
 ## Fase 1
 
-* Dataset em CSV
-* Arquivo único (`games.csv`)
-* Estudos com Pandas
-* Limpeza e exploração dos dados
+* Dataset em CSV (`games.csv`)
+* Manipulação dos dados com Pandas
+* Desenvolvimento do backend
+* Implementação das primeiras funcionalidades do sistema
 
 ## Fase 2
 
 * Migração para PostgreSQL
 * Normalização do banco de dados
-* Separação em múltiplas tabelas
-* Integração com Streamlit
+* Integração completa do backend
+
+## Fase 3
+
+* Desenvolvimento da API
+* Construção do Website
+* Desenvolvimento do Dashboard
 
 ---
 
-# Escopo Editorial
+# Escopo
 
-O The AAA Archive não possui como objetivo catalogar todos os jogos já produzidos.
+Este documento descreve exclusivamente a estrutura do dataset da **Foundation Collection**.
 
-O projeto consiste em uma coleção editorial dedicada aos jogos AAA Single Player considerados relevantes para a evolução da indústria dos videogames.
+Os critérios editoriais da coleção são definidos em **`foundation_collection.md`**.
 
-A coleção inicial recebe o nome de **Foundation Collection**.
-
-Novos títulos poderão ser adicionados futuramente através das **Expansion Collections**, sem alterar a composição da Foundation Collection.
-
----
-
-# Critérios de Inclusão
-
-Um jogo poderá fazer parte da coleção caso atenda a um ou mais dos critérios abaixo:
-
-* Ser um jogo AAA.
-* Possuir foco principal em Single Player.
-* Ter relevância histórica para a indústria.
-* Ter influenciado outros jogos ou gêneros.
-* Possuir reconhecimento crítico significativo.
-* Fazer parte da proposta editorial do projeto.
+O histórico do **Game Awards** será documentado em uma base independente.
 
 ---
 
@@ -64,14 +56,15 @@ Um jogo poderá fazer parte da coleção caso atenda a um ou mais dos critérios
 * Cada jogo possui um identificador único (`id`).
 * Os dados devem seguir rigorosamente os padrões definidos neste documento.
 * O dataset será expandido de forma incremental.
-* Sempre que possível, os dados devem ser padronizados para facilitar análises futuras.
+* Sempre que possível, os dados deverão ser padronizados para facilitar filtros, pesquisas e análises futuras.
 
 ---
 
 # Arquivo Principal
 
-```
-games.csv
+```text
+data/
+└── games.csv
 ```
 
 ---
@@ -93,6 +86,10 @@ games.csv
 | historico_importante | Boolean | Não         |
 | historico_influente  | Boolean | Não         |
 
+Os nomes das colunas definidos neste documento constituem o **contrato oficial dos dados** da Fase 1.
+
+Todas as funções do backend deverão utilizar exatamente essa nomenclatura.
+
 ---
 
 # Regras de Preenchimento
@@ -106,7 +103,7 @@ games.csv
 
 Exemplo:
 
-```
+```text
 1
 2
 3
@@ -132,13 +129,13 @@ Representa o ano de lançamento original.
 
 Formato:
 
-```
+```text
 YYYY
 ```
 
 Exemplo:
 
-```
+```text
 1998
 ```
 
@@ -148,7 +145,7 @@ Exemplo:
 
 Cada jogo deve possuir **apenas um gênero principal**.
 
-O objetivo é manter consistência durante as análises.
+Essa padronização simplifica agrupamentos, estatísticas e filtros.
 
 ### Gêneros permitidos
 
@@ -183,7 +180,7 @@ Exemplos:
 * Remedy Entertainment
 * FromSoftware
 
-Essa padronização facilita agrupamentos, estatísticas e futuras consultas.
+Essa padronização facilita agrupamentos e consultas.
 
 ---
 
@@ -193,11 +190,7 @@ Representa a propriedade intelectual (IP) ou franquia oficial do jogo.
 
 Sempre utilizar o nome oficial da franquia.
 
-Caso o jogo não pertença a uma franquia:
-
-```
-Original
-```
+Quando um jogo não fizer parte de uma franquia consolidada, utilizar o próprio nome do jogo.
 
 Exemplos:
 
@@ -210,13 +203,15 @@ Exemplos:
 | Elden Ring         | Elden Ring       |
 | Control            | Control          |
 
+Essa abordagem elimina valores especiais e facilita filtros e estatísticas.
+
 ---
 
 ## descricao
 
-Campo editorial produzido exclusivamente para o projeto.
+Campo editorial produzido exclusivamente para o The AAA Archive.
 
-As descrições deverão seguir sempre o mesmo padrão:
+Cada descrição deverá seguir o padrão:
 
 1. Apresentação do jogo.
 2. Breve sinopse.
@@ -233,7 +228,7 @@ Representa a nota oficial do Metacritic.
 Características:
 
 * Número inteiro.
-* Intervalo de 0 a 100.
+* Intervalo entre 0 e 100.
 
 Durante a construção inicial do dataset este campo poderá permanecer vazio.
 
@@ -245,7 +240,7 @@ Avaliação pessoal do autor do projeto.
 
 Escala:
 
-```
+```text
 0.0 → 10.0
 ```
 
@@ -253,7 +248,7 @@ Utilizar uma casa decimal.
 
 Exemplos:
 
-```
+```text
 9.8
 8.5
 10.0
@@ -267,7 +262,7 @@ Avaliação pessoal do colaborador do projeto.
 
 Escala:
 
-```
+```text
 0.0 → 10.0
 ```
 
@@ -299,7 +294,11 @@ Valores permitidos:
 
 # Valores Nulos
 
-Os seguintes campos poderão permanecer vazios durante a construção inicial do dataset:
+Durante a construção inicial do dataset, alguns campos permanecerão vazios de forma intencional.
+
+Isso faz parte da evolução incremental do projeto e não caracteriza inconsistência nos dados.
+
+Os campos que poderão permanecer nulos são:
 
 * descricao
 * metacritic
@@ -308,7 +307,21 @@ Os seguintes campos poderão permanecer vazios durante a construção inicial do
 * historico_importante
 * historico_influente
 
-Esses dados serão preenchidos gradualmente conforme o projeto evoluir.
+Essas informações serão preenchidas gradualmente conforme o projeto evoluir.
+
+---
+
+# Uso dos Dados
+
+As informações documentadas neste arquivo serão utilizadas por:
+
+* Backend em Python;
+* API;
+* Website;
+* Dashboard;
+* Estudos e análises em Pandas.
+
+Toda nova funcionalidade deverá utilizar esta estrutura como referência.
 
 ---
 
@@ -350,9 +363,9 @@ Responsável por:
 
 Durante todo o projeto serão adotados os seguintes princípios:
 
-* Consistência acima de precisão histórica.
-* Padronização acima de conveniência.
-* Simplicidade acima de complexidade.
+* Consistência acima da precisão histórica.
+* Padronização acima da conveniência.
+* Simplicidade acima da complexidade.
 * Dados preparados para análise.
 * Estrutura preparada para futura normalização em PostgreSQL.
 
@@ -360,6 +373,6 @@ Durante todo o projeto serão adotados os seguintes princípios:
 
 # Versionamento
 
-**Versão:** 1.0
+**Versão:** 1.1
 
-Este documento representa a especificação oficial do dataset da Fase 1 do The AAA Archive.
+Este documento representa a especificação oficial do dataset da **Fase 1** do The AAA Archive e serve como contrato de dados para todo o desenvolvimento do sistema.
