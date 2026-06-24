@@ -353,7 +353,7 @@ Responsável por:
 
 * Descrição
 * Nota Kadu
-* Nota Pavã
+* Nota Pavam
 * Histórico Importante
 * Histórico Influente
 

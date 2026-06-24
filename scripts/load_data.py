@@ -18,9 +18,8 @@ Autor: Kadu Almeida
 # IMPORTAÇÃO DAS BIBLIOTECAS
 # ==========================================================
 
-# O Pandas é a principal biblioteca de análise de dados do Python.
-# Durante todo o projeto utilizaremos DataFrames para manipular
-# os dados da coleção.
+from pathlib import Path
+
 import pandas as pd
 
 
@@ -28,10 +27,14 @@ import pandas as pd
 # CAMINHO DO DATASET
 # ==========================================================
 
-# Caminho do arquivo CSV oficial do projeto.
-# Caso o dataset seja movido de pasta futuramente,
-# basta alterar esta variável.
-file_path = "data/games.csv"
+# Path(__file__) representa o caminho deste arquivo.
+# .resolve() transforma esse caminho em um caminho absoluto.
+# .parent sobe para a pasta scripts/
+# .parent.parent sobe para a raiz do projeto.
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+# Caminho oficial do dataset da Foundation Collection.
+DATASET_PATH = PROJECT_ROOT / "data" / "games.csv"
 
 
 # ==========================================================
@@ -46,4 +49,4 @@ def carregar_dataset():
         pd.DataFrame: DataFrame contendo todos os jogos da coleção.
     """
 
-    return pd.read_csv(file_path)
+    return pd.read_csv(DATASET_PATH)

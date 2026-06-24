@@ -216,7 +216,9 @@ def listar_jogos_historicos(df):
         (df["historico_importante"].astype(str).str.upper() == "TRUE")
     )
 
-    return df[filtro]
+    # copy() mantém o padrão do projeto:
+    # toda função que filtra dados retorna uma cópia independente.
+    return df[filtro].copy()
 
 
 def listar_jogos_influentes(df):
@@ -235,7 +237,8 @@ def listar_jogos_influentes(df):
         (df["historico_influente"].astype(str).str.upper() == "TRUE")
     )
 
-    return df[filtro]
+    # copy() evita alterações acidentais no DataFrame original.
+    return df[filtro].copy()
 
 
 # ==========================================================

@@ -226,7 +226,7 @@ Produzido exclusivamente para o The AAA Archive:
 
 * descrição;
 * nota Kadu;
-* nota Pavã;
+* nota Pavam;
 * histórico importante;
 * histórico influente.
 
