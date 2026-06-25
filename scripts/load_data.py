@@ -4,10 +4,10 @@ The AAA Archive
 Arquivo: load_data.py
 
 Objetivo:
-Centralizar o carregamento do dataset oficial do projeto.
+Centralizar o carregamento dos datasets oficiais do projeto.
 
-Este módulo possui apenas uma responsabilidade:
-ler o arquivo CSV e retornar um DataFrame para que outros
+Este módulo possui uma responsabilidade simples:
+ler os arquivos CSV e retornar DataFrames para que outros
 módulos possam reutilizar os dados.
 
 Autor: Kadu Almeida
@@ -24,29 +24,40 @@ import pandas as pd
 
 
 # ==========================================================
-# CAMINHO DO DATASET
+# CAMINHOS DOS DATASETS
 # ==========================================================
 
-# Path(__file__) representa o caminho deste arquivo.
-# .resolve() transforma esse caminho em um caminho absoluto.
-# .parent sobe para a pasta scripts/
-# .parent.parent sobe para a raiz do projeto.
+# Caminho absoluto da raiz do projeto.
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-# Caminho oficial do dataset da Foundation Collection.
-DATASET_PATH = PROJECT_ROOT / "data" / "games.csv"
+# Dataset principal da Foundation Collection.
+GAMES_PATH = PROJECT_ROOT / "data" / "games.csv"
+
+# Dataset independente do histórico de premiações.
+AWARDS_PATH = PROJECT_ROOT / "data" / "awards.csv"
 
 
 # ==========================================================
-# FUNÇÃO DE CARREGAMENTO
+# FUNÇÕES DE CARREGAMENTO
 # ==========================================================
 
 def carregar_dataset():
     """
-    Carrega o dataset oficial do The AAA Archive.
+    Carrega o dataset oficial da Foundation Collection.
 
     Returns:
         pd.DataFrame: DataFrame contendo todos os jogos da coleção.
     """
 
-    return pd.read_csv(DATASET_PATH)
+    return pd.read_csv(GAMES_PATH)
+
+
+def carregar_awards():
+    """
+    Carrega o dataset oficial do histórico de premiações.
+
+    Returns:
+        pd.DataFrame: DataFrame contendo vencedores e indicados.
+    """
+
+    return pd.read_csv(AWARDS_PATH)
