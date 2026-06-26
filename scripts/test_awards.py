@@ -18,7 +18,7 @@ corretamente.
 
 import pandas as pd
 
-from load_data import carregar_awards
+from load_data import carregar_awards, carregar_dataset
 
 from awards import (
     listar_premiacoes,
@@ -28,14 +28,18 @@ from awards import (
     listar_indicados_por_ano,
     listar_vencedores,
     listar_jogos_por_premiacao,
+    listar_vencedores_na_foundation,
+    listar_indicados_na_foundation,
+    listar_jogos_awards_fora_da_foundation,
 )
 
 
 # ==========================================================
-# CARREGAMENTO DO DATASET
+# CARREGAMENTO DOS DATASETS
 # ==========================================================
 
-df = carregar_awards()
+df_awards = carregar_awards()
+df_games = carregar_dataset()
 
 
 # ==========================================================
@@ -47,7 +51,7 @@ def testar_premiacoes():
     Verifica se as três premiações principais estão cadastradas.
     """
 
-    resultado = listar_premiacoes(df)
+    resultado = listar_premiacoes(df_awards)
 
     assert isinstance(resultado, list)
 
@@ -65,7 +69,7 @@ def testar_anos_disponiveis():
     Verifica se os anos da base vão de 2003 até 2025.
     """
 
-    resultado = listar_anos_disponiveis(df)
+    resultado = listar_anos_disponiveis(df_awards)
 
     assert isinstance(resultado, list)
 
@@ -88,7 +92,7 @@ def testar_jogos_por_ano():
     e os indicados daquele ano.
     """
 
-    resultado = listar_jogos_por_ano(df, 2018)
+    resultado = listar_jogos_por_ano(df_awards, 2018)
 
     assert isinstance(resultado, pd.DataFrame)
     assert not resultado.empty
@@ -109,7 +113,7 @@ def testar_vencedor_2018():
     Verifica se o vencedor de 2018 é God of War.
     """
 
-    resultado = buscar_vencedor_por_ano(df, 2018)
+    resultado = buscar_vencedor_por_ano(df_awards, 2018)
 
     assert isinstance(resultado, pd.DataFrame)
     assert not resultado.empty
@@ -125,7 +129,7 @@ def testar_vencedor_2013():
     é Grand Theft Auto V.
     """
 
-    resultado = buscar_vencedor_por_ano(df, 2013)
+    resultado = buscar_vencedor_por_ano(df_awards, 2013)
 
     assert isinstance(resultado, pd.DataFrame)
     assert not resultado.empty
@@ -144,7 +148,7 @@ def testar_vencedor_2014():
     do The Game Awards.
     """
 
-    resultado = buscar_vencedor_por_ano(df, 2014)
+    resultado = buscar_vencedor_por_ano(df_awards, 2014)
 
     assert isinstance(resultado, pd.DataFrame)
     assert not resultado.empty
@@ -165,7 +169,7 @@ def testar_indicados_por_ano():
     sem incluir o vencedor.
     """
 
-    resultado = listar_indicados_por_ano(df, 2018)
+    resultado = listar_indicados_por_ano(df_awards, 2018)
 
     assert isinstance(resultado, pd.DataFrame)
     assert not resultado.empty
@@ -187,7 +191,7 @@ def testar_listar_vencedores():
     e se existe exatamente um vencedor por ano.
     """
 
-    resultado = listar_vencedores(df)
+    resultado = listar_vencedores(df_awards)
 
     assert isinstance(resultado, pd.DataFrame)
     assert not resultado.empty
@@ -215,7 +219,7 @@ def testar_jogos_por_premiacao_vgx():
     Verifica se o filtro por premiação retorna apenas registros da VGX.
     """
 
-    resultado = listar_jogos_por_premiacao(df, "VGX")
+    resultado = listar_jogos_por_premiacao(df_awards, "VGX")
 
     assert isinstance(resultado, pd.DataFrame)
     assert not resultado.empty
@@ -232,7 +236,7 @@ def testar_jogos_por_premiacao_the_game_awards():
     a partir de 2014.
     """
 
-    resultado = listar_jogos_por_premiacao(df, "The Game Awards")
+    resultado = listar_jogos_por_premiacao(df_awards, "The Game Awards")
 
     assert isinstance(resultado, pd.DataFrame)
     assert not resultado.empty
@@ -248,7 +252,7 @@ def testar_jogos_por_premiacao_spike():
     de 2003 até 2012.
     """
 
-    resultado = listar_jogos_por_premiacao(df, "Spike Video Game Awards")
+    resultado = listar_jogos_por_premiacao(df_awards, "Spike Video Game Awards")
 
     assert isinstance(resultado, pd.DataFrame)
     assert not resultado.empty
@@ -256,6 +260,65 @@ def testar_jogos_por_premiacao_spike():
     assert (resultado["premiacao"] == "Spike Video Game Awards").all()
     assert resultado["ano"].min() == 2003
     assert resultado["ano"].max() == 2012
+
+
+# ==========================================================
+# TESTE - RELAÇÃO COM A FOUNDATION COLLECTION
+# ==========================================================
+
+def testar_vencedores_na_foundation():
+    """
+    Verifica se a função retorna vencedores do Awards
+    que também estão na Foundation Collection.
+    """
+
+    resultado = listar_vencedores_na_foundation(df_awards, df_games)
+
+    assert isinstance(resultado, pd.DataFrame)
+    assert not resultado.empty
+
+    assert "God of War" in resultado["jogo"].values
+    assert "Elden Ring" in resultado["jogo"].values
+    assert "Baldur's Gate 3" in resultado["jogo"].values
+
+    assert (resultado["status"] == "Vencedor").all()
+
+
+def testar_indicados_na_foundation():
+    """
+    Verifica se a função retorna indicados do Awards
+    que também estão na Foundation Collection.
+    """
+
+    resultado = listar_indicados_na_foundation(df_awards, df_games)
+
+    assert isinstance(resultado, pd.DataFrame)
+    assert not resultado.empty
+
+    assert "Red Dead Redemption 2" in resultado["jogo"].values
+    assert "Marvel's Spider-Man" in resultado["jogo"].values
+    assert "The Last of Us" in resultado["jogo"].values
+
+    assert (resultado["status"] == "Indicado").all()
+
+
+def testar_jogos_awards_fora_da_foundation():
+    """
+    Verifica se a função retorna jogos presentes no Awards,
+    mas ausentes da Foundation Collection.
+    """
+
+    resultado = listar_jogos_awards_fora_da_foundation(df_awards, df_games)
+
+    assert isinstance(resultado, pd.DataFrame)
+    assert not resultado.empty
+
+    assert "Madden NFL 2004" in resultado["jogo"].values
+    assert "Hades II" in resultado["jogo"].values
+    assert "Hollow Knight: Silksong" in resultado["jogo"].values
+
+    assert "God of War" not in resultado["jogo"].values
+    assert "Elden Ring" not in resultado["jogo"].values
 
 
 # ==========================================================
@@ -268,7 +331,7 @@ def testar_vencedor_ano_inexistente():
     um DataFrame vazio, sem gerar erro.
     """
 
-    resultado = buscar_vencedor_por_ano(df, 1999)
+    resultado = buscar_vencedor_por_ano(df_awards, 1999)
 
     assert isinstance(resultado, pd.DataFrame)
     assert resultado.empty
@@ -302,6 +365,10 @@ if __name__ == "__main__":
     testar_jogos_por_premiacao_vgx()
     testar_jogos_por_premiacao_the_game_awards()
     testar_jogos_por_premiacao_spike()
+
+    testar_vencedores_na_foundation()
+    testar_indicados_na_foundation()
+    testar_jogos_awards_fora_da_foundation()
 
     testar_vencedor_ano_inexistente()
 
