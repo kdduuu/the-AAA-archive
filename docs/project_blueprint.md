@@ -408,5 +408,3 @@ O módulo oficial de premiações é:
 ```text
 awards.py
 ```
-
-O antigo nome `goty.py` não deve mais ser usado na documentação.
