@@ -8,7 +8,8 @@ Criar a primeira versão da API do The AAA Archive.
 
 Nesta fase, a API já possui:
 - endpoint inicial de teste;
-- endpoint para listar os jogos da Foundation Collection.
+- endpoint para listar os jogos da Foundation Collection;
+- endpoint para pesquisar jogos da Foundation Collection.
 
 Autor: Kadu Almeida
 ===========================================================
@@ -22,7 +23,7 @@ from pathlib import Path
 import sys
 
 import pandas as pd
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 
 
 # ==========================================================
@@ -44,7 +45,8 @@ The-AAA-Archive/
 │   └── main.py
 │
 └── scripts/
-    └── load_data.py
+    ├── load_data.py
+    └── search.py
 
 A variável PROJECT_ROOT representa a raiz do projeto.
 A variável SCRIPTS_PATH representa a pasta scripts/.
@@ -58,6 +60,7 @@ sys.path.append(str(SCRIPTS_PATH))
 
 # Agora o Python consegue importar os módulos da pasta scripts.
 from load_data import carregar_dataset
+from search import pesquisar_jogos
 
 
 # ==========================================================
@@ -167,5 +170,44 @@ def listar_games():
     df_games = carregar_dataset()
 
     games = dataframe_para_json(df_games)
+
+    return games
+
+
+@app.get("/games/search")
+def pesquisar_games(
+    term: str = Query(
+        "",
+        description="Termo usado para pesquisar jogos por nome, gênero, desenvolvedora, franquia ou descrição."
+    )
+):
+    """
+    Pesquisa jogos da Foundation Collection a partir de um termo.
+
+    Endpoint:
+        GET /games/search
+
+    Exemplo:
+        /games/search?term=zelda
+
+    Fluxo:
+        1. Recebe o termo pesquisado pela URL.
+        2. Carrega o games.csv usando carregar_dataset().
+        3. Usa a função pesquisar_jogos() do módulo search.py.
+        4. Converte o resultado para JSON.
+        5. Retorna os jogos encontrados.
+
+    Args:
+        term: termo pesquisado pelo usuário.
+
+    Returns:
+        list: lista de jogos encontrados.
+    """
+
+    df_games = carregar_dataset()
+
+    resultado = pesquisar_jogos(df_games, term)
+
+    games = dataframe_para_json(resultado)
 
     return games
