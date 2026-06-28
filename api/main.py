@@ -11,7 +11,8 @@ Nesta fase, a API já possui:
 - endpoint para listar os jogos da Foundation Collection;
 - endpoint para pesquisar jogos da Foundation Collection;
 - endpoints para filtrar jogos por desenvolvedora, gênero e ano;
-- endpoint para retornar estatísticas da Home.
+- endpoint para retornar estatísticas da Home;
+- endpoints para consultar o histórico de premiações.
 
 Autor: Kadu Almeida
 ===========================================================
@@ -50,7 +51,8 @@ The-AAA-Archive/
     ├── load_data.py
     ├── search.py
     ├── filters.py
-    └── site_statistics.py
+    ├── site_statistics.py
+    └── awards.py
 
 A variável PROJECT_ROOT representa a raiz do projeto.
 A variável SCRIPTS_PATH representa a pasta scripts/.
@@ -63,7 +65,7 @@ sys.path.append(str(SCRIPTS_PATH))
 
 
 # Agora o Python consegue importar os módulos da pasta scripts.
-from load_data import carregar_dataset
+from load_data import carregar_dataset, carregar_awards
 from search import pesquisar_jogos
 from filters import (
     listar_jogos_por_developer,
@@ -71,6 +73,13 @@ from filters import (
     listar_jogos_por_ano,
 )
 from site_statistics import gerar_estatisticas_home
+from awards import (
+    listar_jogos_por_ano as consultar_awards_por_ano,
+    listar_vencedores,
+    listar_vencedores_na_foundation,
+    listar_indicados_na_foundation,
+    listar_jogos_awards_fora_da_foundation,
+)
 
 
 # ==========================================================
@@ -405,3 +414,182 @@ def obter_estatisticas_home():
     estatisticas_json = dados_para_json(estatisticas)
 
     return estatisticas_json
+
+
+# ==========================================================
+# ENDPOINTS DE AWARDS
+# ==========================================================
+
+@app.get("/awards")
+def listar_awards():
+    """
+    Retorna todos os registros da base Awards History.
+
+    Endpoint:
+        GET /awards
+
+    Fluxo:
+        1. Carrega o awards.csv usando carregar_awards().
+        2. Converte o DataFrame em lista de dicionários.
+        3. Retorna todos os registros em JSON.
+
+    Returns:
+        list: lista com vencedores e indicados cadastrados.
+    """
+
+    df_awards = carregar_awards()
+
+    awards = dataframe_para_json(df_awards)
+
+    return awards
+
+
+@app.get("/awards/winners")
+def listar_awards_vencedores():
+    """
+    Retorna todos os vencedores de Game of the Year.
+
+    Endpoint:
+        GET /awards/winners
+
+    Fluxo:
+        1. Carrega o awards.csv.
+        2. Usa a função listar_vencedores() do módulo awards.py.
+        3. Converte o resultado para JSON.
+        4. Retorna os vencedores.
+
+    Returns:
+        list: lista com todos os vencedores.
+    """
+
+    df_awards = carregar_awards()
+
+    resultado = listar_vencedores(df_awards)
+
+    vencedores = dataframe_para_json(resultado)
+
+    return vencedores
+
+
+@app.get("/awards/foundation/winners")
+def listar_awards_vencedores_na_foundation():
+    """
+    Retorna vencedores de Game of the Year que também estão
+    presentes na Foundation Collection.
+
+    Endpoint:
+        GET /awards/foundation/winners
+
+    Fluxo:
+        1. Carrega o awards.csv.
+        2. Carrega o games.csv.
+        3. Usa a função listar_vencedores_na_foundation().
+        4. Converte o resultado para JSON.
+        5. Retorna os vencedores encontrados nas duas bases.
+
+    Returns:
+        list: lista com vencedores presentes na Foundation Collection.
+    """
+
+    df_awards = carregar_awards()
+    df_games = carregar_dataset()
+
+    resultado = listar_vencedores_na_foundation(df_awards, df_games)
+
+    vencedores = dataframe_para_json(resultado)
+
+    return vencedores
+
+
+@app.get("/awards/foundation/nominees")
+def listar_awards_indicados_na_foundation():
+    """
+    Retorna indicados a Game of the Year que também estão
+    presentes na Foundation Collection.
+
+    Endpoint:
+        GET /awards/foundation/nominees
+
+    Fluxo:
+        1. Carrega o awards.csv.
+        2. Carrega o games.csv.
+        3. Usa a função listar_indicados_na_foundation().
+        4. Converte o resultado para JSON.
+        5. Retorna os indicados encontrados nas duas bases.
+
+    Returns:
+        list: lista com indicados presentes na Foundation Collection.
+    """
+
+    df_awards = carregar_awards()
+    df_games = carregar_dataset()
+
+    resultado = listar_indicados_na_foundation(df_awards, df_games)
+
+    indicados = dataframe_para_json(resultado)
+
+    return indicados
+
+
+@app.get("/awards/foundation/outside")
+def listar_awards_fora_da_foundation():
+    """
+    Retorna jogos presentes na Awards History, mas que ainda
+    não estão na Foundation Collection.
+
+    Endpoint:
+        GET /awards/foundation/outside
+
+    Fluxo:
+        1. Carrega o awards.csv.
+        2. Carrega o games.csv.
+        3. Usa a função listar_jogos_awards_fora_da_foundation().
+        4. Converte o resultado para JSON.
+        5. Retorna os jogos fora da Foundation Collection.
+
+    Returns:
+        list: lista com jogos do Awards que não estão na Foundation Collection.
+    """
+
+    df_awards = carregar_awards()
+    df_games = carregar_dataset()
+
+    resultado = listar_jogos_awards_fora_da_foundation(df_awards, df_games)
+
+    jogos = dataframe_para_json(resultado)
+
+    return jogos
+
+
+@app.get("/awards/{year}")
+def obter_awards_por_ano(year: int):
+    """
+    Retorna vencedor e indicados de uma edição específica.
+
+    Endpoint:
+        GET /awards/{year}
+
+    Exemplo:
+        /awards/2018
+
+    Fluxo:
+        1. Recebe o ano pela URL.
+        2. Carrega o awards.csv.
+        3. Usa a função listar_jogos_por_ano() do módulo awards.py.
+        4. Converte o resultado para JSON.
+        5. Retorna vencedor e indicados daquele ano.
+
+    Args:
+        year: ano da premiação.
+
+    Returns:
+        list: lista com vencedor e indicados do ano informado.
+    """
+
+    df_awards = carregar_awards()
+
+    resultado = consultar_awards_por_ano(df_awards, year)
+
+    awards = dataframe_para_json(resultado)
+
+    return awards
