@@ -9,7 +9,8 @@ Criar a primeira versão da API do The AAA Archive.
 Nesta fase, a API já possui:
 - endpoint inicial de teste;
 - endpoint para listar os jogos da Foundation Collection;
-- endpoint para pesquisar jogos da Foundation Collection.
+- endpoint para pesquisar jogos da Foundation Collection;
+- endpoints para filtrar jogos por desenvolvedora, gênero e ano.
 
 Autor: Kadu Almeida
 ===========================================================
@@ -46,7 +47,8 @@ The-AAA-Archive/
 │
 └── scripts/
     ├── load_data.py
-    └── search.py
+    ├── search.py
+    └── filters.py
 
 A variável PROJECT_ROOT representa a raiz do projeto.
 A variável SCRIPTS_PATH representa a pasta scripts/.
@@ -61,6 +63,11 @@ sys.path.append(str(SCRIPTS_PATH))
 # Agora o Python consegue importar os módulos da pasta scripts.
 from load_data import carregar_dataset
 from search import pesquisar_jogos
+from filters import (
+    listar_jogos_por_developer,
+    listar_jogos_por_genero,
+    listar_jogos_por_ano,
+)
 
 
 # ==========================================================
@@ -207,6 +214,108 @@ def pesquisar_games(
     df_games = carregar_dataset()
 
     resultado = pesquisar_jogos(df_games, term)
+
+    games = dataframe_para_json(resultado)
+
+    return games
+
+
+@app.get("/games/developer/{developer}")
+def listar_games_por_developer(developer: str):
+    """
+    Retorna jogos de uma desenvolvedora específica.
+
+    Endpoint:
+        GET /games/developer/{developer}
+
+    Exemplo:
+        /games/developer/Capcom
+
+    Fluxo:
+        1. Recebe o nome da desenvolvedora pela URL.
+        2. Carrega o games.csv usando carregar_dataset().
+        3. Usa a função listar_jogos_por_developer() do módulo filters.py.
+        4. Converte o resultado para JSON.
+        5. Retorna os jogos encontrados.
+
+    Args:
+        developer: nome da desenvolvedora.
+
+    Returns:
+        list: lista de jogos da desenvolvedora informada.
+    """
+
+    df_games = carregar_dataset()
+
+    resultado = listar_jogos_por_developer(df_games, developer)
+
+    games = dataframe_para_json(resultado)
+
+    return games
+
+
+@app.get("/games/genre/{genre}")
+def listar_games_por_genero(genre: str):
+    """
+    Retorna jogos de um gênero específico.
+
+    Endpoint:
+        GET /games/genre/{genre}
+
+    Exemplo:
+        /games/genre/Survival Horror
+
+    Fluxo:
+        1. Recebe o gênero pela URL.
+        2. Carrega o games.csv usando carregar_dataset().
+        3. Usa a função listar_jogos_por_genero() do módulo filters.py.
+        4. Converte o resultado para JSON.
+        5. Retorna os jogos encontrados.
+
+    Args:
+        genre: gênero pesquisado.
+
+    Returns:
+        list: lista de jogos do gênero informado.
+    """
+
+    df_games = carregar_dataset()
+
+    resultado = listar_jogos_por_genero(df_games, genre)
+
+    games = dataframe_para_json(resultado)
+
+    return games
+
+
+@app.get("/games/year/{year}")
+def listar_games_por_ano(year: int):
+    """
+    Retorna jogos lançados em um ano específico.
+
+    Endpoint:
+        GET /games/year/{year}
+
+    Exemplo:
+        /games/year/2018
+
+    Fluxo:
+        1. Recebe o ano pela URL.
+        2. Carrega o games.csv usando carregar_dataset().
+        3. Usa a função listar_jogos_por_ano() do módulo filters.py.
+        4. Converte o resultado para JSON.
+        5. Retorna os jogos encontrados.
+
+    Args:
+        year: ano de lançamento.
+
+    Returns:
+        list: lista de jogos lançados no ano informado.
+    """
+
+    df_games = carregar_dataset()
+
+    resultado = listar_jogos_por_ano(df_games, year)
 
     games = dataframe_para_json(resultado)
 
