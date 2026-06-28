@@ -10,7 +10,8 @@ Nesta fase, a API já possui:
 - endpoint inicial de teste;
 - endpoint para listar os jogos da Foundation Collection;
 - endpoint para pesquisar jogos da Foundation Collection;
-- endpoints para filtrar jogos por desenvolvedora, gênero e ano.
+- endpoints para filtrar jogos por desenvolvedora, gênero e ano;
+- endpoint para retornar estatísticas da Home.
 
 Autor: Kadu Almeida
 ===========================================================
@@ -48,7 +49,8 @@ The-AAA-Archive/
 └── scripts/
     ├── load_data.py
     ├── search.py
-    └── filters.py
+    ├── filters.py
+    └── site_statistics.py
 
 A variável PROJECT_ROOT representa a raiz do projeto.
 A variável SCRIPTS_PATH representa a pasta scripts/.
@@ -68,6 +70,7 @@ from filters import (
     listar_jogos_por_genero,
     listar_jogos_por_ano,
 )
+from site_statistics import gerar_estatisticas_home
 
 
 # ==========================================================
@@ -82,7 +85,7 @@ app = FastAPI(
 
 
 # ==========================================================
-# FUNÇÃO AUXILIAR
+# FUNÇÕES AUXILIARES
 # ==========================================================
 
 def dataframe_para_json(df):
@@ -125,6 +128,57 @@ def dataframe_para_json(df):
     df = df.astype(object).where(pd.notnull(df), None)
 
     return df.to_dict(orient="records")
+
+
+def dados_para_json(dados):
+    """
+    Converte diferentes tipos de dados para formatos compatíveis com JSON.
+
+    Por que essa função existe?
+
+    Algumas funções do backend retornam apenas um DataFrame.
+    Outras retornam um dicionário que contém vários DataFrames dentro.
+
+    Exemplo:
+
+        {
+            "total_jogos": 66,
+            "jogos_por_genero": DataFrame,
+            "jogos_por_decada": DataFrame
+        }
+
+    A API não consegue devolver um DataFrame diretamente.
+
+    Então essa função verifica o tipo do dado:
+
+    - se for DataFrame, converte para lista de dicionários;
+    - se for dicionário, analisa cada item dentro dele;
+    - se for lista, analisa cada item da lista;
+    - se for um valor simples, retorna normalmente.
+
+    Args:
+        dados: qualquer dado retornado pelos módulos do backend.
+
+    Returns:
+        dados em formato compatível com JSON.
+    """
+
+    if isinstance(dados, pd.DataFrame):
+        return dataframe_para_json(dados)
+
+    if isinstance(dados, dict):
+        return {
+            chave: dados_para_json(valor)
+            for chave, valor in dados.items()
+        }
+
+    if isinstance(dados, list):
+        return [
+            dados_para_json(item)
+            for item in dados
+        ]
+
+    return dados
 
 
 # ==========================================================
@@ -320,3 +374,34 @@ def listar_games_por_ano(year: int):
     games = dataframe_para_json(resultado)
 
     return games
+
+
+# ==========================================================
+# ENDPOINTS DE ESTATÍSTICAS
+# ==========================================================
+
+@app.get("/stats/home")
+def obter_estatisticas_home():
+    """
+    Retorna estatísticas gerais para a futura Home do site.
+
+    Endpoint:
+        GET /stats/home
+
+    Fluxo:
+        1. Carrega o games.csv usando carregar_dataset().
+        2. Usa a função gerar_estatisticas_home() do módulo site_statistics.py.
+        3. Converte os dados para um formato compatível com JSON.
+        4. Retorna as estatísticas da Home.
+
+    Returns:
+        dict: estatísticas gerais da Foundation Collection.
+    """
+
+    df_games = carregar_dataset()
+
+    estatisticas = gerar_estatisticas_home(df_games)
+
+    estatisticas_json = dados_para_json(estatisticas)
+
+    return estatisticas_json
