@@ -1,22 +1,22 @@
-"""
-===========================================================
-The AAA Archive
-Arquivo: app.py
+# ==========================================================
+# The AAA Archive
+# Arquivo: app.py
+#
+# Objetivo:
+# Criar o Dashboard do The AAA Archive utilizando Streamlit.
+#
+# Nesta fase, o dashboard possui:
+# - título inicial;
+# - descrição do projeto;
+# - carregamento do dataset games.csv;
+# - filtros interativos na sidebar;
+# - métricas principais da Foundation Collection;
+# - gráficos simples de estatísticas;
+# - tabela com os jogos cadastrados.
+#
+# Autor: Kadu Almeida
+# ==========================================================
 
-Objetivo:
-Criar a primeira versão do Dashboard do The AAA Archive
-utilizando Streamlit.
-
-Nesta fase, o dashboard já possui:
-- título inicial;
-- descrição do projeto;
-- carregamento do dataset games.csv;
-- métricas principais da Foundation Collection;
-- tabela inicial com os jogos cadastrados.
-
-Autor: Kadu Almeida
-===========================================================
-"""
 
 # ==========================================================
 # IMPORTAÇÃO DOS MÓDULOS
@@ -45,7 +45,8 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS_PATH = PROJECT_ROOT / "scripts"
 
 # Adiciona a pasta scripts/ ao caminho de importação do Python.
-sys.path.append(str(SCRIPTS_PATH))
+if str(SCRIPTS_PATH) not in sys.path:
+    sys.path.append(str(SCRIPTS_PATH))
 
 
 # Agora conseguimos importar os módulos do backend.
@@ -74,7 +75,91 @@ st.set_page_config(
 
 df_games = carregar_dataset()
 
-estatisticas = gerar_estatisticas_home(df_games)
+
+# ==========================================================
+# FILTROS INTERATIVOS
+# ==========================================================
+
+# A sidebar é uma barra lateral do Streamlit.
+# Ela é muito usada em dashboards para colocar filtros,
+# menus e controles sem poluir a tela principal.
+
+st.sidebar.title("Filtros")
+
+st.sidebar.write(
+    """
+    Use os filtros abaixo para explorar a Foundation Collection.
+    """
+)
+
+
+# ----------------------------------------------------------
+# OPÇÕES DOS FILTROS
+# ----------------------------------------------------------
+
+# Criamos listas com as opções disponíveis no dataset.
+# O valor "Todos" permite visualizar a coleção inteira.
+
+opcoes_genero = ["Todos"] + sorted(df_games["genero"].dropna().unique().tolist())
+
+opcoes_developer = ["Todos"] + sorted(df_games["developer"].dropna().unique().tolist())
+
+opcoes_ano = ["Todos"] + sorted(df_games["ano_lancamento"].dropna().unique().tolist())
+
+opcoes_franquia = ["Todos"] + sorted(df_games["franchise"].dropna().unique().tolist())
+
+
+# ----------------------------------------------------------
+# CAMPOS VISUAIS DA SIDEBAR
+# ----------------------------------------------------------
+
+genero_selecionado = st.sidebar.selectbox(
+    "Gênero",
+    opcoes_genero
+)
+
+developer_selecionada = st.sidebar.selectbox(
+    "Desenvolvedora",
+    opcoes_developer
+)
+
+ano_selecionado = st.sidebar.selectbox(
+    "Ano de lançamento",
+    opcoes_ano
+)
+
+franquia_selecionada = st.sidebar.selectbox(
+    "Franquia",
+    opcoes_franquia
+)
+
+
+# ----------------------------------------------------------
+# APLICAÇÃO DOS FILTROS
+# ----------------------------------------------------------
+
+# Começamos com uma cópia do dataset completo.
+# Depois, vamos reduzindo esse DataFrame conforme os filtros escolhidos.
+
+df_filtrado = df_games.copy()
+
+if genero_selecionado != "Todos":
+    df_filtrado = df_filtrado[df_filtrado["genero"] == genero_selecionado]
+
+if developer_selecionada != "Todos":
+    df_filtrado = df_filtrado[df_filtrado["developer"] == developer_selecionada]
+
+if ano_selecionado != "Todos":
+    df_filtrado = df_filtrado[df_filtrado["ano_lancamento"] == ano_selecionado]
+
+if franquia_selecionada != "Todos":
+    df_filtrado = df_filtrado[df_filtrado["franchise"] == franquia_selecionada]
+
+
+# As estatísticas agora são geradas com base no DataFrame filtrado.
+# Isso significa que métricas, gráficos e tabela reagem aos filtros.
+
+estatisticas = gerar_estatisticas_home(df_filtrado)
 
 
 # ==========================================================
@@ -87,7 +172,7 @@ st.write(
     """
     Um arquivo digital sobre jogos AAA single-player historicamente relevantes.
 
-    Este dashboard apresenta uma primeira visualização da Foundation Collection,
+    Este dashboard apresenta uma visualização inicial da Foundation Collection,
     utilizando os dados já organizados no projeto.
     """
 )
@@ -100,6 +185,12 @@ st.divider()
 # ==========================================================
 
 st.header("Visão Geral da Foundation Collection")
+
+st.write(
+    """
+    As métricas abaixo mudam de acordo com os filtros selecionados.
+    """
+)
 
 coluna_1, coluna_2, coluna_3, coluna_4 = st.columns(4)
 
@@ -131,37 +222,107 @@ st.divider()
 
 
 # ==========================================================
-# TABELA PRINCIPAL DE JOGOS
+# VERIFICAÇÃO DE RESULTADOS
 # ==========================================================
 
-st.header("Jogos Cadastrados")
+# Caso o usuário selecione uma combinação de filtros que não tenha jogos,
+# o dashboard mostra um aviso em vez de tentar gerar gráficos vazios.
 
-st.write(
-    """
-    A tabela abaixo mostra os jogos presentes no dataset principal
-    da Foundation Collection.
-    """
-)
+if df_filtrado.empty:
+    st.warning("Nenhum jogo encontrado com os filtros selecionados.")
 
-# Para a primeira versão, vamos mostrar apenas algumas colunas principais.
-# A coluna descricao existe no dataset, mas pode deixar a tabela muito larga.
+else:
 
-colunas_tabela = [
-    "id",
-    "nome",
-    "ano_lancamento",
-    "genero",
-    "developer",
-    "franchise",
-    "metacritic",
-    "nota_kadu",
-    "nota_pavam"
-]
+    # ======================================================
+    # GRÁFICOS DE ESTATÍSTICAS
+    # ======================================================
 
-st.dataframe(
-    df_games[colunas_tabela],
-    use_container_width=True
-)
+    st.header("Estatísticas da Foundation Collection")
+
+    st.write(
+        """
+        Os gráficos abaixo mostram a distribuição dos jogos cadastrados
+        de acordo com os filtros selecionados.
+        """
+    )
+
+
+    # ------------------------------------------------------
+    # GRÁFICO: JOGOS POR DÉCADA
+    # ------------------------------------------------------
+
+    st.subheader("Jogos por Década")
+
+    df_decadas = estatisticas["quantidade_por_decada"]
+
+    st.bar_chart(
+        data=df_decadas,
+        x="decada",
+        y="total"
+    )
+
+
+    # ------------------------------------------------------
+    # GRÁFICO: JOGOS POR GÊNERO
+    # ------------------------------------------------------
+
+    st.subheader("Jogos por Gênero")
+
+    df_generos = estatisticas["quantidade_por_genero"]
+
+    st.bar_chart(
+        data=df_generos,
+        x="genero",
+        y="total"
+    )
+
+
+    # ------------------------------------------------------
+    # GRÁFICO: JOGOS POR DESENVOLVEDORA
+    # ------------------------------------------------------
+
+    st.subheader("Desenvolvedoras com Mais Jogos")
+
+    df_developers = estatisticas["quantidade_por_developer"].head(10)
+
+    st.bar_chart(
+        data=df_developers,
+        x="developer",
+        y="total"
+    )
+
+    st.divider()
+
+
+    # ======================================================
+    # TABELA PRINCIPAL DE JOGOS
+    # ======================================================
+
+    st.header("Jogos Cadastrados")
+
+    st.write(
+        """
+        A tabela abaixo mostra os jogos encontrados de acordo com
+        os filtros selecionados.
+        """
+    )
+
+    colunas_tabela = [
+        "id",
+        "nome",
+        "ano_lancamento",
+        "genero",
+        "developer",
+        "franchise",
+        "metacritic",
+        "nota_kadu",
+        "nota_pavam"
+    ]
+
+    st.dataframe(
+        df_filtrado[colunas_tabela],
+        use_container_width=True
+    )
 
 
 # ==========================================================
@@ -171,5 +332,5 @@ st.dataframe(
 st.divider()
 
 st.caption(
-    "Primeira versão do dashboard — CSV + Pandas + Streamlit"
+    "Dashboard inicial — CSV + Pandas + Streamlit"
 )
