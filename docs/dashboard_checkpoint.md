@@ -4,7 +4,7 @@
 
 Este documento registra o estado atual do dashboard do projeto **The AAA Archive**.
 
-O objetivo é criar um checkpoint da fase de visualização de dados com **Streamlit**, documentando o que já foi implementado, como o dashboard funciona, quais módulos ele utiliza e quais próximos passos podem ser feitos futuramente.
+O objetivo é criar um checkpoint da fase de visualização de dados com **Streamlit**, documentando o que já foi implementado, como o dashboard funciona, quais módulos ele utiliza, quais conceitos foram aprendidos e quais próximos passos podem ser feitos futuramente.
 
 Este checkpoint segue a mesma lógica usada na API:
 
@@ -25,7 +25,7 @@ só depois evoluir
 Status atual:
 
 ```text
-Dashboard Streamlit funcional
+Dashboard Streamlit inicial concluído
 ```
 
 O dashboard já está rodando corretamente no navegador e consegue exibir dados da:
@@ -81,12 +81,15 @@ Esse arquivo é responsável por:
 
 * configurar a página Streamlit;
 * carregar os dados;
+* usar cache no carregamento dos CSVs;
 * aplicar filtros;
 * aplicar busca textual;
 * gerar estatísticas;
+* organizar o conteúdo em abas;
 * exibir métricas;
 * exibir gráficos;
 * exibir tabelas;
+* mostrar a seção editorial da Foundation Collection;
 * mostrar a seção de Awards History.
 
 ---
@@ -141,7 +144,9 @@ pip install streamlit
 
 O dashboard utiliza dois datasets principais.
 
-### Foundation Collection
+---
+
+## Foundation Collection
 
 Arquivo:
 
@@ -170,7 +175,7 @@ historico_influente
 
 ---
 
-### Awards History
+## Awards History
 
 Arquivo:
 
@@ -218,6 +223,8 @@ carregar_awards()
 
 Essas funções carregam os datasets principais do projeto.
 
+No dashboard, essas funções são chamadas dentro de funções auxiliares com cache.
+
 ---
 
 ### `scripts/site_statistics.py`
@@ -236,7 +243,9 @@ Essa função gera estatísticas da Foundation Collection, como:
 * total de gêneros;
 * quantidade por década;
 * quantidade por gênero;
-* quantidade por desenvolvedora.
+* quantidade por desenvolvedora;
+* jogos historicamente importantes;
+* jogos historicamente influentes.
 
 ---
 
@@ -274,24 +283,52 @@ O dashboard exibe:
 
 ---
 
-## 2. Métricas da Foundation Collection
+## 2. Organização por Abas
 
-O dashboard mostra métricas principais da coleção de jogos.
+O dashboard usa abas com:
 
-Métricas exibidas:
-
-```text
-Jogos
-Desenvolvedoras
-Franquias
-Gêneros
+```python
+st.tabs()
 ```
 
-Essas métricas mudam dinamicamente de acordo com a busca textual e os filtros selecionados.
+As abas atuais são:
+
+```text
+Foundation Collection
+Awards History
+```
+
+Essa organização deixa o dashboard mais limpo, separando a coleção principal da base de premiações.
 
 ---
 
-## 3. Filtros Interativos
+## 3. Cache no Carregamento dos Dados
+
+O dashboard utiliza:
+
+```python
+@st.cache_data
+```
+
+Esse recurso foi aplicado ao carregamento dos datasets:
+
+* `games.csv`;
+* `awards.csv`.
+
+O objetivo é evitar que os CSVs sejam recarregados do zero toda vez que o usuário interage com filtros, abas ou campos de busca.
+
+Funções criadas no dashboard:
+
+```python
+carregar_games_com_cache()
+carregar_awards_com_cache()
+```
+
+Isso deixa o dashboard mais eficiente e introduz um conceito importante do Streamlit.
+
+---
+
+## 4. Filtros Interativos
 
 O dashboard possui filtros na sidebar.
 
@@ -304,11 +341,13 @@ Ano de lançamento
 Franquia
 ```
 
-Esses filtros permitem explorar a Foundation Collection de forma mais prática.
+Esses filtros afetam a aba **Foundation Collection**.
+
+Eles permitem explorar a Foundation Collection de forma prática.
 
 ---
 
-## 4. Busca Textual
+## 5. Busca Textual
 
 O dashboard possui um campo de busca textual.
 
@@ -336,7 +375,24 @@ Isso permite procurar jogos, gêneros, desenvolvedoras, franquias ou termos pres
 
 ---
 
-## 5. Resultado da Exploração
+## 6. Métricas da Foundation Collection
+
+O dashboard mostra métricas principais da coleção de jogos.
+
+Métricas exibidas:
+
+```text
+Jogos
+Desenvolvedoras
+Franquias
+Gêneros
+```
+
+Essas métricas mudam dinamicamente de acordo com a busca textual e os filtros selecionados.
+
+---
+
+## 7. Resultado da Exploração
 
 Após aplicar busca ou filtros, o dashboard mostra a quantidade de jogos encontrados.
 
@@ -350,7 +406,7 @@ Quando uma busca textual está ativa, o dashboard também mostra o termo pesquis
 
 ---
 
-## 6. Gráficos da Foundation Collection
+## 8. Gráficos da Foundation Collection
 
 O dashboard exibe gráficos simples para análise da coleção.
 
@@ -366,7 +422,47 @@ Esses gráficos mudam de acordo com os filtros e a busca textual.
 
 ---
 
-## 7. Tabela de Jogos
+## 9. Recorte Editorial
+
+O dashboard possui uma seção chamada:
+
+```text
+Recorte Editorial
+```
+
+Essa seção destaca jogos marcados no dataset como:
+
+```text
+historicamente importantes
+historicamente influentes
+```
+
+Ela usa as colunas:
+
+```text
+historico_importante
+historico_influente
+```
+
+A seção possui duas métricas:
+
+```text
+Historicamente Importantes
+Historicamente Influentes
+```
+
+E duas tabelas expansíveis:
+
+```text
+Jogos Historicamente Importantes
+Jogos Historicamente Influentes
+```
+
+Esses resultados também mudam de acordo com a busca textual e os filtros selecionados.
+
+---
+
+## 10. Tabela de Jogos
 
 O dashboard exibe uma tabela com os jogos cadastrados.
 
@@ -388,9 +484,9 @@ A tabela também reage aos filtros e à busca textual.
 
 ---
 
-## 8. Seção Awards History
+## 11. Seção Awards History
 
-O dashboard possui uma seção dedicada ao histórico de premiações.
+O dashboard possui uma aba dedicada ao histórico de premiações.
 
 Essa seção utiliza o dataset:
 
@@ -402,7 +498,7 @@ Ela permite visualizar dados relacionados aos vencedores e indicados de Game of 
 
 ---
 
-## 9. Métricas da Awards History
+## 12. Métricas da Awards History
 
 A seção de Awards exibe métricas próprias.
 
@@ -419,7 +515,7 @@ Essas métricas ajudam a entender a dimensão da base de premiações.
 
 ---
 
-## 10. Consulta de Awards por Ano
+## 13. Consulta de Awards por Ano
 
 O dashboard permite selecionar um ano específico da premiação.
 
@@ -434,7 +530,7 @@ Essa funcionalidade ajuda a consultar rapidamente uma edição específica da pr
 
 ---
 
-## 11. Histórico de Vencedores
+## 14. Histórico de Vencedores
 
 O dashboard exibe uma tabela com todos os vencedores cadastrados na Awards History.
 
@@ -442,9 +538,9 @@ Essa tabela permite visualizar a linha histórica dos vencedores de Game of the 
 
 ---
 
-## 12. Comparação Awards x Foundation Collection
+## 15. Comparação Awards x Foundation Collection
 
-O dashboard compara a base de Awards com a Foundation Collection.
+O dashboard compara a base Awards History com a Foundation Collection.
 
 Foram criadas três tabelas expansíveis:
 
@@ -469,6 +565,7 @@ Durante esta fase, foram introduzidos conceitos importantes de Streamlit e dashb
 Principais conceitos:
 
 * criação de aplicação visual com Python;
+* uso de `st.set_page_config`;
 * uso de `st.title`;
 * uso de `st.write`;
 * uso de `st.metric`;
@@ -479,6 +576,8 @@ Principais conceitos:
 * uso de `st.bar_chart`;
 * uso de `st.dataframe`;
 * uso de `st.expander`;
+* uso de `st.tabs`;
+* uso de `@st.cache_data`;
 * atualização automática da página ao interagir com filtros;
 * reaproveitamento de módulos Python existentes;
 * separação entre lógica de dados e visualização.
@@ -488,6 +587,8 @@ Principais conceitos:
 ## Decisões Técnicas
 
 Algumas decisões foram tomadas para manter o projeto simples e didático.
+
+---
 
 ### 1. Não consumir a API diretamente ainda
 
@@ -552,6 +653,34 @@ não há necessidade de mexer na API agora
 
 ---
 
+### 5. Usar abas antes de múltiplas páginas
+
+O dashboard utiliza `st.tabs()` para separar visualmente Foundation Collection e Awards History.
+
+Motivo:
+
+```text
+melhorar organização visual
+sem aumentar a complexidade da estrutura
+sem criar múltiplos arquivos agora
+```
+
+---
+
+### 6. Usar cache no carregamento dos CSVs
+
+O dashboard utiliza `@st.cache_data` no carregamento dos datasets.
+
+Motivo:
+
+```text
+evitar recarregamento desnecessário dos CSVs
+melhorar eficiência
+ensinar um conceito importante do Streamlit
+```
+
+---
+
 ## Estado Atual da Arquitetura
 
 A arquitetura atual do projeto está assim:
@@ -578,8 +707,16 @@ dashboard/
   app.py
 
 docs/
-  dashboard_plan.md
+  api_checkpoint.md
+  api_plan.md
+  awards_dictionary.md
   dashboard_checkpoint.md
+  dashboard_plan.md
+  data_dictionary.md
+  foundation_collection.md
+  project_blueprint.md
+  project_context.md
+  project_conventions.md
 ```
 
 ---
@@ -595,14 +732,42 @@ streamlit run dashboard/app.py
 E verificar se:
 
 * o navegador abre corretamente;
+* as abas aparecem;
+* a aba Foundation Collection funciona;
+* a aba Awards History funciona;
 * as métricas aparecem;
 * os gráficos aparecem;
 * os filtros funcionam;
 * a busca textual funciona;
 * a tabela de jogos aparece;
-* a seção Awards History aparece;
-* a consulta por ano funciona;
+* a seção Recorte Editorial aparece;
+* os expansores de jogos históricos e influentes funcionam;
+* a consulta por ano em Awards funciona;
 * as tabelas comparativas aparecem.
+
+---
+
+## Observação Sobre Cache
+
+Como o dashboard agora usa `@st.cache_data`, pode acontecer de alterações feitas manualmente nos CSVs não aparecerem imediatamente se o Streamlit já estiver aberto.
+
+Se isso acontecer, é possível:
+
+```text
+limpar o cache pelo menu do Streamlit
+```
+
+Ou parar o servidor com:
+
+```bash
+CTRL + C
+```
+
+E rodar novamente:
+
+```bash
+streamlit run dashboard/app.py
+```
 
 ---
 
@@ -613,11 +778,15 @@ A fase inicial do dashboard pode ser considerada concluída porque:
 * o Streamlit abre corretamente;
 * o dataset `games.csv` é carregado;
 * o dataset `awards.csv` é carregado;
+* o carregamento dos dados usa cache;
+* as abas organizam o dashboard;
 * as métricas principais são exibidas;
 * os filtros interativos funcionam;
 * a busca textual funciona;
 * os gráficos são exibidos;
 * a tabela da Foundation Collection é exibida;
+* a seção Recorte Editorial foi adicionada;
+* os jogos históricos e influentes são exibidos;
 * a seção Awards History foi adicionada;
 * a comparação entre Awards e Foundation Collection funciona.
 
@@ -628,14 +797,15 @@ A fase inicial do dashboard pode ser considerada concluída porque:
 Os próximos passos possíveis são:
 
 ```text
-melhorar a organização visual do dashboard
-adicionar abas ou seções mais separadas
+explicar o código do dashboard em detalhes
+melhorar a organização interna do app.py
+criar funções auxiliares para reduzir repetição
 adicionar gráficos mais bem formatados
-criar testes simples para funções auxiliares do dashboard
-atualizar o README com instruções do Streamlit
-criar uma seção visual para jogos históricos e influentes
 melhorar a apresentação da Awards History
+criar seção visual para notas pessoais
 pensar em múltiplas páginas no Streamlit
+criar testes simples para funções auxiliares do dashboard
+planejar migração para PostgreSQL
 ```
 
 ---
@@ -663,11 +833,11 @@ Essas etapas podem ser feitas futuramente, mas ainda não são prioridade.
 Status final:
 
 ```text
-Dashboard Streamlit inicial concluído e documentado
+Dashboard Streamlit inicial concluído, testado manualmente e documentado
 ```
 
 Próxima etapa recomendada:
 
 ```text
-Atualizar README.md com a nova fase do dashboard
+Entender o código do dashboard/app.py em detalhes
 ```
