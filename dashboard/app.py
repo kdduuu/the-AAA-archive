@@ -9,11 +9,13 @@
 # - título inicial;
 # - descrição do projeto;
 # - carregamento do dataset games.csv;
+# - carregamento do dataset awards.csv;
 # - filtros interativos na sidebar;
 # - busca textual;
 # - métricas principais da Foundation Collection;
 # - gráficos simples de estatísticas;
-# - tabela com os jogos cadastrados.
+# - tabela com os jogos cadastrados;
+# - seção inicial de Awards History.
 #
 # Autor: Kadu Almeida
 # ==========================================================
@@ -51,8 +53,17 @@ if str(SCRIPTS_PATH) not in sys.path:
 
 
 # Agora conseguimos importar os módulos do backend.
-from load_data import carregar_dataset
+from load_data import carregar_dataset, carregar_awards
 from site_statistics import gerar_estatisticas_home
+from awards import (
+    listar_anos_disponiveis,
+    listar_jogos_por_ano as listar_awards_por_ano,
+    buscar_vencedor_por_ano,
+    listar_vencedores,
+    listar_vencedores_na_foundation,
+    listar_indicados_na_foundation,
+    listar_jogos_awards_fora_da_foundation,
+)
 
 
 # ==========================================================
@@ -129,11 +140,16 @@ def aplicar_busca_textual(df, termo_busca):
 # CARREGAMENTO DOS DADOS
 # ==========================================================
 
-# Aqui carregamos o dataset principal do projeto.
-# A função carregar_dataset() já existe no backend.
-# Isso evita repetir lógica dentro do dashboard.
+# Aqui carregamos os dois datasets principais do projeto.
+#
+# games.csv:
+#     base da Foundation Collection.
+#
+# awards.csv:
+#     base independente do histórico de premiações.
 
 df_games = carregar_dataset()
+df_awards = carregar_awards()
 
 
 # ==========================================================
@@ -249,8 +265,8 @@ st.write(
     """
     Um arquivo digital sobre jogos AAA single-player historicamente relevantes.
 
-    Este dashboard apresenta uma visualização inicial da Foundation Collection,
-    utilizando os dados já organizados no projeto.
+    Este dashboard apresenta uma visualização inicial da Foundation Collection
+    e da Awards History, utilizando os dados já organizados no projeto.
     """
 )
 
@@ -414,6 +430,163 @@ else:
 
     st.dataframe(
         df_filtrado[colunas_tabela],
+        use_container_width=True
+    )
+
+
+# ==========================================================
+# SEÇÃO AWARDS HISTORY
+# ==========================================================
+
+st.divider()
+
+st.header("Awards History")
+
+st.write(
+    """
+    Esta seção apresenta o histórico de premiações de Game of the Year
+    cadastrado no projeto.
+
+    A base de Awards é independente da Foundation Collection, mas também
+    pode ser comparada com ela.
+    """
+)
+
+
+# ==========================================================
+# MÉTRICAS DE AWARDS
+# ==========================================================
+
+df_vencedores = listar_vencedores(df_awards)
+df_vencedores_foundation = listar_vencedores_na_foundation(df_awards, df_games)
+df_indicados_foundation = listar_indicados_na_foundation(df_awards, df_games)
+df_fora_foundation = listar_jogos_awards_fora_da_foundation(df_awards, df_games)
+
+coluna_awards_1, coluna_awards_2, coluna_awards_3, coluna_awards_4 = st.columns(4)
+
+with coluna_awards_1:
+    st.metric(
+        label="Registros no Awards",
+        value=len(df_awards)
+    )
+
+with coluna_awards_2:
+    st.metric(
+        label="Anos catalogados",
+        value=df_awards["ano"].nunique()
+    )
+
+with coluna_awards_3:
+    st.metric(
+        label="Vencedores",
+        value=len(df_vencedores)
+    )
+
+with coluna_awards_4:
+    st.metric(
+        label="Fora da Foundation",
+        value=len(df_fora_foundation)
+    )
+
+st.divider()
+
+
+# ==========================================================
+# CONSULTA POR ANO
+# ==========================================================
+
+st.subheader("Consultar edição por ano")
+
+anos_awards = listar_anos_disponiveis(df_awards)
+
+ano_awards_selecionado = st.selectbox(
+    "Selecione o ano da premiação",
+    anos_awards,
+    index=len(anos_awards) - 1
+)
+
+df_awards_ano = listar_awards_por_ano(
+    df_awards,
+    ano_awards_selecionado
+)
+
+df_vencedor_ano = buscar_vencedor_por_ano(
+    df_awards,
+    ano_awards_selecionado
+)
+
+if df_awards_ano.empty:
+    st.warning("Nenhum registro encontrado para o ano selecionado.")
+
+else:
+    if not df_vencedor_ano.empty:
+        vencedor = df_vencedor_ano.iloc[0]
+
+        st.success(
+            f"Vencedor de {ano_awards_selecionado}: {vencedor['jogo']}"
+        )
+
+    st.write(
+        """
+        A tabela abaixo mostra o vencedor e os indicados da edição selecionada.
+        """
+    )
+
+    st.dataframe(
+        df_awards_ano,
+        use_container_width=True
+    )
+
+
+# ==========================================================
+# HISTÓRICO DE VENCEDORES
+# ==========================================================
+
+st.subheader("Histórico de Vencedores")
+
+st.write(
+    """
+    A tabela abaixo mostra todos os vencedores de Game of the Year
+    cadastrados na base Awards History.
+    """
+)
+
+st.dataframe(
+    df_vencedores,
+    use_container_width=True
+)
+
+
+# ==========================================================
+# RELAÇÃO ENTRE AWARDS E FOUNDATION COLLECTION
+# ==========================================================
+
+st.subheader("Relação com a Foundation Collection")
+
+st.write(
+    """
+    As tabelas abaixo comparam a Awards History com a Foundation Collection.
+
+    Isso ajuda a identificar quais jogos premiados já estão no arquivo principal
+    e quais ainda podem ser analisados futuramente.
+    """
+)
+
+with st.expander("Vencedores presentes na Foundation Collection"):
+    st.dataframe(
+        df_vencedores_foundation,
+        use_container_width=True
+    )
+
+with st.expander("Indicados presentes na Foundation Collection"):
+    st.dataframe(
+        df_indicados_foundation,
+        use_container_width=True
+    )
+
+with st.expander("Jogos do Awards fora da Foundation Collection"):
+    st.dataframe(
+        df_fora_foundation,
         use_container_width=True
     )
 
