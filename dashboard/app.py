@@ -8,8 +8,8 @@
 # Nesta fase, o dashboard possui:
 # - título inicial;
 # - descrição do projeto;
-# - carregamento do dataset games.csv;
-# - carregamento do dataset awards.csv;
+# - carregamento do dataset games.csv com cache;
+# - carregamento do dataset awards.csv com cache;
 # - filtros interativos na sidebar;
 # - busca textual;
 # - métricas principais da Foundation Collection;
@@ -80,8 +80,32 @@ st.set_page_config(
 
 
 # ==========================================================
-# FUNÇÃO AUXILIAR DE BUSCA
+# FUNÇÕES AUXILIARES
 # ==========================================================
+
+@st.cache_data
+def carregar_games_com_cache():
+    """
+    Carrega o dataset games.csv usando cache do Streamlit.
+
+    O cache evita que o CSV seja recarregado do zero toda vez que
+    o usuário interage com filtros, abas ou campos de busca.
+    """
+
+    return carregar_dataset()
+
+
+@st.cache_data
+def carregar_awards_com_cache():
+    """
+    Carrega o dataset awards.csv usando cache do Streamlit.
+
+    Isso deixa o dashboard mais eficiente, principalmente quando
+    a aplicação é reexecutada após interações do usuário.
+    """
+
+    return carregar_awards()
+
 
 def aplicar_busca_textual(df, termo_busca):
     """
@@ -144,14 +168,12 @@ def aplicar_busca_textual(df, termo_busca):
 
 # Aqui carregamos os dois datasets principais do projeto.
 #
-# games.csv:
-#     base da Foundation Collection.
-#
-# awards.csv:
-#     base independente do histórico de premiações.
+# A diferença agora é que usamos funções com @st.cache_data.
+# Isso significa que o Streamlit guarda o resultado do carregamento
+# e evita reler os CSVs desnecessariamente a cada interação.
 
-df_games = carregar_dataset()
-df_awards = carregar_awards()
+df_games = carregar_games_com_cache()
+df_awards = carregar_awards_com_cache()
 
 
 # ==========================================================
