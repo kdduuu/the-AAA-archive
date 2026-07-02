@@ -14,6 +14,7 @@
 # - busca textual;
 # - métricas principais da Foundation Collection;
 # - gráficos simples de estatísticas;
+# - seção editorial de jogos históricos e influentes;
 # - tabela com os jogos cadastrados;
 # - seção de Awards History;
 # - organização visual por abas.
@@ -254,7 +255,8 @@ if franquia_selecionada != "Todos":
 
 
 # As estatísticas agora são geradas com base no DataFrame filtrado.
-# Isso significa que métricas, gráficos e tabela reagem aos filtros.
+# Isso significa que métricas, gráficos, seção editorial e tabela
+# reagem aos filtros.
 
 estatisticas = gerar_estatisticas_home(df_filtrado)
 
@@ -426,6 +428,76 @@ with aba_foundation:
             x="developer",
             y="total"
         )
+
+        st.divider()
+
+
+        # ==================================================
+        # SEÇÃO EDITORIAL
+        # ==================================================
+
+        st.header("Recorte Editorial")
+
+        st.write(
+            """
+            Esta seção destaca jogos marcados no dataset como historicamente
+            importantes ou historicamente influentes.
+
+            Assim como os gráficos e a tabela, estes resultados também mudam
+            de acordo com a busca e os filtros selecionados.
+            """
+        )
+
+        df_jogos_historicos = estatisticas["jogos_historicos"]
+        df_jogos_influentes = estatisticas["jogos_influentes"]
+
+        coluna_editorial_1, coluna_editorial_2 = st.columns(2)
+
+        with coluna_editorial_1:
+            st.metric(
+                label="Historicamente Importantes",
+                value=len(df_jogos_historicos)
+            )
+
+        with coluna_editorial_2:
+            st.metric(
+                label="Historicamente Influentes",
+                value=len(df_jogos_influentes)
+            )
+
+        colunas_editoriais = [
+            "id",
+            "nome",
+            "ano_lancamento",
+            "genero",
+            "developer",
+            "franchise",
+            "metacritic",
+            "historico_importante",
+            "historico_influente"
+        ]
+
+        with st.expander("Jogos Historicamente Importantes"):
+            if df_jogos_historicos.empty:
+                st.info(
+                    "Nenhum jogo historicamente importante encontrado com os filtros atuais."
+                )
+            else:
+                st.dataframe(
+                    df_jogos_historicos[colunas_editoriais],
+                    use_container_width=True
+                )
+
+        with st.expander("Jogos Historicamente Influentes"):
+            if df_jogos_influentes.empty:
+                st.info(
+                    "Nenhum jogo historicamente influente encontrado com os filtros atuais."
+                )
+            else:
+                st.dataframe(
+                    df_jogos_influentes[colunas_editoriais],
+                    use_container_width=True
+                )
 
         st.divider()
 
