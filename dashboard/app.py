@@ -10,6 +10,7 @@
 # - descrição do projeto;
 # - carregamento do dataset games.csv;
 # - filtros interativos na sidebar;
+# - busca textual;
 # - métricas principais da Foundation Collection;
 # - gráficos simples de estatísticas;
 # - tabela com os jogos cadastrados.
@@ -66,6 +67,65 @@ st.set_page_config(
 
 
 # ==========================================================
+# FUNÇÃO AUXILIAR DE BUSCA
+# ==========================================================
+
+def aplicar_busca_textual(df, termo_busca):
+    """
+    Aplica uma busca textual simples no DataFrame de jogos.
+
+    A busca procura o termo nas colunas:
+    - nome;
+    - genero;
+    - developer;
+    - franchise;
+    - descricao.
+
+    Parâmetros:
+        df:
+            DataFrame com os jogos.
+
+        termo_busca:
+            Texto digitado pelo usuário.
+
+    Retorno:
+        DataFrame filtrado com os jogos encontrados.
+    """
+
+    # Se o usuário não digitou nada, retornamos o DataFrame original.
+    if termo_busca == "":
+        return df
+
+    # Padronizamos o termo para minúsculo.
+    # Isso faz a busca não depender de letras maiúsculas ou minúsculas.
+    termo_busca = termo_busca.lower()
+
+    # Colunas onde a busca será aplicada.
+    colunas_busca = [
+        "nome",
+        "genero",
+        "developer",
+        "franchise",
+        "descricao"
+    ]
+
+    # Criamos uma condição inicial vazia.
+    # Depois vamos somando as buscas de cada coluna.
+    condicao_busca = False
+
+    for coluna in colunas_busca:
+        condicao_busca = condicao_busca | (
+            df[coluna]
+            .fillna("")
+            .astype(str)
+            .str.lower()
+            .str.contains(termo_busca)
+        )
+
+    return df[condicao_busca]
+
+
+# ==========================================================
 # CARREGAMENTO DOS DADOS
 # ==========================================================
 
@@ -91,6 +151,19 @@ st.sidebar.write(
     Use os filtros abaixo para explorar a Foundation Collection.
     """
 )
+
+
+# ----------------------------------------------------------
+# CAMPO DE BUSCA TEXTUAL
+# ----------------------------------------------------------
+
+termo_busca = st.sidebar.text_input(
+    "Buscar jogo, gênero, desenvolvedora ou franquia",
+    placeholder="Ex: zelda, rockstar, rpg..."
+)
+
+# Removemos espaços extras antes e depois do texto.
+termo_busca = termo_busca.strip()
 
 
 # ----------------------------------------------------------
@@ -143,6 +216,10 @@ franquia_selecionada = st.sidebar.selectbox(
 
 df_filtrado = df_games.copy()
 
+# Primeiro aplicamos a busca textual.
+df_filtrado = aplicar_busca_textual(df_filtrado, termo_busca)
+
+# Depois aplicamos os filtros específicos.
 if genero_selecionado != "Todos":
     df_filtrado = df_filtrado[df_filtrado["genero"] == genero_selecionado]
 
@@ -188,7 +265,7 @@ st.header("Visão Geral da Foundation Collection")
 
 st.write(
     """
-    As métricas abaixo mudam de acordo com os filtros selecionados.
+    As métricas abaixo mudam de acordo com a busca e os filtros selecionados.
     """
 )
 
@@ -222,6 +299,22 @@ st.divider()
 
 
 # ==========================================================
+# RESUMO DA BUSCA E DOS FILTROS
+# ==========================================================
+
+st.subheader("Resultado da Exploração")
+
+st.write(
+    f"""
+    Jogos encontrados: **{len(df_filtrado)}**
+    """
+)
+
+if termo_busca != "":
+    st.info(f"Busca aplicada: {termo_busca}")
+
+
+# ==========================================================
 # VERIFICAÇÃO DE RESULTADOS
 # ==========================================================
 
@@ -229,7 +322,7 @@ st.divider()
 # o dashboard mostra um aviso em vez de tentar gerar gráficos vazios.
 
 if df_filtrado.empty:
-    st.warning("Nenhum jogo encontrado com os filtros selecionados.")
+    st.warning("Nenhum jogo encontrado com a busca ou os filtros selecionados.")
 
 else:
 
@@ -242,7 +335,7 @@ else:
     st.write(
         """
         Os gráficos abaixo mostram a distribuição dos jogos cadastrados
-        de acordo com os filtros selecionados.
+        de acordo com a busca e os filtros selecionados.
         """
     )
 
@@ -303,7 +396,7 @@ else:
     st.write(
         """
         A tabela abaixo mostra os jogos encontrados de acordo com
-        os filtros selecionados.
+        a busca e os filtros selecionados.
         """
     )
 
