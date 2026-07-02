@@ -15,7 +15,8 @@
 # - métricas principais da Foundation Collection;
 # - gráficos simples de estatísticas;
 # - tabela com os jogos cadastrados;
-# - seção inicial de Awards History.
+# - seção de Awards History;
+# - organização visual por abas.
 #
 # Autor: Kadu Almeida
 # ==========================================================
@@ -130,7 +131,7 @@ def aplicar_busca_textual(df, termo_busca):
             .fillna("")
             .astype(str)
             .str.lower()
-            .str.contains(termo_busca)
+            .str.contains(termo_busca, regex=False)
         )
 
     return df[condicao_busca]
@@ -159,6 +160,9 @@ df_awards = carregar_awards()
 # A sidebar é uma barra lateral do Streamlit.
 # Ela é muito usada em dashboards para colocar filtros,
 # menus e controles sem poluir a tela principal.
+#
+# Neste dashboard, os filtros da sidebar afetam apenas a
+# Foundation Collection.
 
 st.sidebar.title("Filtros")
 
@@ -274,321 +278,344 @@ st.divider()
 
 
 # ==========================================================
-# MÉTRICAS PRINCIPAIS
+# ABAS PRINCIPAIS
 # ==========================================================
 
-st.header("Visão Geral da Foundation Collection")
+# st.tabs() cria abas dentro da página.
+# Isso ajuda a organizar o dashboard sem precisar criar vários arquivos
+# ou múltiplas páginas agora.
 
-st.write(
-    """
-    As métricas abaixo mudam de acordo com a busca e os filtros selecionados.
-    """
+aba_foundation, aba_awards = st.tabs(
+    [
+        "Foundation Collection",
+        "Awards History"
+    ]
 )
 
-coluna_1, coluna_2, coluna_3, coluna_4 = st.columns(4)
-
-with coluna_1:
-    st.metric(
-        label="Jogos",
-        value=estatisticas["total_jogos"]
-    )
-
-with coluna_2:
-    st.metric(
-        label="Desenvolvedoras",
-        value=estatisticas["total_developers"]
-    )
-
-with coluna_3:
-    st.metric(
-        label="Franquias",
-        value=estatisticas["total_franquias"]
-    )
-
-with coluna_4:
-    st.metric(
-        label="Gêneros",
-        value=estatisticas["total_generos"]
-    )
-
-st.divider()
-
 
 # ==========================================================
-# RESUMO DA BUSCA E DOS FILTROS
+# ABA 1 — FOUNDATION COLLECTION
 # ==========================================================
 
-st.subheader("Resultado da Exploração")
-
-st.write(
-    f"""
-    Jogos encontrados: **{len(df_filtrado)}**
-    """
-)
-
-if termo_busca != "":
-    st.info(f"Busca aplicada: {termo_busca}")
-
-
-# ==========================================================
-# VERIFICAÇÃO DE RESULTADOS
-# ==========================================================
-
-# Caso o usuário selecione uma combinação de filtros que não tenha jogos,
-# o dashboard mostra um aviso em vez de tentar gerar gráficos vazios.
-
-if df_filtrado.empty:
-    st.warning("Nenhum jogo encontrado com a busca ou os filtros selecionados.")
-
-else:
+with aba_foundation:
 
     # ======================================================
-    # GRÁFICOS DE ESTATÍSTICAS
+    # MÉTRICAS PRINCIPAIS
     # ======================================================
 
-    st.header("Estatísticas da Foundation Collection")
+    st.header("Visão Geral da Foundation Collection")
 
     st.write(
         """
-        Os gráficos abaixo mostram a distribuição dos jogos cadastrados
-        de acordo com a busca e os filtros selecionados.
+        As métricas abaixo mudam de acordo com a busca e os filtros
+        selecionados na barra lateral.
         """
     )
 
+    coluna_1, coluna_2, coluna_3, coluna_4 = st.columns(4)
 
-    # ------------------------------------------------------
-    # GRÁFICO: JOGOS POR DÉCADA
-    # ------------------------------------------------------
+    with coluna_1:
+        st.metric(
+            label="Jogos",
+            value=estatisticas["total_jogos"]
+        )
 
-    st.subheader("Jogos por Década")
+    with coluna_2:
+        st.metric(
+            label="Desenvolvedoras",
+            value=estatisticas["total_developers"]
+        )
 
-    df_decadas = estatisticas["quantidade_por_decada"]
+    with coluna_3:
+        st.metric(
+            label="Franquias",
+            value=estatisticas["total_franquias"]
+        )
 
-    st.bar_chart(
-        data=df_decadas,
-        x="decada",
-        y="total"
-    )
-
-
-    # ------------------------------------------------------
-    # GRÁFICO: JOGOS POR GÊNERO
-    # ------------------------------------------------------
-
-    st.subheader("Jogos por Gênero")
-
-    df_generos = estatisticas["quantidade_por_genero"]
-
-    st.bar_chart(
-        data=df_generos,
-        x="genero",
-        y="total"
-    )
-
-
-    # ------------------------------------------------------
-    # GRÁFICO: JOGOS POR DESENVOLVEDORA
-    # ------------------------------------------------------
-
-    st.subheader("Desenvolvedoras com Mais Jogos")
-
-    df_developers = estatisticas["quantidade_por_developer"].head(10)
-
-    st.bar_chart(
-        data=df_developers,
-        x="developer",
-        y="total"
-    )
+    with coluna_4:
+        st.metric(
+            label="Gêneros",
+            value=estatisticas["total_generos"]
+        )
 
     st.divider()
 
 
     # ======================================================
-    # TABELA PRINCIPAL DE JOGOS
+    # RESUMO DA BUSCA E DOS FILTROS
     # ======================================================
 
-    st.header("Jogos Cadastrados")
+    st.subheader("Resultado da Exploração")
 
     st.write(
+        f"""
+        Jogos encontrados: **{len(df_filtrado)}**
         """
-        A tabela abaixo mostra os jogos encontrados de acordo com
-        a busca e os filtros selecionados.
-        """
     )
 
-    colunas_tabela = [
-        "id",
-        "nome",
-        "ano_lancamento",
-        "genero",
-        "developer",
-        "franchise",
-        "metacritic",
-        "nota_kadu",
-        "nota_pavam"
-    ]
-
-    st.dataframe(
-        df_filtrado[colunas_tabela],
-        use_container_width=True
-    )
+    if termo_busca != "":
+        st.info(f"Busca aplicada: {termo_busca}")
 
 
-# ==========================================================
-# SEÇÃO AWARDS HISTORY
-# ==========================================================
+    # ======================================================
+    # VERIFICAÇÃO DE RESULTADOS
+    # ======================================================
 
-st.divider()
+    # Caso o usuário selecione uma combinação de filtros que não tenha jogos,
+    # o dashboard mostra um aviso em vez de tentar gerar gráficos vazios.
 
-st.header("Awards History")
+    if df_filtrado.empty:
+        st.warning("Nenhum jogo encontrado com a busca ou os filtros selecionados.")
 
-st.write(
-    """
-    Esta seção apresenta o histórico de premiações de Game of the Year
-    cadastrado no projeto.
+    else:
 
-    A base de Awards é independente da Foundation Collection, mas também
-    pode ser comparada com ela.
-    """
-)
+        # ==================================================
+        # GRÁFICOS DE ESTATÍSTICAS
+        # ==================================================
 
+        st.header("Estatísticas da Foundation Collection")
 
-# ==========================================================
-# MÉTRICAS DE AWARDS
-# ==========================================================
-
-df_vencedores = listar_vencedores(df_awards)
-df_vencedores_foundation = listar_vencedores_na_foundation(df_awards, df_games)
-df_indicados_foundation = listar_indicados_na_foundation(df_awards, df_games)
-df_fora_foundation = listar_jogos_awards_fora_da_foundation(df_awards, df_games)
-
-coluna_awards_1, coluna_awards_2, coluna_awards_3, coluna_awards_4 = st.columns(4)
-
-with coluna_awards_1:
-    st.metric(
-        label="Registros no Awards",
-        value=len(df_awards)
-    )
-
-with coluna_awards_2:
-    st.metric(
-        label="Anos catalogados",
-        value=df_awards["ano"].nunique()
-    )
-
-with coluna_awards_3:
-    st.metric(
-        label="Vencedores",
-        value=len(df_vencedores)
-    )
-
-with coluna_awards_4:
-    st.metric(
-        label="Fora da Foundation",
-        value=len(df_fora_foundation)
-    )
-
-st.divider()
-
-
-# ==========================================================
-# CONSULTA POR ANO
-# ==========================================================
-
-st.subheader("Consultar edição por ano")
-
-anos_awards = listar_anos_disponiveis(df_awards)
-
-ano_awards_selecionado = st.selectbox(
-    "Selecione o ano da premiação",
-    anos_awards,
-    index=len(anos_awards) - 1
-)
-
-df_awards_ano = listar_awards_por_ano(
-    df_awards,
-    ano_awards_selecionado
-)
-
-df_vencedor_ano = buscar_vencedor_por_ano(
-    df_awards,
-    ano_awards_selecionado
-)
-
-if df_awards_ano.empty:
-    st.warning("Nenhum registro encontrado para o ano selecionado.")
-
-else:
-    if not df_vencedor_ano.empty:
-        vencedor = df_vencedor_ano.iloc[0]
-
-        st.success(
-            f"Vencedor de {ano_awards_selecionado}: {vencedor['jogo']}"
+        st.write(
+            """
+            Os gráficos abaixo mostram a distribuição dos jogos cadastrados
+            de acordo com a busca e os filtros selecionados.
+            """
         )
 
+
+        # --------------------------------------------------
+        # GRÁFICO: JOGOS POR DÉCADA
+        # --------------------------------------------------
+
+        st.subheader("Jogos por Década")
+
+        df_decadas = estatisticas["quantidade_por_decada"]
+
+        st.bar_chart(
+            data=df_decadas,
+            x="decada",
+            y="total"
+        )
+
+
+        # --------------------------------------------------
+        # GRÁFICO: JOGOS POR GÊNERO
+        # --------------------------------------------------
+
+        st.subheader("Jogos por Gênero")
+
+        df_generos = estatisticas["quantidade_por_genero"]
+
+        st.bar_chart(
+            data=df_generos,
+            x="genero",
+            y="total"
+        )
+
+
+        # --------------------------------------------------
+        # GRÁFICO: JOGOS POR DESENVOLVEDORA
+        # --------------------------------------------------
+
+        st.subheader("Desenvolvedoras com Mais Jogos")
+
+        df_developers = estatisticas["quantidade_por_developer"].head(10)
+
+        st.bar_chart(
+            data=df_developers,
+            x="developer",
+            y="total"
+        )
+
+        st.divider()
+
+
+        # ==================================================
+        # TABELA PRINCIPAL DE JOGOS
+        # ==================================================
+
+        st.header("Jogos Cadastrados")
+
+        st.write(
+            """
+            A tabela abaixo mostra os jogos encontrados de acordo com
+            a busca e os filtros selecionados.
+            """
+        )
+
+        colunas_tabela = [
+            "id",
+            "nome",
+            "ano_lancamento",
+            "genero",
+            "developer",
+            "franchise",
+            "metacritic",
+            "nota_kadu",
+            "nota_pavam"
+        ]
+
+        st.dataframe(
+            df_filtrado[colunas_tabela],
+            use_container_width=True
+        )
+
+
+# ==========================================================
+# ABA 2 — AWARDS HISTORY
+# ==========================================================
+
+with aba_awards:
+
+    st.header("Awards History")
+
     st.write(
         """
-        A tabela abaixo mostra o vencedor e os indicados da edição selecionada.
+        Esta seção apresenta o histórico de premiações de Game of the Year
+        cadastrado no projeto.
+
+        A base de Awards é independente da Foundation Collection, mas também
+        pode ser comparada com ela.
+        """
+    )
+
+
+    # ======================================================
+    # MÉTRICAS DE AWARDS
+    # ======================================================
+
+    df_vencedores = listar_vencedores(df_awards)
+    df_vencedores_foundation = listar_vencedores_na_foundation(df_awards, df_games)
+    df_indicados_foundation = listar_indicados_na_foundation(df_awards, df_games)
+    df_fora_foundation = listar_jogos_awards_fora_da_foundation(df_awards, df_games)
+
+    coluna_awards_1, coluna_awards_2, coluna_awards_3, coluna_awards_4 = st.columns(4)
+
+    with coluna_awards_1:
+        st.metric(
+            label="Registros no Awards",
+            value=len(df_awards)
+        )
+
+    with coluna_awards_2:
+        st.metric(
+            label="Anos catalogados",
+            value=df_awards["ano"].nunique()
+        )
+
+    with coluna_awards_3:
+        st.metric(
+            label="Vencedores",
+            value=len(df_vencedores)
+        )
+
+    with coluna_awards_4:
+        st.metric(
+            label="Fora da Foundation",
+            value=len(df_fora_foundation)
+        )
+
+    st.divider()
+
+
+    # ======================================================
+    # CONSULTA POR ANO
+    # ======================================================
+
+    st.subheader("Consultar edição por ano")
+
+    anos_awards = listar_anos_disponiveis(df_awards)
+
+    ano_awards_selecionado = st.selectbox(
+        "Selecione o ano da premiação",
+        anos_awards,
+        index=len(anos_awards) - 1
+    )
+
+    df_awards_ano = listar_awards_por_ano(
+        df_awards,
+        ano_awards_selecionado
+    )
+
+    df_vencedor_ano = buscar_vencedor_por_ano(
+        df_awards,
+        ano_awards_selecionado
+    )
+
+    if df_awards_ano.empty:
+        st.warning("Nenhum registro encontrado para o ano selecionado.")
+
+    else:
+        if not df_vencedor_ano.empty:
+            vencedor = df_vencedor_ano.iloc[0]
+
+            st.success(
+                f"Vencedor de {ano_awards_selecionado}: {vencedor['jogo']}"
+            )
+
+        st.write(
+            """
+            A tabela abaixo mostra o vencedor e os indicados da edição selecionada.
+            """
+        )
+
+        st.dataframe(
+            df_awards_ano,
+            use_container_width=True
+        )
+
+
+    # ======================================================
+    # HISTÓRICO DE VENCEDORES
+    # ======================================================
+
+    st.subheader("Histórico de Vencedores")
+
+    st.write(
+        """
+        A tabela abaixo mostra todos os vencedores de Game of the Year
+        cadastrados na base Awards History.
         """
     )
 
     st.dataframe(
-        df_awards_ano,
+        df_vencedores,
         use_container_width=True
     )
 
 
-# ==========================================================
-# HISTÓRICO DE VENCEDORES
-# ==========================================================
+    # ======================================================
+    # RELAÇÃO ENTRE AWARDS E FOUNDATION COLLECTION
+    # ======================================================
 
-st.subheader("Histórico de Vencedores")
+    st.subheader("Relação com a Foundation Collection")
 
-st.write(
-    """
-    A tabela abaixo mostra todos os vencedores de Game of the Year
-    cadastrados na base Awards History.
-    """
-)
+    st.write(
+        """
+        As tabelas abaixo comparam a Awards History com a Foundation Collection.
 
-st.dataframe(
-    df_vencedores,
-    use_container_width=True
-)
-
-
-# ==========================================================
-# RELAÇÃO ENTRE AWARDS E FOUNDATION COLLECTION
-# ==========================================================
-
-st.subheader("Relação com a Foundation Collection")
-
-st.write(
-    """
-    As tabelas abaixo comparam a Awards History com a Foundation Collection.
-
-    Isso ajuda a identificar quais jogos premiados já estão no arquivo principal
-    e quais ainda podem ser analisados futuramente.
-    """
-)
-
-with st.expander("Vencedores presentes na Foundation Collection"):
-    st.dataframe(
-        df_vencedores_foundation,
-        use_container_width=True
+        Isso ajuda a identificar quais jogos premiados já estão no arquivo principal
+        e quais ainda podem ser analisados futuramente.
+        """
     )
 
-with st.expander("Indicados presentes na Foundation Collection"):
-    st.dataframe(
-        df_indicados_foundation,
-        use_container_width=True
-    )
+    with st.expander("Vencedores presentes na Foundation Collection"):
+        st.dataframe(
+            df_vencedores_foundation,
+            use_container_width=True
+        )
 
-with st.expander("Jogos do Awards fora da Foundation Collection"):
-    st.dataframe(
-        df_fora_foundation,
-        use_container_width=True
-    )
+    with st.expander("Indicados presentes na Foundation Collection"):
+        st.dataframe(
+            df_indicados_foundation,
+            use_container_width=True
+        )
+
+    with st.expander("Jogos do Awards fora da Foundation Collection"):
+        st.dataframe(
+            df_fora_foundation,
+            use_container_width=True
+        )
 
 
 # ==========================================================
