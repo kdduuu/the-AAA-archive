@@ -35,6 +35,7 @@ O projeto já possui:
 * módulo de premiações;
 * testes dos módulos principais;
 * primeira versão da API com FastAPI;
+* endpoints editoriais na API;
 * testes da API;
 * primeira versão do dashboard com Streamlit;
 * documentação principal do projeto.
@@ -385,6 +386,16 @@ GET /games/search?term=zelda
 
 Pesquisa jogos por termo.
 
+A busca considera:
+
+```text
+nome
+genero
+developer
+franchise
+descricao
+```
+
 ```text
 GET /games/developer/{developer}
 ```
@@ -403,6 +414,30 @@ GET /games/year/{year}
 
 Filtra jogos por ano.
 
+```text
+GET /games/historical
+```
+
+Retorna jogos marcados como historicamente importantes na Foundation Collection.
+
+Esse endpoint utiliza a coluna:
+
+```text
+historico_importante
+```
+
+```text
+GET /games/influential
+```
+
+Retorna jogos marcados como historicamente influentes na Foundation Collection.
+
+Esse endpoint utiliza a coluna:
+
+```text
+historico_influente
+```
+
 ---
 
 ### Estatísticas
@@ -412,6 +447,19 @@ GET /stats/home
 ```
 
 Retorna estatísticas gerais da Foundation Collection.
+
+Exemplos de dados retornados:
+
+* total de jogos;
+* total de desenvolvedoras;
+* total de franquias;
+* total de gêneros;
+* jogos por gênero;
+* jogos por desenvolvedora;
+* jogos por franquia;
+* jogos por década;
+* jogos historicamente importantes;
+* jogos historicamente influentes.
 
 ---
 
@@ -452,6 +500,28 @@ GET /awards/foundation/outside
 ```
 
 Retorna jogos da Awards History que ainda não estão na Foundation Collection.
+
+---
+
+## Resumo dos Endpoints da API
+
+```text
+GET /
+GET /games
+GET /games/search?term={term}
+GET /games/developer/{developer}
+GET /games/genre/{genre}
+GET /games/year/{year}
+GET /games/historical
+GET /games/influential
+GET /stats/home
+GET /awards
+GET /awards/winners
+GET /awards/{year}
+GET /awards/foundation/winners
+GET /awards/foundation/nominees
+GET /awards/foundation/outside
+```
 
 ---
 
@@ -640,6 +710,7 @@ Indicados presentes na Foundation Collection
 Jogos do Awards fora da Foundation Collection
 ```
 
+---
 
 ## Testes
 
@@ -666,6 +737,44 @@ python api/test_main.py
 ```
 
 Se todos os testes passarem, os módulos atuais do backend e a API estão funcionando corretamente.
+
+---
+
+## Testes da API
+
+O arquivo:
+
+```text
+api/test_main.py
+```
+
+testa os principais endpoints da API.
+
+Endpoints testados:
+
+```text
+GET /
+GET /games
+GET /games/search?term=zelda
+GET /games/developer/Capcom
+GET /games/genre/Survival Horror
+GET /games/year/2018
+GET /games/historical
+GET /games/influential
+GET /stats/home
+GET /awards
+GET /awards/winners
+GET /awards/2018
+GET /awards/foundation/winners
+GET /awards/foundation/nominees
+GET /awards/foundation/outside
+```
+
+Para rodar apenas os testes da API:
+
+```bash
+python api/test_main.py
+```
 
 ---
 
@@ -805,29 +914,34 @@ Testes dos módulos
 ↓
 API com FastAPI
 ↓
+Endpoints editoriais na API
+↓
 Dashboard com Streamlit
 ↓
 Documentação do dashboard
+↓
+Documentação atualizada da API
 ```
 
 Próximas etapas possíveis:
 
 ```text
-atualizar e revisar endpoints da API
+adicionar endpoint por década
 ↓
-adicionar endpoints para jogos históricos e influentes
+adicionar endpoint por franquia
 ↓
-testar novos endpoints da API
-↓
-documentar novo checkpoint da API
+adicionar filtros combinados com query params
 ↓
 melhorar organização interna do dashboard/app.py
+↓
+refatorar a API com routers
 ↓
 planejar migração para PostgreSQL
 ↓
 futuramente criar website próprio
 ```
 
+---
 
 ## O que Ainda Não Está Sendo Feito
 
@@ -838,7 +952,9 @@ Nesta fase, o projeto ainda não utiliza:
 * autenticação;
 * deploy;
 * consumo da API dentro do Streamlit;
-* API refatorada em routers.
+* API refatorada em routers;
+* paginação;
+* filtros combinados por query params.
 
 Essas etapas podem ser feitas no futuro, mas ainda não são prioridade.
 
