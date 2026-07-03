@@ -487,12 +487,58 @@ http://localhost:8501
 
 A versão atual do dashboard possui:
 
+* organização visual por abas;
+* carregamento de dados com cache;
+* exploração da Foundation Collection;
+* exploração da Awards History;
+* filtros interativos;
+* busca textual;
+* métricas principais;
+* gráficos simples;
+* tabelas dinâmicas;
+* recorte editorial com jogos históricos e influentes.
+
+---
+
+### Organização por Abas
+
+O dashboard utiliza abas com `st.tabs()` para separar melhor as áreas principais.
+
+Abas atuais:
+
+```text
+Foundation Collection
+Awards History
+```
+
+Essa organização deixa a experiência mais limpa, evitando que todas as informações fiquem em uma única página longa.
+
+---
+
+### Cache no Carregamento dos Dados
+
+O dashboard utiliza `@st.cache_data` no carregamento dos datasets.
+
+Datasets carregados com cache:
+
+```text
+data/games.csv
+data/awards.csv
+```
+
+Isso evita que os CSVs sejam recarregados do zero a cada interação do usuário com filtros, busca ou seleção de abas.
+
+---
+
 ### Foundation Collection
+
+A aba **Foundation Collection** possui:
 
 * métricas principais;
 * gráficos simples;
 * filtros interativos;
 * busca textual;
+* recorte editorial;
 * tabela dinâmica de jogos.
 
 Métricas exibidas:
@@ -533,9 +579,42 @@ Desenvolvedoras com Mais Jogos
 
 ---
 
+### Recorte Editorial
+
+A aba **Foundation Collection** também possui uma seção chamada:
+
+```text
+Recorte Editorial
+```
+
+Essa seção destaca jogos marcados no dataset como:
+
+```text
+historicamente importantes
+historicamente influentes
+```
+
+Ela utiliza as colunas:
+
+```text
+historico_importante
+historico_influente
+```
+
+A seção possui:
+
+* métrica de jogos historicamente importantes;
+* métrica de jogos historicamente influentes;
+* tabela expansível de jogos historicamente importantes;
+* tabela expansível de jogos historicamente influentes.
+
+Esses resultados também reagem aos filtros e à busca textual.
+
+---
+
 ### Awards History
 
-A seção Awards History possui:
+A aba **Awards History** possui:
 
 * métricas da base de premiações;
 * consulta por ano;
@@ -543,6 +622,15 @@ A seção Awards History possui:
 * tabela da edição selecionada;
 * histórico de vencedores;
 * comparação entre Awards History e Foundation Collection.
+
+Métricas exibidas:
+
+```text
+Registros no Awards
+Anos catalogados
+Vencedores
+Fora da Foundation
+```
 
 Comparações exibidas:
 
@@ -552,7 +640,6 @@ Indicados presentes na Foundation Collection
 Jogos do Awards fora da Foundation Collection
 ```
 
----
 
 ## Testes
 
@@ -719,27 +806,28 @@ Testes dos módulos
 API com FastAPI
 ↓
 Dashboard com Streamlit
+↓
+Documentação do dashboard
 ```
 
 Próximas etapas possíveis:
 
 ```text
-melhorar organização visual do dashboard
+atualizar e revisar endpoints da API
 ↓
-adicionar seções para jogos históricos e influentes
+adicionar endpoints para jogos históricos e influentes
 ↓
-melhorar visualização da Awards History
+testar novos endpoints da API
 ↓
-criar testes ou validações para o dashboard
+documentar novo checkpoint da API
 ↓
-avaliar múltiplas páginas no Streamlit
+melhorar organização interna do dashboard/app.py
 ↓
 planejar migração para PostgreSQL
 ↓
 futuramente criar website próprio
 ```
 
----
 
 ## O que Ainda Não Está Sendo Feito
 
