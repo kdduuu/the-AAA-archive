@@ -11,6 +11,7 @@ Nesta fase, a API já possui:
 - endpoint para listar os jogos da Foundation Collection;
 - endpoint para pesquisar jogos da Foundation Collection;
 - endpoints para filtrar jogos por desenvolvedora, gênero e ano;
+- endpoints para listar jogos historicamente importantes e influentes;
 - endpoint para retornar estatísticas da Home;
 - endpoints para consultar o histórico de premiações.
 
@@ -61,7 +62,8 @@ A variável SCRIPTS_PATH representa a pasta scripts/.
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS_PATH = PROJECT_ROOT / "scripts"
 
-sys.path.append(str(SCRIPTS_PATH))
+if str(SCRIPTS_PATH) not in sys.path:
+    sys.path.append(str(SCRIPTS_PATH))
 
 
 # Agora o Python consegue importar os módulos da pasta scripts.
@@ -72,7 +74,11 @@ from filters import (
     listar_jogos_por_genero,
     listar_jogos_por_ano,
 )
-from site_statistics import gerar_estatisticas_home
+from site_statistics import (
+    gerar_estatisticas_home,
+    listar_jogos_historicos,
+    listar_jogos_influentes,
+)
 from awards import (
     listar_jogos_por_ano as consultar_awards_por_ano,
     listar_vencedores,
@@ -379,6 +385,60 @@ def listar_games_por_ano(year: int):
     df_games = carregar_dataset()
 
     resultado = listar_jogos_por_ano(df_games, year)
+
+    games = dataframe_para_json(resultado)
+
+    return games
+
+
+@app.get("/games/historical")
+def listar_games_historicos():
+    """
+    Retorna jogos marcados como historicamente importantes.
+
+    Endpoint:
+        GET /games/historical
+
+    Fluxo:
+        1. Carrega o games.csv usando carregar_dataset().
+        2. Usa a função listar_jogos_historicos() do módulo site_statistics.py.
+        3. Converte o resultado para JSON.
+        4. Retorna os jogos historicamente importantes.
+
+    Returns:
+        list: lista de jogos marcados como historicamente importantes.
+    """
+
+    df_games = carregar_dataset()
+
+    resultado = listar_jogos_historicos(df_games)
+
+    games = dataframe_para_json(resultado)
+
+    return games
+
+
+@app.get("/games/influential")
+def listar_games_influentes():
+    """
+    Retorna jogos marcados como historicamente influentes.
+
+    Endpoint:
+        GET /games/influential
+
+    Fluxo:
+        1. Carrega o games.csv usando carregar_dataset().
+        2. Usa a função listar_jogos_influentes() do módulo site_statistics.py.
+        3. Converte o resultado para JSON.
+        4. Retorna os jogos historicamente influentes.
+
+    Returns:
+        list: lista de jogos marcados como historicamente influentes.
+    """
+
+    df_games = carregar_dataset()
+
+    resultado = listar_jogos_influentes(df_games)
 
     games = dataframe_para_json(resultado)
 

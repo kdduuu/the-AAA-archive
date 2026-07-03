@@ -140,6 +140,42 @@ def testar_games_por_ano():
     assert all(jogo["ano_lancamento"] == 2018 for jogo in dados)
 
 
+def testar_games_historicos():
+    """
+    Testa o endpoint de jogos historicamente importantes.
+    """
+
+    resposta = client.get("/games/historical")
+
+    assert resposta.status_code == 200
+
+    dados = resposta.json()
+
+    assert isinstance(dados, list)
+
+    if len(dados) > 0:
+        assert "nome" in dados[0]
+        assert "historico_importante" in dados[0]
+
+
+def testar_games_influentes():
+    """
+    Testa o endpoint de jogos historicamente influentes.
+    """
+
+    resposta = client.get("/games/influential")
+
+    assert resposta.status_code == 200
+
+    dados = resposta.json()
+
+    assert isinstance(dados, list)
+
+    if len(dados) > 0:
+        assert "nome" in dados[0]
+        assert "historico_influente" in dados[0]
+
+
 # ==========================================================
 # TESTE - ESTATÍSTICAS
 # ==========================================================
@@ -305,6 +341,8 @@ if __name__ == "__main__":
     testar_games_por_developer()
     testar_games_por_genero()
     testar_games_por_ano()
+    testar_games_historicos()
+    testar_games_influentes()
 
     testar_estatisticas_home()
 
