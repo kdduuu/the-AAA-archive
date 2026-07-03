@@ -35,6 +35,7 @@ O projeto já possui:
 * módulo de premiações;
 * testes dos módulos principais;
 * primeira versão da API com FastAPI;
+* endpoints completos de consulta da Foundation Collection;
 * endpoints editoriais na API;
 * testes da API;
 * primeira versão do dashboard com Streamlit;
@@ -409,10 +410,30 @@ GET /games/genre/{genre}
 Filtra jogos por gênero.
 
 ```text
+GET /games/franchise/{franchise}
+```
+
+Filtra jogos por franquia.
+
+```text
 GET /games/year/{year}
 ```
 
 Filtra jogos por ano.
+
+```text
+GET /games/decade/{decade}
+```
+
+Filtra jogos por década.
+
+Exemplo:
+
+```text
+/games/decade/2000
+```
+
+Retorna jogos lançados entre 2000 e 2009.
 
 ```text
 GET /games/historical
@@ -511,7 +532,9 @@ GET /games
 GET /games/search?term={term}
 GET /games/developer/{developer}
 GET /games/genre/{genre}
+GET /games/franchise/{franchise}
 GET /games/year/{year}
+GET /games/decade/{decade}
 GET /games/historical
 GET /games/influential
 GET /stats/home
@@ -758,7 +781,9 @@ GET /games
 GET /games/search?term=zelda
 GET /games/developer/Capcom
 GET /games/genre/Survival Horror
+GET /games/franchise/Resident Evil
 GET /games/year/2018
+GET /games/decade/2000
 GET /games/historical
 GET /games/influential
 GET /stats/home
@@ -914,6 +939,8 @@ Testes dos módulos
 ↓
 API com FastAPI
 ↓
+Endpoints completos de consulta da Foundation Collection
+↓
 Endpoints editoriais na API
 ↓
 Dashboard com Streamlit
@@ -926,11 +953,13 @@ Documentação atualizada da API
 Próximas etapas possíveis:
 
 ```text
-adicionar endpoint por década
-↓
-adicionar endpoint por franquia
+melhorar documentação dos endpoints no Swagger
 ↓
 adicionar filtros combinados com query params
+↓
+adicionar ordenação por ano, nota ou Metacritic
+↓
+adicionar paginação
 ↓
 melhorar organização interna do dashboard/app.py
 ↓
@@ -954,7 +983,8 @@ Nesta fase, o projeto ainda não utiliza:
 * consumo da API dentro do Streamlit;
 * API refatorada em routers;
 * paginação;
-* filtros combinados por query params.
+* filtros combinados por query params;
+* ordenação avançada.
 
 Essas etapas podem ser feitas no futuro, mas ainda não são prioridade.
 
