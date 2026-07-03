@@ -36,7 +36,7 @@ data/awards.csv
 Status atual:
 
 ```text
-API funcional, testada e documentada
+API FastAPI inicial concluída, testada e documentada
 ```
 
 ---
@@ -113,7 +113,9 @@ Ele é responsável por:
 
 A API utiliza dois datasets principais.
 
-### Foundation Collection
+---
+
+## Foundation Collection
 
 Arquivo:
 
@@ -127,14 +129,18 @@ Ele é usado pelos endpoints relacionados a:
 
 * listagem de jogos;
 * busca textual;
-* filtros;
+* filtros por desenvolvedora;
+* filtros por gênero;
+* filtros por franquia;
+* filtros por ano;
+* filtros por década;
 * estatísticas;
 * jogos historicamente importantes;
 * jogos historicamente influentes.
 
 ---
 
-### Awards History
+## Awards History
 
 Arquivo:
 
@@ -265,10 +271,18 @@ Funções utilizadas:
 ```python
 listar_jogos_por_developer()
 listar_jogos_por_genero()
+listar_jogos_por_franquia()
 listar_jogos_por_ano()
+listar_jogos_por_decada()
 ```
 
-Essas funções filtram jogos por desenvolvedora, gênero e ano de lançamento.
+Essas funções filtram jogos por:
+
+* desenvolvedora;
+* gênero;
+* franquia;
+* ano de lançamento;
+* década.
 
 ---
 
@@ -282,7 +296,7 @@ listar_jogos_historicos()
 listar_jogos_influentes()
 ```
 
-Essas funções geram estatísticas gerais e também retornam jogos marcados como historicamente importantes ou influentes.
+Essas funções geram estatísticas gerais e também retornam jogos marcados como historicamente importantes ou historicamente influentes.
 
 ---
 
@@ -315,7 +329,7 @@ Awards
 
 ---
 
-## 1. Endpoint Inicial
+# 1. Endpoint Inicial
 
 ```text
 GET /
@@ -341,13 +355,13 @@ Exemplo de retorno:
 
 ---
 
-## 2. Endpoints de Jogos
+# 2. Endpoints de Jogos
 
 Os endpoints de jogos consultam a **Foundation Collection**.
 
 ---
 
-### Listar todos os jogos
+## Listar todos os jogos
 
 ```text
 GET /games
@@ -357,7 +371,7 @@ Retorna todos os jogos cadastrados em `data/games.csv`.
 
 ---
 
-### Pesquisar jogos
+## Pesquisar jogos
 
 ```text
 GET /games/search?term=zelda
@@ -383,7 +397,7 @@ Exemplo:
 
 ---
 
-### Filtrar jogos por desenvolvedora
+## Filtrar jogos por desenvolvedora
 
 ```text
 GET /games/developer/{developer}
@@ -399,7 +413,7 @@ Exemplo:
 
 ---
 
-### Filtrar jogos por gênero
+## Filtrar jogos por gênero
 
 ```text
 GET /games/genre/{genre}
@@ -415,7 +429,35 @@ Exemplo:
 
 ---
 
-### Filtrar jogos por ano
+## Filtrar jogos por franquia
+
+```text
+GET /games/franchise/{franchise}
+```
+
+Retorna jogos de uma franquia específica.
+
+Exemplo:
+
+```text
+/games/franchise/Resident Evil
+```
+
+Esse endpoint usa a função:
+
+```python
+listar_jogos_por_franquia()
+```
+
+do módulo:
+
+```text
+scripts/filters.py
+```
+
+---
+
+## Filtrar jogos por ano
 
 ```text
 GET /games/year/{year}
@@ -431,7 +473,41 @@ Exemplo:
 
 ---
 
-### Listar jogos historicamente importantes
+## Filtrar jogos por década
+
+```text
+GET /games/decade/{decade}
+```
+
+Retorna jogos lançados em uma década específica.
+
+Exemplo:
+
+```text
+/games/decade/2000
+```
+
+Nesse exemplo, a API retorna jogos lançados entre:
+
+```text
+2000 e 2009
+```
+
+Esse endpoint usa a função:
+
+```python
+listar_jogos_por_decada()
+```
+
+do módulo:
+
+```text
+scripts/filters.py
+```
+
+---
+
+## Listar jogos historicamente importantes
 
 ```text
 GET /games/historical
@@ -459,7 +535,7 @@ historico_importante
 
 ---
 
-### Listar jogos historicamente influentes
+## Listar jogos historicamente influentes
 
 ```text
 GET /games/influential
@@ -487,7 +563,7 @@ historico_influente
 
 ---
 
-## 3. Endpoint de Estatísticas
+# 3. Endpoint de Estatísticas
 
 ```text
 GET /stats/home
@@ -522,7 +598,7 @@ scripts/site_statistics.py
 
 ---
 
-## 4. Endpoints de Awards
+# 4. Endpoints de Awards
 
 Os endpoints de Awards consultam a base:
 
@@ -532,7 +608,7 @@ data/awards.csv
 
 ---
 
-### Listar todos os registros da Awards History
+## Listar todos os registros da Awards History
 
 ```text
 GET /awards
@@ -542,7 +618,7 @@ Retorna todos os registros cadastrados na base Awards History.
 
 ---
 
-### Listar vencedores
+## Listar vencedores
 
 ```text
 GET /awards/winners
@@ -552,7 +628,7 @@ Retorna todos os vencedores de Game of the Year cadastrados.
 
 ---
 
-### Consultar premiação por ano
+## Consultar premiação por ano
 
 ```text
 GET /awards/{year}
@@ -568,7 +644,7 @@ Exemplo:
 
 ---
 
-### Listar vencedores presentes na Foundation Collection
+## Listar vencedores presentes na Foundation Collection
 
 ```text
 GET /awards/foundation/winners
@@ -578,7 +654,7 @@ Retorna vencedores de Game of the Year que também estão na Foundation Collecti
 
 ---
 
-### Listar indicados presentes na Foundation Collection
+## Listar indicados presentes na Foundation Collection
 
 ```text
 GET /awards/foundation/nominees
@@ -588,7 +664,7 @@ Retorna indicados a Game of the Year que também estão na Foundation Collection
 
 ---
 
-### Listar jogos do Awards fora da Foundation Collection
+## Listar jogos do Awards fora da Foundation Collection
 
 ```text
 GET /awards/foundation/outside
@@ -608,7 +684,9 @@ GET /games
 GET /games/search?term={term}
 GET /games/developer/{developer}
 GET /games/genre/{genre}
+GET /games/franchise/{franchise}
 GET /games/year/{year}
+GET /games/decade/{decade}
 GET /games/historical
 GET /games/influential
 GET /stats/home
@@ -689,7 +767,9 @@ GET /games
 GET /games/search?term=zelda
 GET /games/developer/Capcom
 GET /games/genre/Survival Horror
+GET /games/franchise/Resident Evil
 GET /games/year/2018
+GET /games/decade/2000
 GET /games/historical
 GET /games/influential
 GET /stats/home
@@ -750,7 +830,7 @@ Algumas decisões foram tomadas para manter a API simples e didática.
 
 ---
 
-### 1. Manter todos os endpoints em `main.py`
+## 1. Manter todos os endpoints em `main.py`
 
 Por enquanto, todos os endpoints continuam no arquivo:
 
@@ -770,7 +850,7 @@ Futuramente, a API pode ser refatorada com routers.
 
 ---
 
-### 2. Reutilizar os módulos da pasta `scripts/`
+## 2. Reutilizar os módulos da pasta `scripts/`
 
 A API não recria lógica.
 
@@ -786,7 +866,7 @@ preservar organização do backend
 
 ---
 
-### 3. Manter a API apenas como leitura
+## 3. Manter a API apenas como leitura
 
 Nesta fase, a API apenas retorna dados.
 
@@ -802,7 +882,7 @@ foco em consulta
 
 ---
 
-### 4. Ainda não usar PostgreSQL
+## 4. Ainda não usar PostgreSQL
 
 A API ainda utiliza CSV como fonte de dados.
 
@@ -816,7 +896,7 @@ PostgreSQL será uma fase futura
 
 ---
 
-### 5. Adicionar endpoints editoriais antes de refatorar
+## 5. Adicionar endpoints editoriais antes de refatorar
 
 Foram adicionados os endpoints:
 
@@ -832,6 +912,26 @@ o dashboard passou a destacar o recorte editorial
 a API também deve expor esse tipo de consulta
 os dados já existiam no backend
 a implementação foi pequena e reaproveitou funções prontas
+```
+
+---
+
+## 6. Completar filtros principais da Foundation Collection
+
+Foram adicionados os endpoints:
+
+```text
+GET /games/franchise/{franchise}
+GET /games/decade/{decade}
+```
+
+Motivo:
+
+```text
+as funções já existiam no módulo filters.py
+o dashboard já trabalha com franquia e década
+a API fica mais completa para consultar a Foundation Collection
+a implementação mantém o padrão dos endpoints anteriores
 ```
 
 ---
@@ -863,11 +963,10 @@ A API atual está funcional, testada e documentada.
 Próximos passos possíveis:
 
 ```text
-atualizar README com os novos endpoints
 melhorar documentação dos endpoints no Swagger
-adicionar endpoint por década
-adicionar endpoint por franquia
 adicionar filtros combinados com query params
+adicionar ordenação por ano, nota ou Metacritic
+adicionar paginação
 refatorar a API com routers
 planejar migração para PostgreSQL
 ```
@@ -876,14 +975,14 @@ planejar migração para PostgreSQL
 
 ## Próximo Passo Recomendado
 
-O próximo passo recomendado é atualizar o `README.md` para incluir os novos endpoints:
+O próximo passo recomendado é atualizar o `README.md` para incluir os endpoints finais da API inicial:
 
 ```text
-GET /games/historical
-GET /games/influential
+GET /games/franchise/{franchise}
+GET /games/decade/{decade}
 ```
 
-Depois disso, a API pode ficar estável por enquanto, e o projeto pode seguir para uma próxima fase planejada com calma.
+Depois disso, a API inicial pode ser considerada fechada por enquanto.
 
 ---
 
@@ -892,5 +991,5 @@ Depois disso, a API pode ficar estável por enquanto, e o projeto pode seguir pa
 Status final:
 
 ```text
-API FastAPI funcional, testada, documentada e atualizada com endpoints editoriais
+API FastAPI inicial concluída, testada, documentada e atualizada com endpoints completos de consulta
 ```
