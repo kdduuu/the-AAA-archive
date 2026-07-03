@@ -10,7 +10,7 @@ Nesta fase, a API já possui:
 - endpoint inicial de teste;
 - endpoint para listar os jogos da Foundation Collection;
 - endpoint para pesquisar jogos da Foundation Collection;
-- endpoints para filtrar jogos por desenvolvedora, gênero e ano;
+- endpoints para filtrar jogos por desenvolvedora, gênero, franquia, ano e década;
 - endpoints para listar jogos historicamente importantes e influentes;
 - endpoint para retornar estatísticas da Home;
 - endpoints para consultar o histórico de premiações.
@@ -72,7 +72,9 @@ from search import pesquisar_jogos
 from filters import (
     listar_jogos_por_developer,
     listar_jogos_por_genero,
+    listar_jogos_por_franquia,
     listar_jogos_por_ano,
+    listar_jogos_por_decada,
 )
 from site_statistics import (
     gerar_estatisticas_home,
@@ -357,6 +359,40 @@ def listar_games_por_genero(genre: str):
     return games
 
 
+@app.get("/games/franchise/{franchise}")
+def listar_games_por_franquia(franchise: str):
+    """
+    Retorna jogos de uma franquia específica.
+
+    Endpoint:
+        GET /games/franchise/{franchise}
+
+    Exemplo:
+        /games/franchise/Resident Evil
+
+    Fluxo:
+        1. Recebe o nome da franquia pela URL.
+        2. Carrega o games.csv usando carregar_dataset().
+        3. Usa a função listar_jogos_por_franquia() do módulo filters.py.
+        4. Converte o resultado para JSON.
+        5. Retorna os jogos encontrados.
+
+    Args:
+        franchise: nome da franquia.
+
+    Returns:
+        list: lista de jogos da franquia informada.
+    """
+
+    df_games = carregar_dataset()
+
+    resultado = listar_jogos_por_franquia(df_games, franchise)
+
+    games = dataframe_para_json(resultado)
+
+    return games
+
+
 @app.get("/games/year/{year}")
 def listar_games_por_ano(year: int):
     """
@@ -385,6 +421,40 @@ def listar_games_por_ano(year: int):
     df_games = carregar_dataset()
 
     resultado = listar_jogos_por_ano(df_games, year)
+
+    games = dataframe_para_json(resultado)
+
+    return games
+
+
+@app.get("/games/decade/{decade}")
+def listar_games_por_decada(decade: int):
+    """
+    Retorna jogos lançados em uma década específica.
+
+    Endpoint:
+        GET /games/decade/{decade}
+
+    Exemplo:
+        /games/decade/2000
+
+    Fluxo:
+        1. Recebe a década pela URL.
+        2. Carrega o games.csv usando carregar_dataset().
+        3. Usa a função listar_jogos_por_decada() do módulo filters.py.
+        4. Converte o resultado para JSON.
+        5. Retorna os jogos encontrados.
+
+    Args:
+        decade: década pesquisada. Exemplo: 1990, 2000, 2010.
+
+    Returns:
+        list: lista de jogos lançados na década informada.
+    """
+
+    df_games = carregar_dataset()
+
+    resultado = listar_jogos_por_decada(df_games, decade)
 
     games = dataframe_para_json(resultado)
 

@@ -123,6 +123,23 @@ def testar_games_por_genero():
     assert all(jogo["genero"] == "Survival Horror" for jogo in dados)
 
 
+def testar_games_por_franquia():
+    """
+    Testa o filtro de jogos por franquia.
+    """
+
+    resposta = client.get("/games/franchise/Resident%20Evil")
+
+    assert resposta.status_code == 200
+
+    dados = resposta.json()
+
+    assert isinstance(dados, list)
+    assert len(dados) > 0
+
+    assert all(jogo["franchise"] == "Resident Evil" for jogo in dados)
+
+
 def testar_games_por_ano():
     """
     Testa o filtro de jogos por ano.
@@ -138,6 +155,26 @@ def testar_games_por_ano():
     assert len(dados) > 0
 
     assert all(jogo["ano_lancamento"] == 2018 for jogo in dados)
+
+
+def testar_games_por_decada():
+    """
+    Testa o filtro de jogos por década.
+    """
+
+    resposta = client.get("/games/decade/2000")
+
+    assert resposta.status_code == 200
+
+    dados = resposta.json()
+
+    assert isinstance(dados, list)
+    assert len(dados) > 0
+
+    assert all(
+        2000 <= jogo["ano_lancamento"] <= 2009
+        for jogo in dados
+    )
 
 
 def testar_games_historicos():
@@ -340,7 +377,9 @@ if __name__ == "__main__":
     testar_pesquisar_games()
     testar_games_por_developer()
     testar_games_por_genero()
+    testar_games_por_franquia()
     testar_games_por_ano()
+    testar_games_por_decada()
     testar_games_historicos()
     testar_games_influentes()
 
