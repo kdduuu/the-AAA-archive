@@ -4,7 +4,7 @@
 
 Este documento registra o estado atual da API do projeto **The AAA Archive**.
 
-O objetivo é criar um checkpoint da fase de backend com **FastAPI**, documentando quais endpoints já existem, quais módulos são reutilizados, quais testes foram criados e quais próximos passos podem ser considerados futuramente.
+O objetivo é criar um checkpoint da fase de backend com **FastAPI**, documentando quais endpoints já existem, quais módulos são reutilizados, quais testes foram criados, quais decisões técnicas foram tomadas e qual deve ser o próximo foco do projeto.
 
 Este checkpoint segue a lógica de desenvolvimento usada no projeto:
 
@@ -39,6 +39,10 @@ Status atual:
 API FastAPI inicial concluída, testada e documentada
 ```
 
+A API inicial está fechada por enquanto.
+
+Nesta fase, não há intenção de adicionar novos endpoints.
+
 ---
 
 ## Papel da API no Projeto
@@ -54,7 +58,7 @@ Nesta fase, a API apenas lê dados e retorna respostas em JSON.
 
 Ela ainda não cadastra, edita ou remove informações.
 
-A arquitetura atual pode ser entendida assim:
+A arquitetura atual da API pode ser entendida assim:
 
 ```text
 CSV
@@ -64,7 +68,17 @@ Pandas
 Módulos Python
 ↓
 FastAPI
+↓
+JSON
 ```
+
+O dashboard atual ainda não consome a API diretamente.
+
+Ele utiliza os módulos Python internos do projeto.
+
+Isso foi decidido para manter a fase atual mais simples e didática.
+
+No futuro, a API poderá ser usada por um website, por um dashboard mais desacoplado ou por outras interfaces.
 
 ---
 
@@ -889,10 +903,12 @@ A API ainda utiliza CSV como fonte de dados.
 Motivo:
 
 ```text
-o projeto ainda está consolidando a base
+o projeto ainda está consolidando a base atual
 a migração para banco deve ser planejada com calma
 PostgreSQL será uma fase futura
 ```
+
+Antes da migração para PostgreSQL, o projeto deve passar por uma fase curta de organização.
 
 ---
 
@@ -954,13 +970,15 @@ Nesta fase, a API ainda não possui:
 
 Essas funcionalidades podem ser consideradas futuramente.
 
+Elas não fazem parte da fase atual.
+
 ---
 
-## Possíveis Próximos Passos
+## Possíveis Próximos Passos Futuros da API
 
 A API atual está funcional, testada e documentada.
 
-Próximos passos possíveis:
+Possíveis melhorias futuras da API:
 
 ```text
 melhorar documentação dos endpoints no Swagger
@@ -968,21 +986,76 @@ adicionar filtros combinados com query params
 adicionar ordenação por ano, nota ou Metacritic
 adicionar paginação
 refatorar a API com routers
-planejar migração para PostgreSQL
+integrar a API ao PostgreSQL
+permitir operações de escrita em uma fase futura
 ```
+
+Esses pontos são melhorias futuras.
+
+Eles não devem ser tratados agora.
+
+A API inicial foi fechada para evitar que o projeto fique preso adicionando endpoints antes de organizar a próxima fase.
 
 ---
 
-## Próximo Passo Recomendado
+## Próximo Passo Recomendado do Projeto
 
-O próximo passo recomendado é atualizar o `README.md` para incluir os endpoints finais da API inicial:
+O README já foi atualizado com os endpoints finais da API inicial, incluindo:
 
 ```text
 GET /games/franchise/{franchise}
 GET /games/decade/{decade}
 ```
 
-Depois disso, a API inicial pode ser considerada fechada por enquanto.
+Portanto, a API inicial pode ser considerada fechada por enquanto.
+
+O próximo passo recomendado do projeto não é criar novos endpoints.
+
+A próxima etapa recomendada é:
+
+```text
+Organizar dashboard/app.py sem alterar visual nem adicionar funcionalidades grandes.
+```
+
+A organização recomendada para o dashboard é simples:
+
+```text
+dashboard/
+  app.py
+  dashboard_helpers.py
+```
+
+Depois disso, a sequência recomendada é:
+
+```text
+revisar requirements.txt
+↓
+criar docs/postgresql_plan.md
+↓
+planejar migração para PostgreSQL
+↓
+só depois iniciar a migração
+```
+
+---
+
+## O Que Não Fazer Agora
+
+Nesta fase, não é recomendado:
+
+```text
+adicionar novos endpoints
+refatorar a API em routers
+criar autenticação
+criar cadastro, edição ou exclusão
+migrar direto para PostgreSQL sem plano
+consumir a API dentro do dashboard
+misturar refatoração do dashboard com mudanças na API
+```
+
+O foco atual é organização.
+
+A API deve permanecer estável enquanto o dashboard é organizado.
 
 ---
 
@@ -992,4 +1065,16 @@ Status final:
 
 ```text
 API FastAPI inicial concluída, testada, documentada e atualizada com endpoints completos de consulta
+```
+
+Situação atual:
+
+```text
+API inicial fechada por enquanto
+```
+
+Próxima etapa do projeto:
+
+```text
+Organização leve do dashboard/app.py antes da revisão do requirements.txt e do planejamento do PostgreSQL
 ```

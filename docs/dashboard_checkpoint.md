@@ -56,7 +56,19 @@ Pandas
 ↓
 Módulos Python
 ↓
-FastAPI
+API FastAPI
+↓
+Respostas em JSON
+```
+
+E, em paralelo:
+
+```text
+CSV
+↓
+Pandas
+↓
+Módulos Python
 ↓
 Streamlit Dashboard
 ```
@@ -614,8 +626,8 @@ Motivo:
 
 ```text
 os dados ainda estão em fase de consolidação
-o foco atual é aprender visualização
-a migração para banco deve vir depois
+o foco atual é organizar a base existente
+a migração para banco deve vir depois de um plano próprio
 ```
 
 ---
@@ -647,8 +659,9 @@ A API continua funcionando como estava.
 Motivo:
 
 ```text
-a fase atual é Streamlit
+a API inicial já foi fechada
 não há necessidade de mexer na API agora
+o foco atual é organizar o dashboard antes do PostgreSQL
 ```
 
 ---
@@ -797,16 +810,17 @@ A fase inicial do dashboard pode ser considerada concluída porque:
 Os próximos passos possíveis são:
 
 ```text
-explicar o código do dashboard em detalhes
 melhorar a organização interna do app.py
 criar funções auxiliares para reduzir repetição
-adicionar gráficos mais bem formatados
-melhorar a apresentação da Awards History
-criar seção visual para notas pessoais
-pensar em múltiplas páginas no Streamlit
-criar testes simples para funções auxiliares do dashboard
+separar parte da lógica em dashboard_helpers.py
+revisar requirements.txt
+criar docs/postgresql_plan.md
 planejar migração para PostgreSQL
 ```
+
+Esses passos devem ser feitos com calma, sem misturar muitas mudanças ao mesmo tempo.
+
+A prioridade imediata é organizar o dashboard, não expandir funcionalidades.
 
 ---
 
@@ -818,10 +832,13 @@ Nesta fase, ainda não é necessário:
 migrar para PostgreSQL
 consumir a API dentro do Streamlit
 refatorar a API em routers
+adicionar novos endpoints na API
 criar frontend separado
 fazer deploy do dashboard
 criar autenticação
 complicar a estrutura do projeto
+mudar o visual do dashboard
+adicionar funcionalidades grandes
 ```
 
 Essas etapas podem ser feitas futuramente, mas ainda não são prioridade.
@@ -836,8 +853,32 @@ Status final:
 Dashboard Streamlit inicial concluído, testado manualmente e documentado
 ```
 
+Fase atual:
+
+```text
+Organização leve antes da migração para PostgreSQL
+```
+
 Próxima etapa recomendada:
 
 ```text
-Entender o código do dashboard/app.py em detalhes
+Organizar dashboard/app.py sem alterar visual nem adicionar funcionalidades grandes
+```
+
+Estrutura recomendada para a próxima etapa:
+
+```text
+dashboard/
+  app.py
+  dashboard_helpers.py
+```
+
+Depois disso:
+
+```text
+revisar requirements.txt
+↓
+criar docs/postgresql_plan.md
+↓
+planejar migração para PostgreSQL
 ```

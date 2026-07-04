@@ -2,16 +2,62 @@
 
 # Objetivo
 
-Este documento define o planejamento inicial da API do **The AAA Archive**.
+Este documento registra o planejamento inicial da API do **The AAA Archive**.
 
-A API será responsável por disponibilizar os dados do projeto para outras partes do sistema, como:
+A API foi planejada para disponibilizar os dados do projeto para outras partes do sistema, como:
 
 * website;
 * dashboard;
 * futuras aplicações;
 * consultas externas.
 
-Este documento foi escrito de forma didática, considerando que a API será construída passo a passo.
+Este documento foi escrito de forma didática, considerando que a API seria construída passo a passo.
+
+Atualmente, este plano já foi executado.
+
+A primeira versão da API foi criada, testada e documentada no arquivo:
+
+```text
+docs/api_checkpoint.md
+```
+
+Portanto, este documento deve ser entendido como um registro histórico do planejamento inicial da API.
+
+---
+
+# Status do Plano
+
+Status atual:
+
+```text
+Plano executado
+```
+
+A API inicial foi implementada com **FastAPI**.
+
+Ela está localizada em:
+
+```text
+api/main.py
+```
+
+Os testes da API estão localizados em:
+
+```text
+api/test_main.py
+```
+
+A API atual utiliza:
+
+* CSV;
+* Pandas;
+* módulos da pasta `scripts/`;
+* respostas em JSON;
+* endpoints apenas de leitura.
+
+A API inicial está fechada por enquanto.
+
+Nesta fase, não há intenção de adicionar novos endpoints.
 
 ---
 
@@ -19,24 +65,26 @@ Este documento foi escrito de forma didática, considerando que a API será cons
 
 Uma **API** pode ser entendida como uma ponte entre sistemas.
 
-No caso do The AAA Archive, a API será a ponte entre:
+No caso do The AAA Archive, a API é a ponte entre:
 
-```text id="n7crrm"
+```text
 dados do projeto
 ↓
 código Python
 ↓
-website / dashboard / usuário
+respostas em JSON
+↓
+futuras interfaces
 ```
 
-Sem API, o site precisaria lidar diretamente com os arquivos CSV ou com a lógica interna do projeto.
+Sem API, uma interface precisaria lidar diretamente com os arquivos CSV ou com a lógica interna do projeto.
 
-Com API, o site apenas faz uma pergunta para um endereço específico e recebe uma resposta organizada.
+Com API, uma interface pode fazer uma chamada para um endereço específico e receber uma resposta organizada.
 
 Exemplo:
 
-```text id="79x5ke"
-O site pergunta:
+```text
+O sistema pergunta:
 "Quais são todos os jogos?"
 
 A API responde:
@@ -47,29 +95,30 @@ A API responde:
 
 # Exemplo Simples
 
-Imagine que a API tenha este endereço:
+Um dos endpoints da API é:
 
-```text id="asr7qc"
+```text
 GET /games
 ```
 
-Esse endereço significa:
+Esse endpoint significa:
 
-```text id="kd7mmp"
+```text
 Quero buscar todos os jogos cadastrados.
 ```
 
 A API então:
 
-1. carrega o `games.csv`;
-2. transforma os dados em uma estrutura utilizável;
-3. retorna os dados para quem pediu.
+1. carrega os dados do projeto;
+2. reutiliza os módulos Python existentes;
+3. transforma os dados em um formato compatível;
+4. retorna a resposta em JSON.
 
 A resposta normalmente vem em formato **JSON**.
 
 Exemplo simples de JSON:
 
-```json id="tahauy"
+```json
 {
   "id": 1,
   "nome": "Resident Evil 4",
@@ -92,18 +141,18 @@ Cada endpoint representa uma pergunta que o sistema sabe responder.
 
 Exemplos:
 
-```text id="ox05px"
+```text
 GET /games
 GET /games/search
 GET /stats/home
 GET /awards/winners
 ```
 
-Cada um desses caminhos terá uma função por trás.
+Cada um desses caminhos possui uma função por trás.
 
 Exemplo conceitual:
 
-```text id="wzj9t3"
+```text
 GET /games
 ↓
 chama uma função Python
@@ -121,31 +170,31 @@ retorna os jogos em JSON
 
 Ele significa que estamos apenas buscando informações.
 
-No The AAA Archive, a primeira versão da API usará apenas `GET`, porque o objetivo inicial será consultar dados.
+Na primeira versão da API do The AAA Archive, foram utilizados apenas endpoints `GET`, porque o objetivo inicial era consultar dados.
 
 Exemplos:
 
-```text id="oiy09l"
+```text
 GET /games
 GET /awards
 GET /stats/home
 ```
 
-Nesta fase, a API não vai cadastrar, editar ou apagar dados.
+Nesta fase, a API não cadastra, edita ou apaga dados.
 
-Ela apenas vai ler os dados existentes.
+Ela apenas lê os dados existentes e retorna respostas organizadas.
 
 ---
 
 # Papel da API no The AAA Archive
 
-A API não substituirá os módulos atuais.
+A API não substitui os módulos atuais.
 
-Ela irá reutilizar os módulos que já existem.
+Ela reutiliza os módulos que já existem.
 
-O fluxo será:
+O fluxo da API é:
 
-```text id="sueayx"
+```text
 Usuário acessa um endpoint
 ↓
 API recebe o pedido
@@ -159,7 +208,7 @@ API devolve uma resposta em JSON
 
 Exemplo:
 
-```text id="lt7ly6"
+```text
 GET /games/search?term=zelda
 ↓
 API recebe o termo "zelda"
@@ -171,92 +220,159 @@ search.py pesquisa no games.csv
 API retorna os jogos encontrados
 ```
 
+Essa lógica evita duplicação de código.
+
+Os módulos continuam concentrando a lógica principal do projeto.
+
+A API apenas expõe essa lógica para consulta externa.
+
 ---
 
-# Módulos que a API irá reutilizar
+# Módulos Reutilizados pela API
 
-A API deverá reutilizar os módulos já criados no projeto.
+A API reutiliza os módulos já criados no projeto.
+
+---
 
 ## `load_data.py`
 
-Será usado para carregar os datasets:
+Usado para carregar os datasets:
 
-```text id="e68wjj"
+```text
 games.csv
 awards.csv
 ```
 
+Funções principais:
+
+```text
+carregar_dataset()
+carregar_awards()
+```
+
+---
+
 ## `filters.py`
 
-Será usado para endpoints de filtro da Foundation Collection.
+Usado para endpoints de filtro da Foundation Collection.
 
 Exemplos:
 
-```text id="cjfxvr"
+```text
 jogos por gênero
 jogos por desenvolvedora
+jogos por franquia
 jogos por ano
 jogos por década
 ```
 
+Funções principais:
+
+```text
+listar_jogos_por_developer()
+listar_jogos_por_genero()
+listar_jogos_por_franquia()
+listar_jogos_por_ano()
+listar_jogos_por_decada()
+```
+
+---
+
 ## `search.py`
 
-Será usado para endpoints de pesquisa textual.
+Usado para endpoints de pesquisa textual.
 
 Exemplo:
 
-```text id="ldoj7o"
+```text
 buscar jogos que contenham "resident evil"
 ```
 
-## `site_statistics.py`
+Funções principais:
 
-Será usado para retornar estatísticas da Home e do Dashboard.
-
-Exemplo:
-
-```text id="hsl5ac"
-total de jogos
-total de desenvolvedoras
-jogos por década
+```text
+pesquisar_jogos()
+pesquisar_jogos_por_nome()
 ```
 
-## `awards.py`
+---
 
-Será usado para endpoints relacionados ao histórico de premiações.
+## `site_statistics.py`
+
+Usado para retornar estatísticas da Foundation Collection.
 
 Exemplos:
 
-```text id="3s882y"
+```text
+total de jogos
+total de desenvolvedoras
+total de franquias
+total de gêneros
+jogos por década
+jogos historicamente importantes
+jogos historicamente influentes
+```
+
+Funções principais:
+
+```text
+gerar_estatisticas_home()
+listar_jogos_historicos()
+listar_jogos_influentes()
+```
+
+---
+
+## `awards.py`
+
+Usado para endpoints relacionados ao histórico de premiações.
+
+Exemplos:
+
+```text
 listar vencedores
 listar indicados por ano
 listar premiações
 comparar Awards History com Foundation Collection
 ```
 
+Funções principais:
+
+```text
+listar_jogos_por_ano()
+listar_vencedores()
+listar_vencedores_na_foundation()
+listar_indicados_na_foundation()
+listar_jogos_awards_fora_da_foundation()
+```
+
 ---
 
 # Primeira Versão da API
 
-A primeira versão da API deve ser simples.
+A primeira versão da API foi planejada para ser simples.
 
-O objetivo não é criar uma arquitetura complexa.
+O objetivo não era criar uma arquitetura complexa.
 
-O objetivo é provar que:
+O objetivo era provar que:
 
-```text id="6fozoj"
+```text
 os dados podem sair dos CSVs
 passar pelos módulos Python
 e chegar até uma resposta de API
 ```
 
+Esse objetivo foi atingido.
+
+A API inicial foi criada, testada e documentada.
+
 ---
 
-# Estrutura Inicial Planejada
+# Estrutura Planejada
 
-A estrutura inicial será:
+A estrutura inicial planejada era:
 
-```text id="wk0j5b"
+```text
 The-AAA-Archive/
 
 api/
@@ -270,17 +386,34 @@ scripts/
   awards.py
 ```
 
-Nesta primeira versão, começaremos apenas com:
+A estrutura final da primeira versão ficou assim:
 
-```text id="42yv8q"
+```text
+The-AAA-Archive/
+
+api/
+  main.py
+  test_main.py
+
+scripts/
+  load_data.py
+  filters.py
+  search.py
+  site_statistics.py
+  awards.py
+```
+
+A decisão foi manter todos os endpoints em:
+
+```text
 api/main.py
 ```
 
-Depois, se a API crescer muito, poderemos separar em arquivos menores.
+Isso foi feito para manter a API simples, visível e fácil de entender durante a primeira fase.
 
-Exemplo futuro:
+No futuro, a API poderá ser separada em routers, como:
 
-```text id="exti7m"
+```text
 api/
   main.py
   routes_games.py
@@ -288,15 +421,15 @@ api/
   routes_stats.py
 ```
 
-Mas isso não será feito no início para evitar complexidade desnecessária.
+Mas isso não faz parte da fase atual.
 
 ---
 
-# Endpoints Planejados para a Primeira Versão
+# Endpoints Planejados e Implementados
 
 ## Endpoint inicial
 
-```text id="1pj3fy"
+```text
 GET /
 ```
 
@@ -304,12 +437,10 @@ Objetivo:
 
 Verificar se a API está funcionando.
 
-Resposta esperada:
+Status:
 
-```json id="xs0z58"
-{
-  "mensagem": "The AAA Archive API está funcionando"
-}
+```text
+Implementado
 ```
 
 ---
@@ -322,26 +453,38 @@ Retorna todos os jogos da Foundation Collection.
 
 Módulo usado:
 
-```text id="sk4g02"
+```text
 load_data.py
+```
+
+Status:
+
+```text
+Implementado
 ```
 
 ---
 
-### `GET /games/search`
+### `GET /games/search?term={term}`
 
-Pesquisa jogos por termo.
+Pesquisa jogos por termo textual.
 
 Exemplo:
 
-```text id="cjhq0o"
+```text
 /games/search?term=zelda
 ```
 
 Módulo usado:
 
-```text id="npduqq"
+```text
 search.py
+```
+
+Status:
+
+```text
+Implementado
 ```
 
 ---
@@ -352,14 +495,20 @@ Retorna jogos de uma desenvolvedora específica.
 
 Exemplo:
 
-```text id="q54omq"
+```text
 /games/developer/Capcom
 ```
 
 Módulo usado:
 
-```text id="k8en10"
+```text
 filters.py
+```
+
+Status:
+
+```text
+Implementado
 ```
 
 ---
@@ -370,15 +519,49 @@ Retorna jogos de um gênero específico.
 
 Exemplo:
 
-```text id="zgcj2z"
+```text
 /games/genre/Survival Horror
 ```
 
 Módulo usado:
 
-```text id="8fzw94"
+```text
 filters.py
 ```
+
+Status:
+
+```text
+Implementado
+```
+
+---
+
+### `GET /games/franchise/{franchise}`
+
+Retorna jogos de uma franquia específica.
+
+Exemplo:
+
+```text
+/games/franchise/Resident Evil
+```
+
+Módulo usado:
+
+```text
+filters.py
+```
+
+Status:
+
+```text
+Implementado
+```
+
+Observação:
+
+Este endpoint foi adicionado durante a evolução da primeira versão da API, pois a função já existia no módulo `filters.py`.
 
 ---
 
@@ -388,43 +571,132 @@ Retorna jogos lançados em um ano específico.
 
 Exemplo:
 
-```text id="bdd8ep"
+```text
 /games/year/2018
 ```
 
 Módulo usado:
 
-```text id="cnp808"
+```text
 filters.py
+```
+
+Status:
+
+```text
+Implementado
 ```
 
 ---
 
-## Estatísticas
+### `GET /games/decade/{decade}`
 
-### `GET /stats/home`
+Retorna jogos lançados em uma década específica.
 
-Retorna estatísticas gerais para a Home.
+Exemplo:
 
-Exemplo de informações:
-
-```text id="r34abq"
-total de jogos
-total de desenvolvedoras
-total de franquias
-total de gêneros
-jogos por década
+```text
+/games/decade/2000
 ```
 
 Módulo usado:
 
-```text id="1r9btb"
+```text
+filters.py
+```
+
+Status:
+
+```text
+Implementado
+```
+
+Observação:
+
+Este endpoint foi adicionado durante a evolução da primeira versão da API, pois a função já existia no módulo `filters.py`.
+
+---
+
+### `GET /games/historical`
+
+Retorna jogos marcados como historicamente importantes.
+
+Módulo usado:
+
+```text
 site_statistics.py
+```
+
+Status:
+
+```text
+Implementado
+```
+
+Observação:
+
+Este endpoint foi adicionado para expor o recorte editorial da Foundation Collection.
+
+---
+
+### `GET /games/influential`
+
+Retorna jogos marcados como historicamente influentes.
+
+Módulo usado:
+
+```text
+site_statistics.py
+```
+
+Status:
+
+```text
+Implementado
+```
+
+Observação:
+
+Este endpoint foi adicionado para expor o recorte editorial da Foundation Collection.
+
+---
+
+# Estatísticas
+
+### `GET /stats/home`
+
+Retorna estatísticas gerais para a Home, API, dashboard e futuras interfaces.
+
+Exemplo de informações:
+
+```text
+total de jogos
+total de desenvolvedoras
+total de franquias
+total de gêneros
+jogos por gênero
+jogos por desenvolvedora
+jogos por franquia
+jogos por década
+jogos historicamente importantes
+jogos historicamente influentes
+```
+
+Módulo usado:
+
+```text
+site_statistics.py
+```
+
+Status:
+
+```text
+Implementado
 ```
 
 ---
 
-## Awards
+# Awards
 
 ### `GET /awards`
 
@@ -432,8 +704,14 @@ Retorna todos os registros da base Awards History.
 
 Módulo usado:
 
-```text id="xozlel"
+```text
 load_data.py
+```
+
+Status:
+
+```text
+Implementado
 ```
 
 ---
@@ -444,14 +722,20 @@ Retorna vencedor e indicados de um ano específico.
 
 Exemplo:
 
-```text id="aw6f1f"
+```text
 /awards/2018
 ```
 
 Módulo usado:
 
-```text id="v53ivx"
+```text
 awards.py
+```
+
+Status:
+
+```text
+Implementado
 ```
 
 ---
@@ -462,8 +746,14 @@ Retorna todos os vencedores de Game of the Year.
 
 Módulo usado:
 
-```text id="dewn0h"
+```text
 awards.py
+```
+
+Status:
+
+```text
+Implementado
 ```
 
 ---
@@ -474,8 +764,14 @@ Retorna vencedores de Game of the Year que também estão na Foundation Collecti
 
 Módulo usado:
 
-```text id="oc80cq"
+```text
 awards.py
+```
+
+Status:
+
+```text
+Implementado
 ```
 
 ---
@@ -486,8 +782,14 @@ Retorna indicados a Game of the Year que também estão na Foundation Collection
 
 Módulo usado:
 
-```text id="03b4io"
+```text
 awards.py
+```
+
+Status:
+
+```text
+Implementado
 ```
 
 ---
@@ -498,61 +800,227 @@ Retorna jogos presentes no Awards History, mas ausentes da Foundation Collection
 
 Módulo usado:
 
-```text id="f6l4uv"
+```text
 awards.py
+```
+
+Status:
+
+```text
+Implementado
 ```
 
 ---
 
-# O que a API não fará nesta primeira versão
+# Resumo dos Endpoints Implementados
 
-A primeira versão da API não irá:
+```text
+GET /
+GET /games
+GET /games/search?term={term}
+GET /games/developer/{developer}
+GET /games/genre/{genre}
+GET /games/franchise/{franchise}
+GET /games/year/{year}
+GET /games/decade/{decade}
+GET /games/historical
+GET /games/influential
+GET /stats/home
+GET /awards
+GET /awards/winners
+GET /awards/{year}
+GET /awards/foundation/winners
+GET /awards/foundation/nominees
+GET /awards/foundation/outside
+```
 
-* cadastrar novos jogos;
-* editar jogos;
-* apagar jogos;
-* alterar arquivos CSV;
-* conectar com banco de dados;
-* autenticar usuários;
-* ter login;
-* ter painel administrativo.
+---
+
+# O que a API Não Faz Nesta Primeira Versão
+
+A primeira versão da API não faz:
+
+* cadastro de novos jogos;
+* edição de jogos;
+* exclusão de jogos;
+* alteração de arquivos CSV;
+* conexão com banco de dados;
+* autenticação;
+* login;
+* painel administrativo;
+* paginação;
+* ordenação avançada;
+* filtros combinados por query params;
+* separação em routers.
 
 Essas funcionalidades podem existir no futuro, mas não fazem parte da primeira versão.
 
 ---
 
-# Resumo da Primeira Versão
+# Testes da API
 
-A primeira versão da API terá como objetivo:
+A API possui testes próprios em:
 
-```text id="5bouox"
-ler dados
-reutilizar os módulos existentes
-retornar respostas em JSON
-servir de ponte para o futuro website e dashboard
+```text
+api/test_main.py
 ```
 
-Ela será simples, didática e incremental.
+Esses testes verificam se os endpoints principais respondem corretamente.
 
-O foco inicial será entender o funcionamento prático de uma API antes de expandir a arquitetura.
+Comando para rodar os testes da API:
+
+```bash
+python api/test_main.py
+```
+
+Além disso, o projeto possui testes dos módulos principais:
+
+```text
+scripts/test_filters.py
+scripts/test_search.py
+scripts/test_site_statistics.py
+scripts/test_awards.py
+```
+
+Comando para rodar todos os testes:
+
+```bash
+python scripts/test_filters.py
+python scripts/test_search.py
+python scripts/test_site_statistics.py
+python scripts/test_awards.py
+python api/test_main.py
+```
 
 ---
 
-# Próximo Passo Após Este Documento
+# Como Rodar a API
 
-Depois deste planejamento, o próximo passo será criar a estrutura inicial:
+Para rodar a API, execute o comando na raiz do projeto:
 
-```text id="09l7p3"
-api/
-  main.py
+```bash
+fastapi dev api/main.py
 ```
 
-Em seguida, será criado o primeiro endpoint:
+A API será iniciada localmente.
 
-```text id="0humqh"
-GET /
+O endereço padrão costuma ser:
+
+```text
+http://127.0.0.1:8000
 ```
 
-Esse endpoint servirá apenas para testar se a API está funcionando.
+A documentação automática do FastAPI pode ser acessada em:
 
-Depois disso, os endpoints serão adicionados aos poucos.
+```text
+http://127.0.0.1:8000/docs
+```
+
+---
+
+# Resultado do Plano
+
+O plano inicial da API foi executado com sucesso.
+
+O projeto conseguiu sair deste estágio:
+
+```text
+CSV
+↓
+Pandas
+↓
+Módulos Python
+```
+
+Para este estágio:
+
+```text
+CSV
+↓
+Pandas
+↓
+Módulos Python
+↓
+FastAPI
+↓
+JSON
+```
+
+A API inicial agora serve como uma camada de consulta para os dados do The AAA Archive.
+
+---
+
+# Relação com o API Checkpoint
+
+Este documento registra o plano inicial.
+
+O estado final da API inicial está documentado em:
+
+```text
+docs/api_checkpoint.md
+```
+
+O `api_checkpoint.md` deve ser usado como referência principal para entender:
+
+* quais endpoints existem;
+* quais módulos são reutilizados;
+* quais testes foram criados;
+* quais decisões técnicas foram tomadas;
+* por que a API está fechada por enquanto;
+* qual é o próximo passo recomendado do projeto.
+
+---
+
+# Próximo Passo Após Este Plano
+
+Como este plano já foi executado, o próximo passo não é criar novos endpoints.
+
+A API inicial está fechada por enquanto.
+
+A próxima etapa recomendada do projeto é:
+
+```text
+Organizar dashboard/app.py sem alterar visual nem adicionar funcionalidades grandes.
+```
+
+A organização recomendada para o dashboard é simples:
+
+```text
+dashboard/
+  app.py
+  dashboard_helpers.py
+```
+
+Depois disso, a sequência recomendada é:
+
+```text
+revisar requirements.txt
+↓
+criar docs/postgresql_plan.md
+↓
+planejar migração para PostgreSQL
+↓
+só depois iniciar a migração
+```
+
+---
+
+# Status Final
+
+Status final deste plano:
+
+```text
+API Plan executado
+```
+
+Resultado:
+
+```text
+API FastAPI inicial criada, testada, documentada e fechada por enquanto
+```
+
+Próxima fase do projeto:
+
+```text
+Organização leve do dashboard antes da revisão do requirements.txt e do planejamento do PostgreSQL
+```
