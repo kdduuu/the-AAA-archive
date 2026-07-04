@@ -19,6 +19,10 @@
 # - seção de Awards History;
 # - organização visual por abas.
 #
+# Observação:
+# Nesta versão, parte da lógica auxiliar foi movida para
+# dashboard_helpers.py, mantendo este arquivo focado na interface visual.
+#
 # Autor: Kadu Almeida
 # ==========================================================
 
@@ -49,22 +53,37 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 # Caminho absoluto da pasta scripts/.
 SCRIPTS_PATH = PROJECT_ROOT / "scripts"
 
+# Caminho absoluto da pasta dashboard/.
+DASHBOARD_PATH = PROJECT_ROOT / "dashboard"
+
 # Adiciona a pasta scripts/ ao caminho de importação do Python.
 if str(SCRIPTS_PATH) not in sys.path:
     sys.path.append(str(SCRIPTS_PATH))
 
+# Adiciona a pasta dashboard/ ao caminho de importação do Python.
+# Isso permite importar o arquivo dashboard_helpers.py.
+if str(DASHBOARD_PATH) not in sys.path:
+    sys.path.append(str(DASHBOARD_PATH))
+
 
 # Agora conseguimos importar os módulos do backend.
-from load_data import carregar_dataset, carregar_awards
 from site_statistics import gerar_estatisticas_home
 from awards import (
-    listar_anos_disponiveis,
     listar_jogos_por_ano as listar_awards_por_ano,
     buscar_vencedor_por_ano,
-    listar_vencedores,
-    listar_vencedores_na_foundation,
-    listar_indicados_na_foundation,
-    listar_jogos_awards_fora_da_foundation,
+)
+
+# Importamos as funções auxiliares específicas do dashboard.
+#
+# Essas funções foram separadas para deixar o app.py mais limpo.
+# O app.py continua sendo responsável pela tela.
+# O dashboard_helpers.py fica responsável por pequenas lógicas auxiliares.
+from dashboard_helpers import (
+    carregar_games_com_cache,
+    carregar_awards_com_cache,
+    criar_opcoes_filtro,
+    aplicar_filtros_foundation,
+    gerar_dados_awards,
 )
 
 
@@ -80,97 +99,13 @@ st.set_page_config(
 
 
 # ==========================================================
-# FUNÇÕES AUXILIARES
-# ==========================================================
-
-@st.cache_data
-def carregar_games_com_cache():
-    """
-    Carrega o dataset games.csv usando cache do Streamlit.
-
-    O cache evita que o CSV seja recarregado do zero toda vez que
-    o usuário interage com filtros, abas ou campos de busca.
-    """
-
-    return carregar_dataset()
-
-
-@st.cache_data
-def carregar_awards_com_cache():
-    """
-    Carrega o dataset awards.csv usando cache do Streamlit.
-
-    Isso deixa o dashboard mais eficiente, principalmente quando
-    a aplicação é reexecutada após interações do usuário.
-    """
-
-    return carregar_awards()
-
-
-def aplicar_busca_textual(df, termo_busca):
-    """
-    Aplica uma busca textual simples no DataFrame de jogos.
-
-    A busca procura o termo nas colunas:
-    - nome;
-    - genero;
-    - developer;
-    - franchise;
-    - descricao.
-
-    Parâmetros:
-        df:
-            DataFrame com os jogos.
-
-        termo_busca:
-            Texto digitado pelo usuário.
-
-    Retorno:
-        DataFrame filtrado com os jogos encontrados.
-    """
-
-    # Se o usuário não digitou nada, retornamos o DataFrame original.
-    if termo_busca == "":
-        return df
-
-    # Padronizamos o termo para minúsculo.
-    # Isso faz a busca não depender de letras maiúsculas ou minúsculas.
-    termo_busca = termo_busca.lower()
-
-    # Colunas onde a busca será aplicada.
-    colunas_busca = [
-        "nome",
-        "genero",
-        "developer",
-        "franchise",
-        "descricao"
-    ]
-
-    # Criamos uma condição inicial vazia.
-    # Depois vamos somando as buscas de cada coluna.
-    condicao_busca = False
-
-    for coluna in colunas_busca:
-        condicao_busca = condicao_busca | (
-            df[coluna]
-            .fillna("")
-            .astype(str)
-            .str.lower()
-            .str.contains(termo_busca, regex=False)
-        )
-
-    return df[condicao_busca]
-
-
-# ==========================================================
 # CARREGAMENTO DOS DADOS
 # ==========================================================
 
 # Aqui carregamos os dois datasets principais do projeto.
 #
-# A diferença agora é que usamos funções com @st.cache_data.
-# Isso significa que o Streamlit guarda o resultado do carregamento
-# e evita reler os CSVs desnecessariamente a cada interação.
+# As funções abaixo usam @st.cache_data dentro do dashboard_helpers.py.
+# Isso evita reler os CSVs desnecessariamente a cada interação.
 
 df_games = carregar_games_com_cache()
 df_awards = carregar_awards_com_cache()
@@ -213,16 +148,15 @@ termo_busca = termo_busca.strip()
 # OPÇÕES DOS FILTROS
 # ----------------------------------------------------------
 
-# Criamos listas com as opções disponíveis no dataset.
-# O valor "Todos" permite visualizar a coleção inteira.
+# As opções dos filtros agora são criadas por uma função auxiliar.
+# Isso tira repetição do app.py e deixa o arquivo principal mais visual.
 
-opcoes_genero = ["Todos"] + sorted(df_games["genero"].dropna().unique().tolist())
+opcoes_filtro = criar_opcoes_filtro(df_games)
 
-opcoes_developer = ["Todos"] + sorted(df_games["developer"].dropna().unique().tolist())
-
-opcoes_ano = ["Todos"] + sorted(df_games["ano_lancamento"].dropna().unique().tolist())
-
-opcoes_franquia = ["Todos"] + sorted(df_games["franchise"].dropna().unique().tolist())
+opcoes_genero = opcoes_filtro["generos"]
+opcoes_developer = opcoes_filtro["developers"]
+opcoes_ano = opcoes_filtro["anos"]
+opcoes_franquia = opcoes_filtro["franquias"]
 
 
 # ----------------------------------------------------------
@@ -254,33 +188,47 @@ franquia_selecionada = st.sidebar.selectbox(
 # APLICAÇÃO DOS FILTROS
 # ----------------------------------------------------------
 
-# Começamos com uma cópia do dataset completo.
-# Depois, vamos reduzindo esse DataFrame conforme os filtros escolhidos.
+# A aplicação dos filtros agora fica em uma função auxiliar.
+#
+# O app.py informa quais filtros foram escolhidos.
+# O dashboard_helpers.py devolve o DataFrame já filtrado.
 
-df_filtrado = df_games.copy()
-
-# Primeiro aplicamos a busca textual.
-df_filtrado = aplicar_busca_textual(df_filtrado, termo_busca)
-
-# Depois aplicamos os filtros específicos.
-if genero_selecionado != "Todos":
-    df_filtrado = df_filtrado[df_filtrado["genero"] == genero_selecionado]
-
-if developer_selecionada != "Todos":
-    df_filtrado = df_filtrado[df_filtrado["developer"] == developer_selecionada]
-
-if ano_selecionado != "Todos":
-    df_filtrado = df_filtrado[df_filtrado["ano_lancamento"] == ano_selecionado]
-
-if franquia_selecionada != "Todos":
-    df_filtrado = df_filtrado[df_filtrado["franchise"] == franquia_selecionada]
+df_filtrado = aplicar_filtros_foundation(
+    df_games=df_games,
+    termo_busca=termo_busca,
+    genero_selecionado=genero_selecionado,
+    developer_selecionada=developer_selecionada,
+    ano_selecionado=ano_selecionado,
+    franquia_selecionada=franquia_selecionada
+)
 
 
-# As estatísticas agora são geradas com base no DataFrame filtrado.
+# As estatísticas são geradas com base no DataFrame filtrado.
 # Isso significa que métricas, gráficos, seção editorial e tabela
 # reagem aos filtros.
 
 estatisticas = gerar_estatisticas_home(df_filtrado)
+
+
+# ==========================================================
+# DADOS AUXILIARES DE AWARDS
+# ==========================================================
+
+# A função gerar_dados_awards() concentra pequenas consultas repetidas
+# da aba Awards History.
+#
+# Assim, o app.py fica menos carregado e continua focado em exibir a tela.
+
+dados_awards = gerar_dados_awards(
+    df_awards=df_awards,
+    df_games=df_games
+)
+
+df_vencedores = dados_awards["vencedores"]
+df_vencedores_foundation = dados_awards["vencedores_foundation"]
+df_indicados_foundation = dados_awards["indicados_foundation"]
+df_fora_foundation = dados_awards["fora_foundation"]
+anos_awards = dados_awards["anos_disponiveis"]
 
 
 # ==========================================================
@@ -578,11 +526,6 @@ with aba_awards:
     # MÉTRICAS DE AWARDS
     # ======================================================
 
-    df_vencedores = listar_vencedores(df_awards)
-    df_vencedores_foundation = listar_vencedores_na_foundation(df_awards, df_games)
-    df_indicados_foundation = listar_indicados_na_foundation(df_awards, df_games)
-    df_fora_foundation = listar_jogos_awards_fora_da_foundation(df_awards, df_games)
-
     coluna_awards_1, coluna_awards_2, coluna_awards_3, coluna_awards_4 = st.columns(4)
 
     with coluna_awards_1:
@@ -617,8 +560,6 @@ with aba_awards:
     # ======================================================
 
     st.subheader("Consultar edição por ano")
-
-    anos_awards = listar_anos_disponiveis(df_awards)
 
     ano_awards_selecionado = st.selectbox(
         "Selecione o ano da premiação",
