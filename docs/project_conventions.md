@@ -4,38 +4,62 @@
 
 Este documento define os padrões adotados durante o desenvolvimento do **The AAA Archive**.
 
-Seu objetivo é garantir consistência, organização e clareza ao longo da evolução do projeto, servindo como referência para futuras implementações, manutenções e revisões.
+Seu objetivo é garantir:
 
-O The AAA Archive é um projeto pessoal e educacional, mas deve ser desenvolvido com uma mentalidade próxima de um projeto profissional.
+* consistência;
+* organização;
+* clareza;
+* segurança;
+* facilidade de manutenção;
+* evolução controlada;
+* alinhamento entre código e documentação.
 
-Isso significa que cada arquivo, função, módulo e documento deve existir por um motivo claro dentro do sistema.
+O documento deve servir como referência para:
+
+* novas implementações;
+* alterações no banco;
+* criação de módulos;
+* mudanças na API;
+* evolução do dashboard;
+* desenvolvimento futuro do front-end;
+* testes;
+* documentação;
+* commits;
+* revisões gerais.
+
+O The AAA Archive é um projeto pessoal e educacional, mas deve ser desenvolvido com uma mentalidade próxima à de um projeto profissional.
+
+Isso significa que cada arquivo, função, módulo, tabela e documento deve existir por um motivo claro dentro do sistema.
 
 ---
 
 # Filosofia do Projeto
 
-O **The AAA Archive** é um projeto pessoal desenvolvido por **Kadu Almeida** para estudar:
+O **The AAA Archive** é um projeto pessoal desenvolvido por **Kadu Almeida** para estudar e aplicar:
 
 * Python;
 * Pandas;
-* Análise de Dados;
-* Engenharia de Software;
-* Backend;
-* API;
-* Dashboard;
+* análise de dados;
+* PostgreSQL;
+* SQL;
+* engenharia de software;
+* backend;
+* APIs;
+* dashboards;
 * Git e GitHub;
-* futuramente PostgreSQL;
-* futuramente desenvolvimento web mais completo.
+* documentação;
+* testes;
+* futuramente, desenvolvimento web.
 
-Embora o projeto tenha finalidade educacional, todas as decisões devem buscar organização, clareza e evolução incremental.
+Embora o projeto possua finalidade educacional, todas as decisões devem buscar organização, clareza e evolução incremental.
 
-O projeto não deve crescer de forma bagunçada.
+O projeto não deve crescer de maneira descontrolada.
 
-Antes de adicionar uma nova funcionalidade, deve-se pensar:
+Antes de adicionar qualquer funcionalidade, deve-se perguntar:
 
-> Isso realmente ajuda o produto ou só aumenta a complexidade?
+> Essa alteração resolve uma necessidade real do projeto ou apenas aumenta a complexidade?
 
-Toda funcionalidade implementada deve possuir uma aplicação real dentro do sistema.
+Toda funcionalidade implementada deve possuir uma aplicação concreta dentro do sistema.
 
 O projeto deve priorizar:
 
@@ -43,7 +67,29 @@ O projeto deve priorizar:
 * organização antes de velocidade;
 * aprendizado antes de atalhos;
 * evolução gradual antes de grandes refatorações;
-* código simples antes de estruturas exageradas.
+* código simples antes de estruturas exageradas;
+* documentação antes de mudanças amplas;
+* testes antes de avançar;
+* segurança antes de conveniência.
+
+---
+
+# Princípios Gerais
+
+As decisões do projeto devem seguir estes princípios:
+
+1. Uma responsabilidade principal por arquivo.
+2. Uma responsabilidade principal por função.
+3. Evitar duplicação de lógica.
+4. Não adicionar tecnologia sem necessidade.
+5. Não modificar várias camadas ao mesmo tempo.
+6. Preservar o funcionamento antes de refatorar.
+7. Testar mudanças importantes.
+8. Atualizar a documentação após alterações.
+9. Criar checkpoints ao concluir fases.
+10. Manter informações sensíveis fora do repositório.
+11. Preservar a simplicidade enquanto ela for suficiente.
+12. Toda funcionalidade deve possuir utilidade real no produto.
 
 ---
 
@@ -56,18 +102,46 @@ Atualmente, o projeto utiliza:
 * Python;
 * Pandas;
 * CSV;
+* PostgreSQL;
+* SQL;
+* psycopg;
+* python-dotenv;
 * FastAPI;
 * Streamlit;
 * Git;
 * GitHub;
 * VS Code.
 
+---
+
 ## Dados
 
-Atualmente, os dados são armazenados em arquivos CSV:
+Os dados editoriais originais são armazenados em:
 
-* `data/games.csv`;
-* `data/awards.csv`.
+```text id="pry1z1"
+data/games.csv
+data/awards.csv
+```
+
+Os dados operacionais são armazenados no PostgreSQL.
+
+Tabelas:
+
+```text id="g7ns6b"
+games
+awards
+```
+
+Os CSVs funcionam como fontes editoriais.
+
+O PostgreSQL funciona como fonte principal para:
+
+* API;
+* dashboard;
+* testes de integração;
+* futura aplicação web.
+
+---
 
 ## API
 
@@ -75,101 +149,152 @@ A API atual utiliza:
 
 * FastAPI;
 * Pandas;
+* PostgreSQL;
 * JSON;
-* leitura de CSV.
+* `scripts/database.py`;
+* módulos da pasta `scripts/`.
 
-A API ainda não utiliza banco de dados.
+A API realiza operações de leitura.
+
+Ela ainda não possui:
+
+* cadastro;
+* edição;
+* exclusão;
+* autenticação;
+* painel administrativo;
+* routers separados;
+* paginação;
+* ordenação avançada;
+* filtros combinados.
+
+Novas funcionalidades deverão ser adicionadas apenas quando houver necessidade real da aplicação.
+
+---
 
 ## Dashboard
 
-O dashboard atual utiliza:
+O dashboard utiliza:
 
 * Streamlit;
 * Pandas;
+* PostgreSQL;
 * `st.tabs()`;
 * `st.sidebar`;
 * `st.metric`;
-* `st.bar_chart`;
+* gráficos;
 * `st.dataframe`;
-* cache com `@st.cache_data`.
+* cache com `@st.cache_data`;
+* funções auxiliares em `dashboard_helpers.py`.
+
+---
 
 ## Stack Futura
 
 Futuramente, o projeto poderá utilizar:
 
-* PostgreSQL;
-* SQL;
-* possível frontend separado;
-* possível website próprio;
-* organização mais avançada da API com routers;
-* organização mais avançada do dashboard com componentes.
+* HTML;
+* CSS;
+* JavaScript;
+* biblioteca ou framework front-end;
+* ferramentas de deploy;
+* routers no FastAPI;
+* normalização adicional no banco;
+* autenticação;
+* painel administrativo;
+* armazenamento de imagens.
 
-Essas tecnologias futuras não devem ser adicionadas antes de uma etapa clara de planejamento.
+Tecnologias futuras devem ser escolhidas somente após planejamento.
+
+---
+
+# Arquitetura Atual
+
+```text id="1lduv9"
+CSV
+↓
+import_to_postgres.py
+↓
+PostgreSQL
+↓
+database.py
+↓
+Módulos Python
+↓
+API FastAPI e Dashboard Streamlit
+↓
+Futura aplicação web
+```
+
+Responsabilidades:
+
+* CSV: edição e preservação editorial;
+* importador: sincronização com o banco;
+* PostgreSQL: armazenamento operacional;
+* `database.py`: conexão e leitura;
+* módulos: lógica reutilizável;
+* API: disponibilização em JSON;
+* dashboard: análise e visualização;
+* front-end futuro: experiência principal do usuário.
 
 ---
 
 # Estrutura Atual do Projeto
 
-A estrutura atual do projeto é:
-
-```text
+```text id="9aueu1"
 The-AAA-Archive/
-
-assets/
-
-api/
-  main.py
-  test_main.py
-
-data/
-  games.csv
-  awards.csv
-
-docs/
-  api_checkpoint.md
-  api_plan.md
-  awards_dictionary.md
-  dashboard_checkpoint.md
-  dashboard_plan.md
-  data_dictionary.md
-  foundation_collection.md
-  project_blueprint.md
-  project_context.md
-  project_conventions.md
-
-dashboard/
-  app.py
-
-notebooks/
-
-scripts/
-  load_data.py
-  filters.py
-  search.py
-  site_statistics.py
-  awards.py
-  test_filters.py
-  test_search.py
-  test_site_statistics.py
-  test_awards.py
-
-README.md
-requirements.txt
-.gitignore
+│
+├── api/
+│   ├── main.py
+│   └── test_main.py
+│
+├── dashboard/
+│   ├── app.py
+│   └── dashboard_helpers.py
+│
+├── data/
+│   ├── games.csv
+│   └── awards.csv
+│
+├── database/
+│   └── schema.sql
+│
+├── docs/
+│   ├── api_checkpoint.md
+│   ├── api_plan.md
+│   ├── awards_dictionary.md
+│   ├── dashboard_checkpoint.md
+│   ├── dashboard_plan.md
+│   ├── data_dictionary.md
+│   ├── foundation_collection.md
+│   ├── postgresql_checkpoint.md
+│   ├── postgresql_plan.md
+│   ├── project_blueprint.md
+│   ├── project_context.md
+│   └── project_conventions.md
+│
+├── scripts/
+│   ├── awards.py
+│   ├── database.py
+│   ├── filters.py
+│   ├── import_to_postgres.py
+│   ├── load_data.py
+│   ├── search.py
+│   ├── site_statistics.py
+│   ├── test_awards.py
+│   ├── test_database.py
+│   ├── test_filters.py
+│   ├── test_search.py
+│   └── test_site_statistics.py
+│
+├── .env
+├── .env.example
+├── .gitignore
+├── README.md
+└── requirements.txt
 ```
 
-Essa estrutura representa a fase atual do projeto.
-
-O projeto já possui:
-
-* datasets principais;
-* módulos de backend;
-* API inicial;
-* dashboard inicial;
-* testes simples;
-* documentação técnica.
-
-A estrutura poderá evoluir conforme o crescimento do projeto, mas sempre preservando a separação de responsabilidades.
+A estrutura poderá evoluir, mas deve preservar a separação de responsabilidades.
 
 ---
 
@@ -177,129 +302,118 @@ A estrutura poderá evoluir conforme o crescimento do projeto, mas sempre preser
 
 ## Arquivos
 
-Utilizar sempre **snake_case** para arquivos Python e documentos internos.
+Utilizar **snake_case** para arquivos Python e documentos internos.
 
 Exemplos:
 
-```text
-games.csv
-awards.csv
+```text id="nac3ls"
 load_data.py
-filters.py
-search.py
+database.py
+import_to_postgres.py
 site_statistics.py
-awards.py
 api_plan.md
-api_checkpoint.md
-dashboard_plan.md
-dashboard_checkpoint.md
+postgresql_checkpoint.md
 project_context.md
-project_blueprint.md
-project_conventions.md
 ```
 
-Evitar nomes genéricos ou inconsistentes.
+Evitar nomes genéricos ou temporários.
 
 Exemplos ruins:
 
-```text
+```text id="2u89kc"
 coisas.py
 teste2.py
-dadosnovos.csv
-arquivo_final_final.py
+arquivo_novo.py
+dados_final_final.csv
 ```
 
 ---
 
 ## Pastas
 
-Pastas devem ter nomes simples, objetivos e em letras minúsculas.
+Pastas devem possuir nomes simples, objetivos e em letras minúsculas.
 
 Exemplos:
 
-```text
+```text id="7zbbv1"
 api/
-data/
-docs/
 dashboard/
+data/
+database/
+docs/
 scripts/
 assets/
-notebooks/
 ```
-
-Evitar nomes longos ou confusos.
 
 ---
 
 ## Variáveis
 
-Utilizar sempre **snake_case**.
+Utilizar **snake_case**.
 
 Exemplos:
 
-```python
+```python id="vc0g92"
 nome_jogo
 ano_lancamento
-developer_name
 jogos_filtrados
 dados_awards
+configuracao_banco
 ```
 
-As variáveis devem indicar claramente o que armazenam.
+Variáveis devem indicar claramente o valor armazenado.
+
+Evitar abreviações desnecessárias.
 
 ---
 
 ## Funções
 
-Utilizar sempre **snake_case**.
+Utilizar **snake_case**.
 
 Exemplos:
 
-```python
+```python id="1wuydg"
 carregar_dataset()
-carregar_awards()
+conectar_postgres()
 listar_jogos_por_genero()
 buscar_vencedor_por_ano()
 gerar_estatisticas_home()
 ```
 
-Os nomes das funções devem deixar claro o que elas fazem.
+Os nomes devem representar:
 
-Evitar nomes vagos como:
+```text id="03gld2"
+ação + alvo
+```
 
-```python
+Evitar nomes vagos:
+
+```python id="9z7j39"
 fazer()
 pegar()
 coisa()
-processar_dados()
-```
-
-Quando possível, o nome da função deve indicar ação + alvo.
-
-Exemplos:
-
-```python
-listar_jogos_por_developer()
-pesquisar_jogos_por_nome()
-listar_vencedores_na_foundation()
+processar()
 ```
 
 ---
 
 ## Classes
 
-Caso o projeto passe a utilizar classes no futuro, utilizar **PascalCase**.
+Caso classes sejam utilizadas, empregar **PascalCase**.
 
 Exemplos:
 
-```python
+```python id="o3szjr"
 Game
 Developer
 GameAward
 DatabaseConnection
 ```
 
-Atualmente, o projeto ainda trabalha principalmente com funções e módulos simples.
+Classes devem ser introduzidas apenas quando trouxerem uma vantagem real.
+
+Não se deve transformar módulos simples em classes apenas por preferência arquitetural.
 
 ---
 
@@ -309,15 +423,55 @@ Utilizar **UPPER_CASE**.
 
 Exemplos:
 
-```python
-DEFAULT_PATH
-DATA_PATH
+```python id="2svrqf"
+PROJECT_ROOT
 GAMES_CSV_PATH
 AWARDS_CSV_PATH
+DEFAULT_LIMIT
 PROJECT_VERSION
 ```
 
-Constantes devem ser usadas para valores fixos e reutilizados.
+Constantes devem representar valores fixos e reutilizados.
+
+---
+
+## Tabelas e Colunas SQL
+
+Utilizar nomes em letras minúsculas e `snake_case`.
+
+Exemplos:
+
+```text id="hyma4a"
+games
+awards
+ano_lancamento
+nota_kadu
+historico_importante
+```
+
+Evitar:
+
+* espaços;
+* acentos;
+* nomes ambíguos;
+* nomes excessivamente abreviados.
+
+---
+
+## Endpoints
+
+Endpoints devem utilizar nomes em inglês, minúsculos e previsíveis.
+
+Exemplos:
+
+```text id="g18gh3"
+GET /games
+GET /games/search
+GET /games/year/{year}
+GET /awards/winners
+```
+
+Os endpoints devem representar recursos ou consultas claras.
 
 ---
 
@@ -325,197 +479,268 @@ Constantes devem ser usadas para valores fixos e reutilizados.
 
 Cada arquivo deve possuir uma responsabilidade principal.
 
-Exemplos:
+## `load_data.py`
 
-```text
-load_data.py
-```
+Responsável por carregar os arquivos CSV diretamente.
 
-Responsável pelo carregamento dos dados.
+Esse módulo não deve conter:
 
-```text
-filters.py
-```
+* regras de API;
+* conexão com PostgreSQL;
+* componentes do dashboard.
+
+---
+
+## `import_to_postgres.py`
+
+Responsável por importar os CSVs para PostgreSQL.
+
+Esse módulo pode:
+
+* ler CSVs;
+* transformar valores;
+* limpar tabelas quando necessário;
+* inserir registros;
+* validar quantidades.
+
+Ele não deve assumir funções da API ou do dashboard.
+
+---
+
+## `database.py`
+
+Responsável por:
+
+* carregar variáveis do ambiente;
+* criar conexão;
+* executar consultas de leitura;
+* retornar DataFrames;
+* centralizar acesso ao PostgreSQL.
+
+Ele não deve conter:
+
+* componentes visuais;
+* regras editoriais;
+* rotas da API;
+* filtros específicos de interface.
+
+---
+
+## `filters.py`
 
 Responsável pelos filtros da Foundation Collection.
 
-```text
-search.py
-```
+---
 
-Responsável pela pesquisa textual da Foundation Collection.
+## `search.py`
 
-```text
-site_statistics.py
-```
+Responsável pela pesquisa textual.
+
+---
+
+## `site_statistics.py`
 
 Responsável pelas estatísticas da Foundation Collection.
 
-```text
-awards.py
-```
+---
 
-Responsável pelas consultas da base Awards History.
+## `awards.py`
 
-```text
-api/main.py
-```
+Responsável pelas consultas e comparações da Awards History.
 
-Responsável por expor os dados através da API FastAPI.
+---
 
-```text
-dashboard/app.py
-```
+## `api/main.py`
 
-Responsável pela interface visual do dashboard Streamlit.
+Responsável por:
 
-Evitar misturar responsabilidades diferentes no mesmo módulo.
+* criar a aplicação FastAPI;
+* declarar endpoints;
+* validar parâmetros;
+* chamar os módulos necessários;
+* retornar respostas JSON.
 
-Por exemplo:
+O arquivo não deve repetir lógica já existente em outros módulos.
 
-* filtros não devem carregar arquivos diretamente se isso já é função do `load_data.py`;
-* funções de awards não devem ficar dentro de `site_statistics.py`;
-* lógica da API não deve ser duplicada dentro do dashboard;
-* regras de curadoria não devem ficar espalhadas sem documentação.
+---
+
+## `dashboard/app.py`
+
+Responsável pela estrutura visual principal do dashboard.
+
+Deve conter:
+
+* configuração da página;
+* título;
+* abas;
+* componentes visuais;
+* organização da interface.
+
+---
+
+## `dashboard/dashboard_helpers.py`
+
+Responsável por:
+
+* carregar dados;
+* aplicar cache;
+* executar filtros auxiliares;
+* preparar dados para visualização;
+* reutilizar lógica do backend.
+
+Esse arquivo deve evitar virar um segundo `app.py`.
 
 ---
 
 # Organização das Funções
 
-Cada função deve resolver apenas um problema.
+Cada função deve resolver um problema específico.
 
-Sempre que possível, uma função deve:
+Uma função deve, sempre que possível:
 
-* receber dados;
-* executar uma tarefa clara;
-* retornar um resultado.
+1. receber dados ou parâmetros;
+2. executar uma tarefa clara;
+3. retornar um resultado previsível.
 
-Funções pequenas são mais fáceis de testar, reutilizar e manter.
+Funções pequenas são mais fáceis de:
 
-Toda função criada deve possuir uma utilidade real no projeto.
+* testar;
+* reutilizar;
+* compreender;
+* manter.
 
-Antes de criar uma nova função, deve-se responder:
+Antes de criar uma função, responder:
 
-> Qual parte do sistema utilizará este código?
+> Onde esta função será utilizada?
 
-Exemplos de boas funções:
+---
 
-```python
-listar_jogos_por_genero()
-listar_jogos_por_decada()
-buscar_vencedor_por_ano()
-contar_total_jogos()
+# Tipagem
+
+Sempre que for útil e compreensível, utilizar type hints.
+
+Exemplo:
+
+```python id="ovkx0v"
+def listar_jogos_por_ano(df: pd.DataFrame, ano: int) -> pd.DataFrame:
+    ...
 ```
 
-Essas funções são boas porque possuem nomes claros e responsabilidades específicas.
+A tipagem deve ajudar na leitura.
+
+Ela não deve tornar o código desnecessariamente complexo.
+
+---
+
+# Docstrings
+
+Funções importantes podem utilizar docstrings.
+
+Exemplo:
+
+```python id="dn1chm"
+def carregar_games_do_banco() -> pd.DataFrame:
+    """
+    Carrega todos os registros da tabela games
+    e retorna os dados como DataFrame.
+    """
+```
+
+Docstrings devem explicar:
+
+* objetivo;
+* parâmetros relevantes;
+* retorno;
+* comportamento especial.
 
 ---
 
 # Comentários
 
-Os comentários possuem finalidade didática.
+Os comentários possuem finalidade didática e técnica.
 
-Eles devem ajudar no aprendizado e na manutenção do projeto.
+Eles devem:
 
-Comentários devem:
+* explicar decisões;
+* contextualizar lógica;
+* facilitar a manutenção;
+* apresentar conceitos importantes;
+* justificar escolhas menos óbvias.
 
-* explicar conceitos importantes;
-* contextualizar decisões;
-* facilitar o entendimento de trechos menos óbvios;
-* explicar o motivo de uma escolha técnica;
-* ajudar quem está estudando o código.
-
-Evitar comentários que apenas repetem o que o código já informa.
+Evitar comentários que apenas repetem o código.
 
 Exemplo ruim:
 
-```python
+```python id="4ih152"
 # Soma 1
 x = x + 1
 ```
 
 Exemplo melhor:
 
-```python
-# Criamos uma cópia para evitar alterações acidentais no DataFrame original.
+```python id="70bcch"
+# Criamos uma cópia para evitar alterações acidentais
+# no DataFrame original usado por outras funções.
 resultado = df[filtro].copy()
 ```
 
-Como o projeto também serve para estudo, comentários didáticos são bem-vindos, desde que não deixem o código poluído.
+Comentários extensos devem ser usados com moderação.
 
 ---
 
-# Filosofia de Desenvolvimento
+# Formatação do Código
 
-O desenvolvimento do The AAA Archive segue uma abordagem incremental.
+O código deve seguir um padrão visual consistente.
 
-Antes de implementar qualquer funcionalidade, deve-se responder:
+Regras gerais:
 
-> Qual parte do sistema utilizará este código?
+* quatro espaços de indentação;
+* linhas separadas por responsabilidade;
+* imports organizados;
+* evitar linhas excessivamente longas;
+* utilizar espaços ao redor de operadores;
+* separar blocos importantes com comentários;
+* evitar código morto;
+* remover prints temporários após testes.
 
-Toda funcionalidade deverá possuir uma aplicação prática no produto.
+Organização recomendada dos imports:
 
-Exemplos:
+```python id="vs4j4l"
+# Bibliotecas padrão
+from pathlib import Path
+import sys
 
-```text
-Home / estatísticas gerais
-→ site_statistics.py
+# Bibliotecas externas
+import pandas as pd
+from fastapi import FastAPI
+
+# Módulos internos
+from scripts.database import carregar_games_do_banco
 ```
-
-```text
-Archive / filtros
-→ filters.py
-```
-
-```text
-Archive / busca textual
-→ search.py
-```
-
-```text
-Awards / vencedores e indicados
-→ awards.py
-```
-
-```text
-API
-→ reutiliza os módulos existentes
-```
-
-```text
-Dashboard
-→ reutiliza os módulos existentes e exibe os dados visualmente
-```
-
-Essa abordagem evita código desnecessário e mantém o projeto orientado ao produto.
 
 ---
 
 # Organização dos Dados
 
-Durante a fase atual, o projeto utiliza datasets em CSV.
-
 ## Foundation Collection
 
-Arquivo:
+Arquivo editorial:
 
-```text
+```text id="37b4tp"
 data/games.csv
 ```
 
-Esse arquivo representa a coleção principal do The AAA Archive.
+Tabela operacional:
 
-Cada linha representa um jogo da Foundation Collection.
-
-A estrutura oficial desse dataset encontra-se documentada em:
-
-```text
-docs/data_dictionary.md
+```text id="tmsl0s"
+games
 ```
 
-Colunas atuais:
+Cada linha representa um jogo.
 
-```text
+Colunas:
+
+```text id="1efhfu"
 id
 nome
 ano_lancamento
@@ -530,51 +755,229 @@ historico_importante
 historico_influente
 ```
 
+A documentação oficial fica em:
+
+```text id="c43p0a"
+docs/data_dictionary.md
+```
+
 ---
 
 ## Awards History
 
-Arquivo:
+Arquivo editorial:
 
-```text
+```text id="ib6ikh"
 data/awards.csv
 ```
 
-Esse arquivo representa o histórico de vencedores e indicados a prêmios de Game of the Year.
+Tabela operacional:
 
-A estrutura oficial desse dataset encontra-se documentada em:
-
-```text
-docs/awards_dictionary.md
+```text id="6ztlva"
+awards
 ```
 
-Colunas atuais:
+Colunas no CSV:
 
-```text
+```text id="n18p4j"
 ano
 premiacao
 jogo
 status
 ```
 
-A base Awards History é independente da Foundation Collection.
+A tabela também possui o campo:
 
-No entanto, as duas bases podem ser comparadas pelo nome do jogo:
-
-```text
-awards.csv → jogo
-games.csv  → nome
+```text id="wwjcun"
+id
 ```
 
-Essa comparação permite identificar:
+A documentação oficial fica em:
 
-* jogos vencedores que já fazem parte da Foundation Collection;
-* jogos indicados que já fazem parte da Foundation Collection;
-* jogos premiados ou indicados que ainda estão fora da Foundation Collection.
+```text id="bip1rg"
+docs/awards_dictionary.md
+```
 
-No futuro, os dados poderão ser migrados para PostgreSQL.
+---
 
-Essa migração deverá ser planejada antes de ser implementada.
+# Relação entre CSV e PostgreSQL
+
+O projeto mantém duas representações dos dados:
+
+```text id="c48pre"
+CSV
+→ fonte editorial
+
+PostgreSQL
+→ fonte operacional
+```
+
+O fluxo oficial de atualização é:
+
+```text id="ktx2gl"
+Editar CSV
+↓
+Executar import_to_postgres.py
+↓
+Validar quantidades
+↓
+Executar testes
+↓
+Utilizar dados na API e no dashboard
+```
+
+Não se deve editar manualmente o PostgreSQL e esquecer de atualizar os CSVs.
+
+Enquanto o projeto seguir esse modelo, os CSVs são a fonte principal de edição.
+
+---
+
+# Regras para o Banco de Dados
+
+## Schema
+
+A estrutura oficial está em:
+
+```text id="88gfd0"
+database/schema.sql
+```
+
+Mudanças em tabelas devem ser refletidas nesse arquivo.
+
+---
+
+## Chaves Primárias
+
+Toda tabela deve possuir uma chave primária.
+
+Atualmente:
+
+```text id="yooqwx"
+games.id
+awards.id
+```
+
+---
+
+## Valores Nulos
+
+Campos opcionais podem aceitar `NULL`.
+
+Campos essenciais devem utilizar `NOT NULL`.
+
+Exemplo:
+
+```sql id="h0mhwp"
+nome VARCHAR(200) NOT NULL
+```
+
+---
+
+## Tipos de Dados
+
+Escolher tipos compatíveis com o conteúdo.
+
+Exemplos:
+
+```text id="t8xaaw"
+INTEGER
+VARCHAR
+TEXT
+NUMERIC
+BOOLEAN
+SERIAL
+```
+
+Não utilizar texto para valores que deveriam ser numéricos ou booleanos.
+
+---
+
+## Alterações no Schema
+
+Antes de alterar o schema:
+
+1. definir a necessidade;
+2. atualizar a documentação;
+3. atualizar `schema.sql`;
+4. ajustar os CSVs, se necessário;
+5. ajustar o importador;
+6. ajustar o código;
+7. atualizar testes;
+8. validar o banco;
+9. registrar a alteração.
+
+---
+
+# Variáveis de Ambiente
+
+As configurações sensíveis devem ficar em:
+
+```text id="n6nl46"
+.env
+```
+
+Exemplo:
+
+```env id="eo7esr"
+POSTGRES_DB=aaa_archive
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=sua_senha
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+```
+
+O `.env` nunca deve ser:
+
+* enviado ao GitHub;
+* incluído em ZIP público;
+* mostrado em documentação;
+* compartilhado com credenciais reais;
+* copiado para exemplos.
+
+---
+
+## `.env.example`
+
+O projeto deve possuir:
+
+```text id="u2e44m"
+.env.example
+```
+
+Exemplo:
+
+```env id="9wm6co"
+POSTGRES_DB=aaa_archive
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=sua_senha_aqui
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+```
+
+Esse arquivo pode ser versionado porque não contém credenciais reais.
+
+---
+
+# Segurança
+
+Arquivos e pastas que não devem ser compartilhados publicamente:
+
+```text id="1pe8k8"
+.env
+.venv/
+__pycache__/
+.git/
+```
+
+Outros cuidados:
+
+* não escrever senha dentro do código;
+* não imprimir senha no terminal;
+* não registrar credenciais em commits;
+* não inserir credenciais em screenshots;
+* revisar ZIPs antes de compartilhar;
+* trocar senhas expostas acidentalmente;
+* utilizar variáveis de ambiente.
 
 ---
 
@@ -586,77 +989,96 @@ Sempre que possível, utilizar fontes oficiais ou verificáveis.
 
 Possíveis fontes:
 
+* páginas oficiais;
 * IGDB;
 * Metacritic;
-* páginas oficiais;
-* documentações públicas confiáveis;
-* sites reconhecidos da indústria.
+* documentações públicas;
+* sites reconhecidos da indústria;
+* materiais das desenvolvedoras e publishers.
+
+---
 
 ## Dados de premiações
 
 Possíveis fontes:
 
-* registros oficiais das premiações;
 * páginas oficiais;
-* bases públicas confiáveis;
-* fontes jornalísticas reconhecidas, quando necessário.
+* registros das premiações;
+* arquivos públicos confiáveis;
+* veículos jornalísticos reconhecidos.
+
+---
 
 ## Conteúdo editorial
 
-O conteúdo editorial é produzido para o The AAA Archive.
+Conteúdo produzido para o Archive:
 
-Exemplos:
-
-* descrição;
-* nota Kadu;
-* nota Pavam;
-* marcação de histórico importante;
-* marcação de histórico influente;
+* descrições;
+* notas;
+* marcações históricas;
+* marcações de influência;
 * critérios de curadoria;
-* textos explicativos.
+* textos explicativos;
+* justificativas de inclusão.
 
-Essas informações fazem parte da identidade editorial do projeto.
+Informações factuais e opiniões editoriais devem ser diferenciadas.
+
+---
+
+# Regras Editoriais
+
+A Foundation Collection é uma curadoria.
+
+A entrada de um jogo deve considerar:
+
+* relevância histórica;
+* influência;
+* impacto cultural;
+* reconhecimento;
+* importância dentro de uma franquia;
+* contribuição para a indústria;
+* coerência com o recorte AAA single-player.
+
+Vencer ou ser indicado a um prêmio não garante inclusão automática.
+
+A Awards History não deve controlar a Foundation Collection.
 
 ---
 
 # API
 
-A API está localizada em:
+A API está em:
 
-```text
+```text id="6rqj92"
 api/main.py
 ```
 
-Ela foi criada com FastAPI.
+A versão atual:
 
-A API inicial está concluída e fechada por enquanto.
+* utiliza PostgreSQL;
+* retorna JSON;
+* realiza operações de leitura;
+* reutiliza os módulos;
+* possui versão `0.2.0`.
 
-Ela atualmente:
+Ela ainda não possui:
 
-* lê dados de CSV;
-* utiliza Pandas;
-* reutiliza os módulos da pasta `scripts/`;
-* retorna respostas em JSON;
-* não altera os dados.
-
-A API ainda não possui:
-
-* cadastro;
+* criação;
 * edição;
 * exclusão;
 * autenticação;
-* banco de dados;
-* routers separados.
+* routers;
+* paginação;
+* filtros combinados;
+* ordenação avançada.
 
-Nesta fase, não devem ser adicionados novos endpoints.
-
-A API só deverá voltar a evoluir depois da organização do dashboard e do planejamento da migração para PostgreSQL.
+Novos endpoints devem nascer de necessidades reais da aplicação web.
 
 ---
 
-## Endpoints Atuais
+# Endpoints Atuais
 
-```text
+```text id="qq47bw"
 GET /
 GET /games
 GET /games/search?term={term}
@@ -680,128 +1102,175 @@ GET /awards/foundation/outside
 
 # Dashboard
 
-O dashboard está localizado em:
+O dashboard está em:
 
-```text
+```text id="yg3nvf"
 dashboard/app.py
 ```
 
-Ele foi criado com Streamlit.
+As funções auxiliares ficam em:
 
-O dashboard inicial está funcionando e possui:
-
-* abas com `st.tabs()`;
-* aba Foundation Collection;
-* aba Awards History;
-* cache com `@st.cache_data`;
-* filtros interativos na sidebar;
-* busca textual;
-* métricas principais;
-* gráficos simples;
-* tabelas dinâmicas;
-* seção Recorte Editorial;
-* jogos historicamente importantes;
-* jogos historicamente influentes;
-* consulta de Awards por ano;
-* histórico de vencedores;
-* comparação entre Awards History e Foundation Collection.
-
-A próxima etapa relacionada ao dashboard é organizar melhor o arquivo `dashboard/app.py`.
-
-Essa organização deve seguir uma refatoração leve.
-
-A opção preferida para a fase atual é:
-
-```text
-dashboard/
-  app.py
-  dashboard_helpers.py
+```text id="f1foy7"
+dashboard/dashboard_helpers.py
 ```
 
-O objetivo é separar funções auxiliares sem quebrar o entendimento do arquivo principal.
+O dashboard atual está concluído para esta fase.
 
-Nesta fase, não se deve alterar:
+Ele não deve receber grandes funcionalidades antes do planejamento da aplicação web.
 
-* visual;
-* fluxo principal;
-* filtros existentes;
-* abas existentes;
-* funcionalidades principais.
+Mudanças futuras devem preservar:
 
-Também não é recomendado, por enquanto, criar uma estrutura maior como:
-
-```text
-dashboard/
-  components/
-    sidebar.py
-    foundation_tab.py
-    awards_tab.py
-```
-
-Essa estrutura poderá ser considerada no futuro, quando o dashboard crescer mais.
+* clareza;
+* reutilização;
+* separação da interface;
+* funcionamento dos filtros;
+* conexão com PostgreSQL.
 
 ---
 
 # Testes
 
-Sempre que uma nova função relevante for criada, deve-se criar ou atualizar um teste correspondente.
+Sempre que uma função relevante for criada ou alterada, seu teste deve ser criado ou atualizado.
 
-Os testes atuais utilizam `assert`.
+Testes atuais:
 
-Arquivos de teste atuais:
-
-```text
+```text id="9sfp0c"
 scripts/test_filters.py
 scripts/test_search.py
 scripts/test_site_statistics.py
 scripts/test_awards.py
+scripts/test_database.py
 api/test_main.py
 ```
 
-Para rodar todos os testes:
+Comandos:
 
-```bash
+```bash id="x89cmj"
 python scripts/test_filters.py
 python scripts/test_search.py
 python scripts/test_site_statistics.py
 python scripts/test_awards.py
+python scripts/test_database.py
 python api/test_main.py
 ```
 
-Se todos os testes passarem, significa que os módulos atuais e a API inicial continuam funcionando corretamente.
+Os testes de banco e API dependem do PostgreSQL configurado.
 
-Após refatorações, principalmente no dashboard ou nos módulos reutilizados, os testes devem ser executados novamente.
+---
+
+## Convenções dos Testes
+
+Os testes devem:
+
+* validar comportamento real;
+* possuir mensagens claras;
+* evitar dependências desnecessárias;
+* utilizar dados previsíveis;
+* testar casos de sucesso;
+* testar listas vazias quando relevante;
+* testar parâmetros inválidos quando necessário.
+
+Os testes que validam quantidades fixas devem ser atualizados quando o dataset crescer.
 
 ---
 
 # Requirements
 
-O arquivo de dependências do projeto é:
+O arquivo de dependências é:
 
-```text
+```text id="iw54wq"
 requirements.txt
 ```
 
-Ele deve conter apenas nomes de pacotes e versões necessárias para rodar o projeto.
+Ele deve conter apenas pacotes necessários para executar o projeto.
 
-Exemplo de conteúdo esperado:
+Dependências principais esperadas:
 
-```text
+```text id="0d5w6v"
 pandas
 fastapi
 uvicorn
 streamlit
+psycopg
+python-dotenv
 ```
 
-Comandos como o exemplo abaixo não devem ficar dentro do arquivo:
+Não inserir comandos dentro do arquivo.
 
-```text
+Exemplo incorreto:
+
+```text id="7di5l1"
 pip freeze > requirements.txt
 ```
 
-Esse comando serve para gerar o arquivo, não para ser listado como dependência.
+---
 
-A revisão do `requirements.txt` será feita após a organização do dashboard e antes do planejamento do PostgreSQL.
+# Documentação
+
+Documentos gerais devem representar o estado atual.
+
+Documentos de plano podem preservar decisões históricas, desde que indiquem que a fase foi concluída.
+
+Categorias:
+
+```text id="lm9no7"
+Contexto
+Blueprint
+Convenções
+Dicionários
+Planos
+Checkpoints
+README
+```
+
+---
+
+## Documentos de Estado Atual
+
+Devem ser mantidos atualizados:
+
+```text id="n9cfg4"
+README.md
+project_context.md
+project_blueprint.md
+project_conventions.md
+```
+
+---
+
+## Documentos de Planejamento
+
+Exemplos:
+
+```text id="ce7i6v"
+api_plan.md
+dashboard_plan.md
+postgresql_plan.md
+```
+
+Ao concluir uma fase, adicionar uma observação indicando que o documento representa o planejamento anterior.
+
+---
+
+## Checkpoints
+
+Exemplos:
+
+```text id="x2k8aw"
+api_checkpoint.md
+dashboard_checkpoint.md
+postgresql_checkpoint.md
+```
+
+Checkpoints devem registrar:
+
+* o que foi feito;
+* estado final;
+* arquivos envolvidos;
+* testes;
+* decisões;
+* limitações;
+* próximos passos.
 
 ---
 
@@ -809,124 +1278,291 @@ A revisão do `requirements.txt` será feita após a organização do dashboard 
 
 Utilizar mensagens curtas, objetivas e descritivas.
 
-Exemplos:
+Formato recomendado:
 
-```text
-docs: update project context
-docs: update project blueprint
-docs: update project conventions
-docs: update dashboard plan
-docs: update api checkpoint
-
-feat: create search module
-feat: add site statistics
-feat: add awards history module
-feat: add awards foundation integration
-feat: create initial fastapi api
-feat: create streamlit dashboard
-
-refactor: organize dashboard helpers
-refactor: improve filters
-
-fix: correct metacritic values
-fix: adjust awards comparison
-
-data: update foundation collection
-data: update awards history
-
-test: add api tests
-test: update awards tests
+```text id="kli3fp"
+tipo: descrição
 ```
 
-O commit deve deixar claro o tipo de alteração feita.
+Tipos:
+
+```text id="d4riua"
+docs
+feat
+fix
+refactor
+test
+data
+chore
+```
+
+Exemplos:
+
+```text id="7niog4"
+docs: update project context
+docs: align PostgreSQL documentation
+feat: add database connection layer
+feat: migrate api to PostgreSQL
+refactor: organize dashboard helpers
+fix: correct awards comparison
+data: update foundation collection
+test: add database tests
+chore: add env example
+```
+
+Um commit deve representar um conjunto coerente de alterações.
+
+Evitar misturar:
+
+* documentação;
+* nova funcionalidade;
+* refatoração;
+* grandes mudanças de dados;
+
+no mesmo commit, quando puderem ser separados.
+
+---
+
+# Git
+
+Antes de iniciar uma nova fase:
+
+```bash id="kxjqom"
+git status
+```
+
+Confirmar:
+
+* arquivos alterados;
+* arquivos novos;
+* `.env` não rastreado;
+* ausência de arquivos temporários;
+* testes executados.
+
+Depois:
+
+```bash id="5941rm"
+git add .
+git commit -m "mensagem"
+git push
+```
+
+O comando `git add .` deve ser utilizado apenas após revisar o `git status`.
+
+---
+
+# `.gitignore`
+
+O `.gitignore` deve incluir, quando aplicável:
+
+```gitignore id="vr4vkb"
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+```
+
+Pastas ou arquivos gerados automaticamente não devem ser versionados.
 
 ---
 
 # Ordem Recomendada Antes de Grandes Mudanças
 
-Antes de iniciar uma nova fase grande, seguir esta ordem:
+Antes de iniciar uma nova fase:
 
-```text
-1. Verificar o estado atual do projeto.
-2. Confirmar se os testes passam.
-3. Atualizar documentação, se necessário.
-4. Fazer commit das mudanças estáveis.
-5. Planejar a próxima fase.
-6. Só depois implementar.
+```text id="j66bp7"
+1. Verificar o estado atual.
+2. Confirmar que a documentação está alinhada.
+3. Executar os testes.
+4. Corrigir problemas encontrados.
+5. Confirmar o git status.
+6. Criar um commit estável.
+7. Planejar a próxima fase.
+8. Só depois implementar.
 ```
 
-Essa ordem evita misturar muitas mudanças diferentes no mesmo momento.
+---
+
+# Fluxo de Desenvolvimento
+
+Toda funcionalidade deve seguir:
+
+```text id="zr3j9o"
+Identificar necessidade
+↓
+Definir onde será usada
+↓
+Definir camada responsável
+↓
+Planejar
+↓
+Implementar
+↓
+Testar
+↓
+Documentar
+↓
+Criar checkpoint
+```
+
+---
+
+# Refatorações
+
+Refatorações devem:
+
+* preservar comportamento;
+* acontecer separadamente de novas funcionalidades;
+* manter testes passando;
+* ser documentadas quando alterarem estrutura;
+* evitar abstrações desnecessárias.
+
+Não criar:
+
+* classes;
+* camadas;
+* pastas;
+* padrões complexos;
+
+sem uma justificativa clara.
+
+---
+
+# Tratamento de Erros
+
+Funções de conexão, leitura e importação devem apresentar erros compreensíveis.
+
+Evitar esconder exceções sem explicação.
+
+Mensagens devem ajudar a identificar:
+
+* variável ausente;
+* banco desligado;
+* tabela inexistente;
+* arquivo ausente;
+* coluna incorreta;
+* falha de importação.
+
+Não expor senhas ou credenciais nas mensagens.
 
 ---
 
 # Fase Atual do Projeto
 
-A fase atual é uma organização curta antes da migração para PostgreSQL.
+A fase PostgreSQL foi concluída.
 
 Concluído:
 
-* datasets CSV;
-* módulos principais;
-* testes dos módulos;
-* API inicial;
-* teste da API;
-* dashboard inicial;
-* documentação inicial da API;
-* documentação inicial do dashboard;
-* README atualizado.
+* datasets;
+* módulos;
+* testes;
+* API;
+* dashboard;
+* PostgreSQL;
+* schema;
+* importador;
+* camada de banco;
+* migração da API;
+* migração do dashboard;
+* checkpoints da fase.
 
-Em andamento:
+A fase atual é o alinhamento final da documentação e da segurança do repositório.
 
-* alinhamento dos documentos principais;
-* preparação para organizar o `dashboard/app.py`.
+Atividades atuais:
 
-Próximas etapas:
-
-```text
-1. Confirmar git status e fazer commit/push se necessário.
-2. Organizar dashboard/app.py com uma refatoração leve.
-3. Não alterar visual nem funcionalidades principais do dashboard.
-4. Revisar requirements.txt.
-5. Criar docs/postgresql_plan.md.
-6. Só depois iniciar a migração para PostgreSQL.
-```
+* atualizar documentos gerais;
+* revisar dicionários;
+* marcar planos concluídos;
+* criar `.env.example`;
+* revisar `.gitignore`;
+* executar testes;
+* criar commit de checkpoint.
 
 ---
 
-# Princípios do Projeto
+# Diretrizes da Fase Atual
 
-Durante todo o desenvolvimento serão seguidos os seguintes princípios:
+Durante esta fase:
 
-* Clareza acima da complexidade.
-* Organização acima da velocidade.
-* Qualidade acima da quantidade.
-* Documentação antes de grandes mudanças.
-* Evolução incremental.
-* Código limpo.
-* Código reutilizável.
-* Responsabilidade única por módulo.
-* Testes simples, mas úteis.
-* Projeto orientado a portfólio.
-* Toda função deve possuir finalidade real.
-* A estrutura deve permanecer simples enquanto o projeto cresce.
-* A API não deve receber novos endpoints nesta fase.
-* O dashboard deve ser organizado sem mudar sua proposta atual.
-* A migração para PostgreSQL deve ser planejada antes da implementação.
+* não iniciar front-end;
+* não adicionar endpoints;
+* não alterar o schema;
+* não expandir o dashboard;
+* não remover os CSVs;
+* não mudar a fonte operacional;
+* não adicionar autenticação;
+* não normalizar o banco;
+* não expor credenciais.
+
+O objetivo é encerrar a fase PostgreSQL de maneira estável.
+
+---
+
+# Próxima Fase
+
+Após o encerramento atual:
+
+```text id="uc1b7i"
+Planejamento do front-end
+```
+
+Nessa fase serão definidos:
+
+* objetivo da aplicação;
+* experiência;
+* identidade visual;
+* páginas;
+* navegação;
+* conteúdo;
+* consumo da API;
+* stack;
+* deploy futuro.
+
+Nenhuma tecnologia de front-end deve ser escolhida antes desse planejamento.
+
+---
+
+# Princípios Finais
+
+Durante todo o desenvolvimento:
+
+* clareza acima da complexidade;
+* organização acima da velocidade;
+* qualidade acima da quantidade;
+* documentação antes de grandes mudanças;
+* evolução incremental;
+* código compreensível;
+* código reutilizável;
+* responsabilidade clara por módulo;
+* testes simples, mas úteis;
+* segurança de credenciais;
+* projeto orientado a produto;
+* projeto orientado a aprendizado;
+* estrutura simples enquanto for suficiente.
 
 ---
 
 # Objetivo Final
 
-Construir um sistema completo para preservar, organizar, analisar e disponibilizar informações sobre videogames através de:
+Construir um sistema capaz de preservar, organizar, analisar e disponibilizar informações sobre videogames por meio de:
 
+* curadoria editorial;
+* datasets estruturados;
+* PostgreSQL;
 * backend modular;
-* datasets bem estruturados;
 * API;
-* dashboard analítico;
-* banco de dados PostgreSQL;
-* futuro website;
-* documentação consistente.
+* dashboard;
+* aplicação web;
+* documentação consistente;
+* testes;
+* evolução técnica controlada.
 
-Todo o desenvolvimento deverá priorizar simplicidade, organização e escalabilidade.
+O The AAA Archive deve evoluir continuamente sem perder:
 
-O The AAA Archive deve evoluir continuamente sem perder sua consistência arquitetural e sem se tornar complexo antes da hora.
+* consistência;
+* identidade;
+* clareza;
+* simplicidade;
+* organização.

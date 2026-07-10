@@ -1,8 +1,10 @@
 # Project Blueprint — The AAA Archive
 
-> **Este documento representa a visão oficial do The AAA Archive.**
+> **Este documento representa a visão oficial de produto do The AAA Archive.**
 >
-> Antes de implementar novas funcionalidades, alterar a arquitetura ou iniciar uma nova conversa sobre o projeto, este documento deve ser utilizado como uma das principais referências.
+> Antes de implementar novas funcionalidades, alterar a arquitetura ou iniciar uma nova fase, este documento deve ser utilizado como uma das principais referências.
+>
+> O blueprint define o que o projeto pretende ser, como suas áreas se relacionam e quais princípios devem orientar sua evolução.
 
 ---
 
@@ -12,22 +14,104 @@ O **The AAA Archive** é um projeto pessoal de desenvolvimento de software criad
 
 Seu objetivo é construir um arquivo digital curado dedicado à preservação, organização e exploração da história dos videogames, com foco em jogos **AAA single-player historicamente relevantes**.
 
-O projeto nasceu como uma forma de estudar **Python**, **Pandas** e análise de dados usando um dataset próprio, mas evoluiu para uma aplicação mais completa, envolvendo:
+O projeto nasceu como uma forma de estudar Python, Pandas e análise de dados utilizando um dataset próprio, mas evoluiu para uma aplicação composta por diferentes camadas:
 
-* backend modular;
-* datasets em CSV;
-* testes simples;
+* datasets editoriais em CSV;
+* banco de dados PostgreSQL;
+* backend modular em Python;
+* camada centralizada de acesso aos dados;
+* testes;
 * API com FastAPI;
 * dashboard com Streamlit;
 * documentação técnica;
-* futura migração para PostgreSQL;
-* possível website próprio no futuro.
+* futura aplicação web própria.
 
-A **Foundation Collection** representa o núcleo principal do projeto. Ela reúne uma seleção cuidadosamente curada de jogos considerados importantes para a história da indústria.
+A arquitetura atual pode ser resumida da seguinte forma:
 
-Além dela, o projeto também possui uma base independente chamada **Awards History**, responsável por armazenar vencedores e indicados a prêmios de **Game of the Year**.
+```text
+Datasets editoriais
+↓
+PostgreSQL
+↓
+Backend Python
+↓
+API FastAPI
+↓
+Dashboard Streamlit
+↓
+Futura aplicação web
+```
 
-O objetivo do The AAA Archive não é catalogar todos os jogos existentes, mas construir uma coleção consistente, organizada, editorialmente clara e preparada para crescer ao longo do tempo.
+A **Foundation Collection** representa o núcleo principal do projeto.
+
+Ela reúne uma seleção cuidadosamente curada de jogos considerados relevantes para a história da indústria.
+
+Além dela, o projeto possui uma base independente chamada **Awards History**, responsável por armazenar vencedores e indicados a premiações de **Game of the Year**.
+
+O objetivo do The AAA Archive não é catalogar todos os jogos existentes.
+
+A proposta é construir uma coleção:
+
+* consistente;
+* organizada;
+* editorialmente clara;
+* historicamente relevante;
+* tecnicamente estruturada;
+* preparada para crescer sem perder identidade.
+
+---
+
+# Natureza do Projeto
+
+O The AAA Archive possui quatro dimensões principais.
+
+## Projeto Editorial
+
+O projeto seleciona e organiza jogos segundo critérios próprios de importância histórica.
+
+Ele não funciona como um banco de dados genérico ou uma enciclopédia completa.
+
+---
+
+## Projeto de Software
+
+O Archive é construído como uma aplicação real, com:
+
+* dados;
+* banco;
+* backend;
+* API;
+* dashboard;
+* testes;
+* documentação;
+* futura interface web.
+
+---
+
+## Projeto Educacional
+
+Cada fase é utilizada para aprender uma nova tecnologia ou conceito.
+
+A aprendizagem acontece por meio da evolução do próprio sistema.
+
+---
+
+## Projeto de Portfólio
+
+O projeto demonstra conhecimentos e evolução prática em:
+
+* Python;
+* Pandas;
+* PostgreSQL;
+* SQL;
+* FastAPI;
+* Streamlit;
+* análise de dados;
+* organização de software;
+* testes;
+* documentação;
+* Git e GitHub;
+* futuramente, desenvolvimento front-end.
 
 ---
 
@@ -37,57 +121,114 @@ O desenvolvimento do The AAA Archive possui objetivos técnicos, educacionais e 
 
 Os principais objetivos são:
 
-* construir uma Foundation Collection organizada e bem documentada;
-* manter um histórico de premiações de Game of the Year;
-* desenvolver um backend reutilizável utilizando Python e Pandas;
-* disponibilizar os dados através de uma API com FastAPI;
-* criar um dashboard analítico com Streamlit;
-* praticar organização de projeto, documentação, testes e Git/GitHub;
-* preparar o projeto para uma futura migração para PostgreSQL;
-* construir uma base sólida para portfólio.
+* construir uma Foundation Collection organizada;
+* manter uma documentação editorial consistente;
+* preservar um histórico de premiações de Game of the Year;
+* organizar os dados em CSV e PostgreSQL;
+* desenvolver um backend reutilizável;
+* disponibilizar os dados através de uma API;
+* criar visualizações e análises com Streamlit;
+* praticar testes e validação;
+* aplicar boas práticas de organização;
+* manter a documentação alinhada ao código;
+* construir uma aplicação web própria;
+* criar uma base sólida para portfólio.
 
 Todo código desenvolvido deve possuir uma finalidade prática dentro do produto.
 
-Nesta fase, o objetivo não é adicionar novas funcionalidades grandes, mas organizar melhor o que já foi construído antes de avançar para PostgreSQL.
+Novas tecnologias não devem ser adicionadas apenas por popularidade ou complexidade.
 
 ---
 
-# Bases Principais do Projeto
+# Princípios Editoriais
 
-O projeto trabalha atualmente com duas bases em CSV:
+A Foundation Collection é uma curadoria.
+
+Um jogo pode ser incluído por critérios como:
+
+* importância histórica;
+* influência sobre outros jogos;
+* contribuição para a indústria;
+* impacto cultural;
+* reconhecimento crítico;
+* relevância para uma franquia;
+* inovação técnica;
+* inovação narrativa;
+* inovação mecânica;
+* importância para determinado gênero;
+* força editorial dentro da proposta do Archive.
+
+A presença em premiações não garante automaticamente a entrada na Foundation Collection.
+
+Da mesma forma, um jogo não precisa ter vencido grandes prêmios para ser considerado historicamente relevante.
+
+---
+
+# Bases Principais
+
+O projeto trabalha com duas bases editoriais:
 
 ```text
 data/games.csv
 data/awards.csv
 ```
 
-Essas bases são lidas com Python e Pandas e alimentam os módulos, a API e o dashboard.
+Esses arquivos são importados para PostgreSQL.
+
+Fluxo atual:
+
+```text
+CSV
+↓
+scripts/import_to_postgres.py
+↓
+PostgreSQL
+↓
+API e Dashboard
+```
+
+Os CSVs continuam sendo a fonte editorial original.
+
+O PostgreSQL funciona como fonte operacional da aplicação.
 
 ---
 
-## Foundation Collection
+# Foundation Collection
 
-Arquivo:
+Arquivo editorial:
 
 ```text
 data/games.csv
 ```
 
-A **Foundation Collection** representa o núcleo principal do The AAA Archive.
+Tabela no PostgreSQL:
 
-Cada linha do arquivo representa um jogo da coleção principal.
+```text
+games
+```
 
-Essa base é usada por:
+A Foundation Collection representa o núcleo principal do The AAA Archive.
+
+Cada linha representa um jogo da coleção.
+
+Quantidade atual:
+
+```text
+66 jogos
+```
+
+A base é utilizada por:
 
 * filtros;
-* busca textual;
+* pesquisa textual;
 * estatísticas;
 * API;
 * dashboard;
-* futuras páginas do website;
-* futuras análises históricas.
+* futura aplicação web;
+* futuras análises históricas;
+* futuras páginas individuais de jogos.
 
-O dataset possui colunas como:
+Colunas:
 
 ```text
 id
@@ -104,29 +245,35 @@ historico_importante
 historico_influente
 ```
 
-A Foundation Collection não é uma lista infinita de jogos.
+A Foundation Collection não deve crescer de forma automática ou ilimitada.
 
-Ela é uma curadoria editorial.
-
-Um jogo entra nessa base porque possui relevância histórica, influência cultural, reconhecimento crítico ou importância dentro da evolução dos videogames.
+A entrada de novos jogos deve ser discutida e justificada editorialmente.
 
 ---
 
-## Awards History
+# Awards History
 
-Arquivo:
+Arquivo editorial:
 
 ```text
 data/awards.csv
 ```
 
-O **Awards History** representa o histórico de vencedores e indicados a prêmios de **Game of the Year**.
+Tabela no PostgreSQL:
 
-Essa base é independente da Foundation Collection.
+```text
+awards
+```
 
-Isso significa que um jogo pode aparecer no histórico de premiações mesmo sem fazer parte da coleção principal.
+A Awards History representa o histórico de vencedores e indicados a prêmios de **Game of the Year**.
 
-O dataset possui colunas como:
+Quantidade atual:
+
+```text
+127 registros
+```
+
+Colunas no CSV:
 
 ```text
 ano
@@ -135,26 +282,37 @@ jogo
 status
 ```
 
-As duas bases podem ser comparadas pelo nome do jogo:
+A tabela PostgreSQL também possui:
 
 ```text
-awards.csv → jogo
-games.csv  → nome
+id
+```
+
+A Awards History é independente da Foundation Collection.
+
+Isso significa que um jogo pode aparecer no histórico de premiações sem fazer parte da coleção principal.
+
+As duas bases são comparadas pelos campos:
+
+```text
+awards.jogo
+games.nome
 ```
 
 Essa comparação permite identificar:
 
-* vencedores que já estão na Foundation Collection;
-* indicados que já estão na Foundation Collection;
-* jogos premiados ou indicados que ainda estão fora da Foundation Collection.
+* vencedores presentes na Foundation Collection;
+* indicados presentes na Foundation Collection;
+* jogos premiados fora da Foundation Collection;
+* diferenças entre reconhecimento institucional e curadoria editorial.
 
-Essa separação é importante porque mantém a curadoria editorial da Foundation Collection sem apagar a importância histórica dos prêmios.
+Essa separação preserva a identidade do Archive.
 
 ---
 
 # Arquitetura Geral
 
-O projeto é desenvolvido em camadas simples.
+O projeto utiliza uma arquitetura simples e incremental.
 
 ```text
 Datasets CSV
@@ -166,38 +324,46 @@ Datasets CSV
 │   └── Awards History
 │
 ▼
-load_data.py
+import_to_postgres.py
 │
 ▼
-Módulos do Projeto
+PostgreSQL
+│
+├── tabela games
+│
+└── tabela awards
+│
+▼
+database.py
+│
+▼
+Camada de lógica
 │
 ├── filters.py
 ├── search.py
 ├── site_statistics.py
 ├── awards.py
-└── ...
+└── outros módulos
 │
-▼
-API FastAPI
-│
-▼
-Dashboard Streamlit
-│
-▼
-Futuro Website
+├───────────────┐
+▼               ▼
+API FastAPI     Dashboard Streamlit
+│               │
+└───────┬───────┘
+        ▼
+Futura aplicação web
 ```
 
-Atualmente, os arquivos CSV são a fonte principal de dados.
+Cada camada possui uma função clara:
 
-No futuro, eles poderão ser migrados para um banco de dados PostgreSQL.
-
-A ideia é que a fonte dos dados mude, mas as responsabilidades principais continuem claras:
-
-* dados ficam em uma fonte organizada;
-* módulos tratam a lógica;
-* API disponibiliza os dados;
-* dashboard apresenta análises;
-* futuro website explora a coleção visualmente.
+* os CSVs preservam e recebem a edição editorial;
+* o importador envia os dados ao banco;
+* PostgreSQL armazena os dados operacionais;
+* `database.py` centraliza a conexão e as consultas;
+* os módulos executam a lógica;
+* a API disponibiliza os dados;
+* o dashboard apresenta análises;
+* a aplicação web apresentará a experiência final do Archive.
 
 ---
 
@@ -205,51 +371,57 @@ A ideia é que a fonte dos dados mude, mas as responsabilidades principais conti
 
 ```text
 The-AAA-Archive/
-
-assets/
-
-api/
-  main.py
-  test_main.py
-
-data/
-  games.csv
-  awards.csv
-
-docs/
-  api_checkpoint.md
-  api_plan.md
-  awards_dictionary.md
-  dashboard_checkpoint.md
-  dashboard_plan.md
-  data_dictionary.md
-  foundation_collection.md
-  project_blueprint.md
-  project_context.md
-  project_conventions.md
-
-dashboard/
-  app.py
-
-notebooks/
-
-scripts/
-  load_data.py
-  filters.py
-  search.py
-  site_statistics.py
-  awards.py
-  test_filters.py
-  test_search.py
-  test_site_statistics.py
-  test_awards.py
-
-README.md
-requirements.txt
-.gitignore
+│
+├── api/
+│   ├── main.py
+│   └── test_main.py
+│
+├── dashboard/
+│   ├── app.py
+│   └── dashboard_helpers.py
+│
+├── data/
+│   ├── games.csv
+│   └── awards.csv
+│
+├── database/
+│   └── schema.sql
+│
+├── docs/
+│   ├── api_checkpoint.md
+│   ├── api_plan.md
+│   ├── awards_dictionary.md
+│   ├── dashboard_checkpoint.md
+│   ├── dashboard_plan.md
+│   ├── data_dictionary.md
+│   ├── foundation_collection.md
+│   ├── postgresql_checkpoint.md
+│   ├── postgresql_plan.md
+│   ├── project_blueprint.md
+│   ├── project_context.md
+│   └── project_conventions.md
+│
+├── scripts/
+│   ├── awards.py
+│   ├── database.py
+│   ├── filters.py
+│   ├── import_to_postgres.py
+│   ├── load_data.py
+│   ├── search.py
+│   ├── site_statistics.py
+│   ├── test_awards.py
+│   ├── test_database.py
+│   ├── test_filters.py
+│   ├── test_search.py
+│   └── test_site_statistics.py
+│
+├── .env
+├── .gitignore
+├── README.md
+└── requirements.txt
 ```
 
-Essa estrutura representa o estado atual do projeto.
+O arquivo `.env` deve permanecer apenas localmente.
 
 ---
 
@@ -261,12 +433,7 @@ Cada módulo possui uma responsabilidade principal.
 
 ## `load_data.py`
 
-Responsável por carregar os datasets oficiais do projeto.
-
-Atualmente carrega:
-
-* `games.csv`;
-* `awards.csv`.
+Responsável por carregar diretamente os datasets editoriais em CSV.
 
 Funções principais:
 
@@ -275,7 +442,48 @@ carregar_dataset()
 carregar_awards()
 ```
 
-Esse módulo é a porta de entrada dos dados no projeto.
+Esse módulo continua sendo utilizado por testes e operações baseadas nos arquivos originais.
+
+Ele não é mais a fonte direta da API e do dashboard.
+
+---
+
+## `import_to_postgres.py`
+
+Responsável por importar os datasets para PostgreSQL.
+
+Fluxo:
+
+```text
+games.csv
+awards.csv
+↓
+Pandas
+↓
+PostgreSQL
+```
+
+Esse script mantém o banco sincronizado com as fontes editoriais.
+
+---
+
+## `database.py`
+
+Centraliza a conexão e as consultas ao PostgreSQL.
+
+Funções principais:
+
+```text
+obter_configuracao_banco()
+conectar_postgres()
+executar_select()
+carregar_games_do_banco()
+carregar_awards_do_banco()
+contar_games_do_banco()
+contar_awards_do_banco()
+```
+
+Esse módulo é a porta de entrada operacional dos dados para a API e o dashboard.
 
 ---
 
@@ -293,13 +501,18 @@ listar_jogos_por_ano()
 listar_jogos_por_decada()
 ```
 
-Esse módulo é usado pela API, pelo dashboard e pode ser reutilizado futuramente no website.
+Esse módulo pode ser reutilizado pela:
+
+* API;
+* dashboard;
+* futura aplicação web;
+* testes.
 
 ---
 
 ## `search.py`
 
-Responsável pela pesquisa textual de jogos.
+Responsável pela pesquisa textual.
 
 Funções principais:
 
@@ -308,7 +521,7 @@ pesquisar_jogos()
 pesquisar_jogos_por_nome()
 ```
 
-A busca pode considerar campos como:
+A pesquisa pode considerar:
 
 * nome;
 * gênero;
@@ -338,13 +551,13 @@ listar_jogos_influentes()
 gerar_estatisticas_home()
 ```
 
-Nenhuma informação estatística importante deve ser escrita manualmente quando puder ser calculada a partir dos dados.
+Informações estatísticas não devem ser escritas manualmente quando puderem ser calculadas a partir dos dados.
 
 ---
 
 ## `awards.py`
 
-Responsável pelas consultas relacionadas ao Awards History.
+Responsável pelas consultas relacionadas à Awards History.
 
 Funções principais:
 
@@ -361,41 +574,95 @@ listar_indicados_na_foundation()
 listar_jogos_awards_fora_da_foundation()
 ```
 
-Esse módulo também é responsável por comparar o `awards.csv` com o `games.csv`.
+Esse módulo também realiza comparações entre Foundation Collection e Awards History.
+
+---
+
+# PostgreSQL
+
+O PostgreSQL é a fonte operacional atual do projeto.
+
+Banco:
+
+```text
+aaa_archive
+```
+
+Schema:
+
+```text
+public
+```
+
+Tabelas:
+
+```text
+games
+awards
+```
+
+Estrutura:
+
+```text
+database/schema.sql
+```
+
+A integração com PostgreSQL já está concluída.
+
+O banco é utilizado por:
+
+* API;
+* dashboard;
+* testes de integração;
+* futuras camadas da aplicação.
 
 ---
 
 # API
 
-A API do projeto está localizada em:
+A API está localizada em:
 
 ```text
 api/main.py
 ```
 
-Ela foi criada com **FastAPI** e representa a primeira versão de disponibilização dos dados em JSON.
+Ela foi criada com FastAPI.
 
-A API inicial já foi concluída.
+A versão atual utiliza:
 
-Ela usa atualmente:
-
-* CSV;
+* PostgreSQL;
 * Pandas;
+* `scripts/database.py`;
 * módulos da pasta `scripts/`;
 * respostas em JSON.
 
-A API ainda não usa:
+Fluxo:
 
-* PostgreSQL;
-* autenticação;
+```text
+FastAPI
+↓
+database.py
+↓
+PostgreSQL
+```
+
+A API atual possui operações de leitura.
+
+Ela ainda não oferece:
+
 * cadastro;
 * edição;
 * exclusão;
-* routers separados.
+* autenticação;
+* painel administrativo;
+* routers separados;
+* paginação;
+* ordenação avançada;
+* filtros combinados.
 
-Isso é intencional.
+Essa decisão é intencional.
 
-A primeira versão da API tem o objetivo de expor os dados existentes de forma simples antes da migração para banco de dados.
+A API atual foi criada para disponibilizar os dados necessários à exploração da coleção.
 
 ---
 
@@ -421,9 +688,9 @@ GET /awards/foundation/nominees
 GET /awards/foundation/outside
 ```
 
-Nesta fase, a API está fechada.
+A versão atual da API está concluída para esta fase.
 
-Não serão adicionados novos endpoints antes da organização do dashboard e do planejamento do PostgreSQL.
+Novos endpoints devem ser criados somente quando uma necessidade real da aplicação web for identificada.
 
 ---
 
@@ -435,94 +702,170 @@ O dashboard está localizado em:
 dashboard/app.py
 ```
 
-Ele foi desenvolvido com **Streamlit** e representa a primeira interface visual do projeto.
+As funções auxiliares estão em:
 
-O dashboard já possui:
+```text
+dashboard/dashboard_helpers.py
+```
+
+Ele foi desenvolvido com Streamlit e representa a primeira interface visual do projeto.
+
+Fluxo:
+
+```text
+Streamlit
+↓
+dashboard_helpers.py
+↓
+database.py
+↓
+PostgreSQL
+```
+
+O dashboard possui:
 
 * abas com `st.tabs()`;
 * aba Foundation Collection;
 * aba Awards History;
 * cache com `@st.cache_data`;
-* filtros interativos na sidebar;
-* busca textual;
-* métricas principais;
-* gráficos simples com `st.bar_chart`;
+* filtros interativos;
+* pesquisa textual;
+* métricas;
+* gráficos;
 * tabelas dinâmicas;
-* seção Recorte Editorial;
-* jogos historicamente importantes;
-* jogos historicamente influentes;
-* consulta de Awards por ano;
+* seção de recorte editorial;
+* consulta por ano;
 * histórico de vencedores;
-* comparação entre Awards History e Foundation Collection.
+* comparação entre as duas bases.
 
-O dashboard inicial está funcionando.
+O dashboard está concluído para esta fase.
 
-O foco atual não é mudar o visual nem adicionar grandes funcionalidades.
-
-O foco atual é organizar melhor o arquivo `dashboard/app.py`, pois ele cresceu bastante.
+Ele funciona como ferramenta analítica e protótipo visual, mas não substitui a futura aplicação web.
 
 ---
 
-# Estrutura Visual Planejada
+# Visão da Aplicação Web
 
-A longo prazo, o The AAA Archive poderá ter um website próprio.
+A aplicação web será a experiência principal do The AAA Archive.
 
-O website foi planejado para ser simples, intuitivo e de fácil manutenção.
+Seu objetivo será transformar os dados, a API e a curadoria editorial em uma experiência visual navegável.
 
-Ao invés de possuir dezenas de páginas independentes, a maior parte das funcionalidades poderá ser concentrada em poucas áreas principais.
+A aplicação não deverá parecer apenas:
+
+* uma tabela;
+* um dashboard;
+* uma planilha;
+* uma documentação técnica;
+* um catálogo genérico.
+
+Ela deverá transmitir a identidade de um arquivo histórico e editorial sobre videogames.
+
+A definição detalhada da experiência, stack e identidade visual será feita em uma fase própria de planejamento.
 
 ---
 
-## Home
+# Estrutura Visual Inicial
 
-A Home será responsável por apresentar uma visão geral do The AAA Archive.
+A visão atual considera quatro áreas principais:
 
-Ela poderá exibir:
+```text
+Home
+Archive
+Awards
+Dashboard
+```
 
-* total de jogos da Foundation Collection;
+Essa estrutura ainda poderá ser ajustada durante o planejamento do front-end.
+
+---
+
+# Home
+
+A Home será a porta de entrada do The AAA Archive.
+
+Sua função será apresentar:
+
+* o conceito do projeto;
+* a identidade do Archive;
+* a Foundation Collection;
+* destaques editoriais;
+* dados gerais;
+* caminhos para exploração.
+
+A Home poderá exibir:
+
+* total de jogos;
 * total de desenvolvedoras;
 * total de franquias;
 * total de gêneros;
-* linha do tempo da coleção;
-* jogos históricos;
+* linha do tempo;
+* jogos historicamente importantes;
 * jogos influentes;
-* destaques da coleção.
+* jogos em destaque;
+* acesso à coleção;
+* acesso à Awards History.
 
-Backend responsável:
+Fontes responsáveis:
 
 ```text
+GET /stats/home
 site_statistics.py
 ```
 
+A Home não deverá mostrar todos os dados disponíveis.
+
+Ela deverá funcionar como introdução e convite à exploração.
+
 ---
 
-## Archive
+# Archive
 
-O **Archive** será o coração do website.
+O **Archive** será o coração da aplicação web.
 
-Nele estarão todos os jogos da Foundation Collection.
+Ele apresentará todos os jogos da Foundation Collection.
 
 O usuário poderá:
 
 * pesquisar;
 * aplicar filtros;
+* explorar por gênero;
+* explorar por desenvolvedora;
+* explorar por franquia;
+* explorar por ano;
+* explorar por década;
 * ordenar resultados;
-* abrir informações individuais de qualquer jogo.
+* abrir informações individuais.
 
 Cada jogo poderá apresentar:
 
 * nome;
+* capa;
 * descrição;
-* ano de lançamento;
+* ano;
+* gênero;
 * desenvolvedora;
 * franquia;
-* gênero;
-* notas;
+* Metacritic;
+* nota de Kadu;
+* nota de Pavam;
 * importância histórica;
 * influência histórica;
-* jogos relacionados.
+* jogos relacionados;
+* presença em premiações.
 
-Backends responsáveis:
+Fontes responsáveis:
+
+```text
+GET /games
+GET /games/search
+GET /games/developer
+GET /games/genre
+GET /games/franchise
+GET /games/year
+GET /games/decade
+```
+
+Módulos relacionados:
 
 ```text
 filters.py
@@ -532,23 +875,66 @@ site_statistics.py
 
 ---
 
-## Awards
+# Página Individual do Jogo
+
+Cada jogo poderá possuir uma página própria.
+
+A página deverá apresentar informações de forma editorial, não apenas como campos técnicos.
+
+Possíveis seções:
+
+```text
+Identidade do jogo
+Contexto histórico
+Descrição
+Desenvolvimento
+Franquia
+Importância
+Influência
+Recepção
+Notas
+Premiações
+Jogos relacionados
+```
+
+Nem todas essas informações estão preenchidas atualmente.
+
+A criação dessa página dependerá do enriquecimento da Foundation Collection.
+
+---
+
+# Awards
 
 A seção **Awards** apresentará o histórico de vencedores e indicados a Game of the Year.
 
-Ela utilizará a base independente `awards.csv`.
+Cada edição poderá exibir:
 
-Cada ano poderá exibir:
-
-* premiação;
+* ano;
+* nome da premiação;
 * vencedor;
-* indicados.
+* indicados;
+* relação com a Foundation Collection.
 
-A base Awards History será independente da Foundation Collection.
+Também poderão existir visões como:
 
-Quando um jogo existir nas duas bases, o sistema poderá conectá-las por meio do nome do jogo.
+* histórico de vencedores;
+* vencedores presentes na coleção;
+* indicados presentes na coleção;
+* jogos fora da Foundation Collection;
+* linha do tempo das premiações.
 
-Backend responsável:
+Fontes responsáveis:
+
+```text
+GET /awards
+GET /awards/winners
+GET /awards/{year}
+GET /awards/foundation/winners
+GET /awards/foundation/nominees
+GET /awards/foundation/outside
+```
+
+Módulo relacionado:
 
 ```text
 awards.py
@@ -556,159 +942,286 @@ awards.py
 
 ---
 
-## Dashboard
+# Dashboard
 
-Área destinada às análises gráficas do projeto.
+O dashboard representa a área analítica do projeto.
+
+Sua função é apresentar padrões e estatísticas.
 
 Exemplos:
 
-* distribuição dos gêneros;
-* quantidade de jogos por desenvolvedora;
-* quantidade de jogos por franquia;
-* evolução da coleção ao longo dos anos;
+* distribuição por gênero;
+* jogos por desenvolvedora;
+* jogos por franquia;
+* evolução por ano;
 * distribuição por década;
-* relação entre jogos da Foundation Collection e jogos indicados ou vencedores de Game of the Year.
+* jogos históricos;
+* jogos influentes;
+* relação entre Foundation Collection e Awards History.
 
-O dashboard já possui uma primeira versão funcional em Streamlit.
+A primeira versão já existe em Streamlit.
 
-No futuro, ele poderá ser expandido com mais análises, mas a fase atual é apenas de organização do código.
+No futuro, deverá ser decidido se:
+
+* o Streamlit continuará como ferramenta separada;
+* algumas análises serão incorporadas à aplicação web;
+* o dashboard será publicado;
+* ele permanecerá apenas como ferramenta interna.
+
+---
+
+# Navegação Planejada
+
+Uma navegação inicial poderá seguir esta estrutura:
+
+```text
+Home
+│
+├── Archive
+│   ├── Todos os jogos
+│   ├── Filtros
+│   └── Página do jogo
+│
+├── Awards
+│   ├── Histórico
+│   ├── Edição por ano
+│   └── Comparações
+│
+├── Dashboard
+│
+└── Sobre
+```
+
+A área **Sobre** poderá explicar:
+
+* conceito do projeto;
+* critérios da Foundation Collection;
+* metodologia editorial;
+* tecnologias utilizadas;
+* autoria;
+* evolução do projeto.
+
+---
+
+# Relação entre as Camadas
+
+A aplicação web não deve acessar diretamente os CSVs.
+
+Fluxo planejado:
+
+```text
+Usuário
+↓
+Aplicação web
+↓
+API FastAPI
+↓
+PostgreSQL
+```
+
+O dashboard atual pode continuar utilizando diretamente a camada Python de banco enquanto for uma ferramenta interna.
+
+A aplicação web final deverá preferencialmente consumir a API.
+
+---
+
+# Conteúdo Editorial Pendente
+
+Alguns recursos visuais dependem do preenchimento de campos ainda vazios.
+
+Campos prioritários:
+
+```text
+descricao
+metacritic
+nota_kadu
+nota_pavam
+historico_importante
+historico_influente
+```
+
+Também poderão ser adicionados futuramente:
+
+* capa;
+* imagem de fundo;
+* diretor;
+* publisher;
+* data completa de lançamento;
+* plataformas;
+* texto histórico;
+* justificativa de inclusão;
+* referências.
+
+Esses campos não devem ser adicionados ao banco sem planejamento.
 
 ---
 
 # Testes
 
-O projeto possui testes simples com `assert`.
+O projeto possui testes com `assert`.
 
-Eles validam os módulos principais e a API.
-
-Comandos atuais:
+Comandos:
 
 ```bash
 python scripts/test_filters.py
 python scripts/test_search.py
 python scripts/test_site_statistics.py
 python scripts/test_awards.py
+python scripts/test_database.py
 python api/test_main.py
 ```
 
-Esses testes devem ser executados após mudanças importantes.
+Eles validam:
 
-Eles ajudam a garantir que o projeto continue funcionando enquanto novas fases são adicionadas.
+* filtros;
+* busca;
+* estatísticas;
+* premiações;
+* conexão com banco;
+* leitura das tabelas;
+* endpoints da API.
+
+Os testes devem ser executados após mudanças importantes.
 
 ---
 
 # Filosofia de Desenvolvimento
 
-O desenvolvimento do The AAA Archive seguirá alguns princípios fundamentais.
+O desenvolvimento seguirá princípios fundamentais:
 
-* Cada módulo deve possuir apenas uma responsabilidade.
-* Toda função criada deve possuir uma utilização real dentro da API, dashboard ou futuro website.
-* Antes de criar uma função, deve-se definir qual parte do sistema irá utilizá-la.
-* Os módulos devem ser reutilizáveis.
-* O código deve permanecer simples, organizado e bem documentado.
-* Sempre que possível, evitar duplicação de lógica.
-* A estrutura do projeto deve crescer de forma incremental.
-* O projeto deve priorizar clareza antes de complexidade.
-* A documentação deve acompanhar o estado real do projeto.
-* Mudanças grandes devem ser feitas apenas depois de checkpoints claros.
+* cada módulo deve possuir uma responsabilidade clara;
+* toda função deve possuir uma utilização real;
+* antes de criar uma função, deve-se definir onde ela será usada;
+* módulos devem ser reutilizáveis;
+* duplicação deve ser evitada;
+* o código deve permanecer compreensível;
+* a estrutura deve crescer gradualmente;
+* clareza deve ser priorizada;
+* documentação deve acompanhar o código;
+* mudanças grandes devem ocorrer após planejamento;
+* cada fase deve terminar com testes e checkpoint;
+* o projeto não deve adotar complexidade desnecessária.
 
 ---
 
 # Fluxo de Desenvolvimento
 
-Novas funcionalidades deverão seguir uma sequência simples:
+Novas funcionalidades deverão seguir esta sequência:
 
 ```text
-Definir a funcionalidade
-
+Identificar uma necessidade
 ↓
-
-Identificar onde ela será utilizada no sistema
-
+Definir como ela aparece no produto
 ↓
-
-Definir o módulo responsável
-
+Identificar a camada responsável
 ↓
-
-Implementar a função
-
+Planejar dados e comportamento
 ↓
-
+Implementar
+↓
 Criar ou atualizar testes
-
 ↓
-
+Validar funcionamento
+↓
 Documentar
-
 ↓
-
-Atualizar README ou checkpoints, se necessário
+Criar checkpoint
 ```
 
-Esse fluxo garante que o projeto cresça de forma organizada e que todo código desenvolvido possua uma finalidade clara.
+Esse fluxo evita a criação de código sem finalidade clara.
 
 ---
 
 # Estado Atual
 
-A fase atual do projeto é:
-
-```text
-API inicial concluída
-↓
-Dashboard inicial concluído
-↓
-Organização leve antes do PostgreSQL
-```
+A fase PostgreSQL foi concluída.
 
 Concluído:
 
 * datasets CSV;
-* backend modular com Pandas;
+* Foundation Collection;
+* Awards History;
+* backend modular;
 * filtros;
-* busca;
+* pesquisa;
 * estatísticas;
-* módulo de awards;
+* módulo de premiações;
 * testes dos módulos;
-* API inicial com FastAPI;
-* teste da API;
-* dashboard inicial com Streamlit;
-* documentação inicial da API;
-* documentação inicial do dashboard;
-* README atualizado.
+* API FastAPI;
+* testes da API;
+* dashboard Streamlit;
+* organização do dashboard com arquivo auxiliar;
+* banco PostgreSQL;
+* tabelas `games` e `awards`;
+* `schema.sql`;
+* script de importação;
+* camada centralizada de banco;
+* teste de banco;
+* migração da API;
+* migração do dashboard;
+* documentação da fase PostgreSQL.
 
-Em andamento:
+---
 
-* alinhamento da documentação;
-* preparação para organizar o `dashboard/app.py`.
+# Fase Atual de Trabalho
 
-Próxima etapa prática:
+O projeto está encerrando documentalmente a fase PostgreSQL.
 
-```text
-Organizar dashboard/app.py sem alterar visual nem adicionar funcionalidades grandes.
-```
+Atividades atuais:
+
+* atualização do README;
+* atualização do contexto;
+* atualização do blueprint;
+* atualização das convenções;
+* revisão dos dicionários;
+* identificação de planos concluídos;
+* criação do `.env.example`;
+* revisão do `.gitignore`;
+* execução final dos testes;
+* commit de checkpoint.
+
+O front-end ainda não deve ser iniciado.
 
 ---
 
 # Próximos Passos
 
-A ordem recomendada para a continuidade do projeto é:
+A ordem recomendada é:
 
 ```text
-1. Confirmar git status e fazer commit/push se necessário.
-2. Organizar dashboard/app.py com uma refatoração leve.
-3. Manter o visual atual do dashboard.
-4. Manter as funcionalidades atuais do dashboard.
-5. Revisar requirements.txt.
-6. Criar docs/postgresql_plan.md.
-7. Planejar a migração dos CSVs para PostgreSQL.
-8. Iniciar a migração para PostgreSQL.
-9. Futuramente, melhorar a organização interna da API.
-10. Futuramente, construir um website próprio para o The AAA Archive.
+1. Finalizar a atualização da documentação.
+2. Criar .env.example.
+3. Revisar .gitignore.
+4. Confirmar que .env não está rastreado.
+5. Executar todos os testes.
+6. Criar commit de checkpoint da fase PostgreSQL.
+7. Criar frontend_plan.md.
+8. Definir a experiência da aplicação.
+9. Definir identidade visual.
+10. Definir páginas e navegação.
+11. Definir como a API será consumida.
+12. Escolher a stack de front-end.
+13. Criar o primeiro protótipo.
+14. Iniciar a implementação.
 ```
 
-Nesta fase, não serão adicionados novos endpoints à API.
+---
+
+# O que Não Deve Ser Decidido Agora
+
+Durante o encerramento documental, ainda não devem ser definidos:
+
+* framework do front-end;
+* design final;
+* biblioteca de componentes;
+* hospedagem;
+* autenticação;
+* painel administrativo;
+* novos endpoints;
+* normalização adicional do banco;
+* arquitetura definitiva da aplicação web.
+
+Essas decisões pertencem à próxima fase.
 
 ---
 
@@ -718,25 +1231,29 @@ Ao final do desenvolvimento, o The AAA Archive poderá possuir:
 
 * Foundation Collection consolidada;
 * Awards History organizada;
-* backend modular em Python;
-* banco de dados PostgreSQL;
-* API mais robusta;
-* dashboard analítico mais completo;
-* website próprio para exploração da coleção;
-* documentação técnica consistente;
-* possível expansão editorial através de novas coleções.
+* banco PostgreSQL;
+* backend modular;
+* API robusta;
+* dashboard analítico;
+* aplicação web própria;
+* páginas individuais de jogos;
+* identidade visual editorial;
+* imagens e capas;
+* ferramentas de busca;
+* filtros avançados;
+* novas coleções;
+* deploy público;
+* documentação técnica consistente.
 
-Mais do que um catálogo de jogos, o projeto pretende se tornar um arquivo digital organizado, escalável e preparado para evoluir continuamente sem perder sua simplicidade.
+Mais do que um catálogo, o projeto pretende se tornar um arquivo digital organizado, editorialmente forte e tecnicamente preparado para evoluir.
 
-O The AAA Archive também deve servir como projeto de portfólio, demonstrando evolução prática em:
+O The AAA Archive deve continuar sendo:
 
-* Python;
-* Pandas;
-* análise de dados;
-* FastAPI;
-* Streamlit;
-* organização de software;
-* documentação;
-* testes;
-* Git/GitHub;
-* futura integração com PostgreSQL.
+* simples de compreender;
+* consistente;
+* documentado;
+* testável;
+* modular;
+* pessoal;
+* editorialmente criterioso;
+* tecnicamente evolutivo.

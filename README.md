@@ -1,8 +1,22 @@
 # The AAA Archive
 
-Um arquivo digital focado em preservar, catalogar e explorar a história dos jogos AAA single-player historicamente relevantes.
+Um arquivo digital dedicado a preservar, catalogar e explorar a história de jogos AAA single-player historicamente relevantes.
 
-O projeto foi criado como uma forma prática de estudar **Python**, **Pandas**, **análise de dados**, **backend**, **API**, **dashboards** e **engenharia de software** através do desenvolvimento de um sistema real.
+O projeto foi criado como uma forma prática de estudar e aplicar conceitos de:
+
+* Python;
+* Pandas;
+* análise de dados;
+* PostgreSQL;
+* backend;
+* APIs;
+* dashboards;
+* testes;
+* documentação;
+* engenharia de software;
+* futuramente, desenvolvimento front-end.
+
+O **The AAA Archive** não busca catalogar todos os jogos já lançados. Sua proposta é construir uma coleção curada, com foco em relevância histórica, influência na indústria, impacto cultural, reconhecimento crítico e importância dentro de franquias ou períodos específicos.
 
 ---
 
@@ -13,89 +27,159 @@ O projeto foi criado como uma forma prática de estudar **Python**, **Pandas**, 
 Fase atual:
 
 ```text
-CSV + Pandas
+Datasets em CSV
 ↓
-Módulos Python
+Importação para PostgreSQL
 ↓
-Testes
+Camada Python de acesso aos dados
 ↓
-FastAPI
+API FastAPI
 ↓
-Streamlit Dashboard
+Dashboard Streamlit
+↓
+Planejamento da aplicação web final
 ```
 
-O projeto já possui:
+A fase de integração com PostgreSQL foi concluída.
+
+Atualmente, o projeto já possui:
 
 * dataset da Foundation Collection;
 * dataset do histórico de premiações;
-* módulo de carregamento de dados;
-* módulo de filtros;
-* módulo de pesquisa textual;
-* módulo de estatísticas;
-* módulo de premiações;
+* banco de dados PostgreSQL;
+* script de criação das tabelas;
+* script de importação dos CSVs;
+* camada centralizada de conexão com o banco;
+* módulos Python de filtros, pesquisa, estatísticas e premiações;
 * testes dos módulos principais;
-* primeira versão da API com FastAPI;
-* endpoints completos de consulta da Foundation Collection;
-* endpoints editoriais na API;
+* testes de conexão e leitura do banco;
+* API desenvolvida com FastAPI;
+* endpoints de consulta da Foundation Collection;
+* endpoints editoriais;
+* endpoints da Awards History;
 * testes da API;
-* primeira versão do dashboard com Streamlit;
-* documentação principal do projeto.
+* dashboard desenvolvido com Streamlit;
+* integração do dashboard com PostgreSQL;
+* documentação das principais fases do projeto.
 
 ---
 
 ## Objetivo do Projeto
 
-O objetivo do **The AAA Archive** não é catalogar todos os jogos já lançados.
+O objetivo do **The AAA Archive** é construir uma aplicação completa para organização e exploração de jogos AAA single-player historicamente relevantes.
 
-A proposta é construir um arquivo curado de jogos AAA single-player historicamente relevantes, permitindo exploração através de:
+A aplicação é desenvolvida de forma incremental, conectando diferentes camadas:
 
-* módulos de backend;
-* API;
-* dashboard;
-* análises históricas;
-* análises editoriais;
-* futuramente, website e banco de dados.
+```text
+Dados
+↓
+Banco de dados
+↓
+Backend
+↓
+API
+↓
+Visualização
+↓
+Aplicação web
+```
 
-O projeto está sendo desenvolvido de forma incremental, com documentação e backend sendo construídos antes de etapas mais complexas.
+O projeto permite estudar tecnologias dentro de um sistema real, em vez de utilizá-las apenas em exercícios isolados.
+
+Entre os objetivos estão:
+
+* organizar uma coleção editorial de jogos;
+* preservar informações históricas;
+* explorar os dados com filtros e pesquisas;
+* gerar estatísticas;
+* comparar a Foundation Collection com premiações de Game of the Year;
+* disponibilizar os dados por meio de uma API;
+* apresentar os dados em um dashboard;
+* futuramente, criar uma aplicação web própria.
 
 ---
 
 ## Filosofia do Projeto
 
-O projeto segue uma abordagem simples e incremental:
+O projeto segue uma abordagem simples, gradual e documentada:
 
 1. Clareza antes de complexidade.
 2. Documentação antes da implementação.
 3. Backend antes do frontend.
-4. Uma responsabilidade por arquivo.
-5. Uma responsabilidade por função.
+4. Uma responsabilidade principal por arquivo.
+5. Uma responsabilidade principal por função.
 6. Código reutilizável.
 7. Estrutura simples antes de arquitetura complexa.
-8. Toda função deve ter uma utilidade real no produto final.
+8. Testar antes de avançar.
+9. Registrar checkpoints ao concluir uma fase.
+10. Toda função deve possuir uma utilidade real dentro do projeto.
 
-O objetivo não é apenas aprender tecnologias isoladas, mas construir um software real utilizando essas tecnologias como ferramentas.
+O objetivo não é utilizar tecnologias apenas porque são populares, mas entender qual papel cada uma exerce dentro da aplicação.
 
 ---
 
-## Bases de Dados Atuais
+## Arquitetura Atual
 
-O projeto possui duas bases principais em CSV.
+A arquitetura atual do projeto pode ser representada da seguinte forma:
+
+```text
+data/games.csv
+data/awards.csv
+        ↓
+scripts/import_to_postgres.py
+        ↓
+PostgreSQL
+        ↓
+scripts/database.py
+        ↓
+API FastAPI
+Dashboard Streamlit
+```
+
+Os arquivos CSV continuam sendo a fonte editorial original dos dados.
+
+O PostgreSQL é a fonte principal utilizada atualmente pela API e pelo dashboard.
+
+---
+
+## Fontes de Dados
+
+O projeto possui duas bases principais:
+
+```text
+Foundation Collection
+Awards History
+```
+
+Os dados originais são armazenados em arquivos CSV e importados para o PostgreSQL.
 
 ---
 
 ## Foundation Collection
 
-Arquivo:
+Arquivo original:
 
 ```text
 data/games.csv
 ```
 
-Este dataset contém a lista curada de jogos que formam o núcleo do **The AAA Archive**.
+Tabela no PostgreSQL:
+
+```text
+games
+```
+
+A Foundation Collection contém a lista curada de jogos que formam o núcleo do **The AAA Archive**.
 
 Cada linha representa um jogo.
 
-Colunas principais:
+Quantidade atual:
+
+```text
+66 jogos
+```
+
+Colunas:
 
 ```text
 id
@@ -112,19 +196,42 @@ historico_importante
 historico_influente
 ```
 
-A Foundation Collection reúne jogos AAA single-player selecionados por relevância histórica, impacto cultural, influência, reconhecimento crítico ou importância dentro da indústria.
+A coleção reúne jogos selecionados por critérios como:
+
+* importância histórica;
+* influência na indústria;
+* relevância cultural;
+* reconhecimento crítico;
+* importância dentro de uma franquia;
+* força editorial dentro da proposta do projeto.
+
+Algumas colunas editoriais ainda estão em processo de preenchimento.
 
 ---
 
 ## Awards History
 
-Arquivo:
+Arquivo original:
 
 ```text
 data/awards.csv
 ```
 
-Este dataset armazena vencedores e indicados a **Game of the Year** das seguintes premiações:
+Tabela no PostgreSQL:
+
+```text
+awards
+```
+
+A Awards History armazena vencedores e indicados a **Game of the Year**.
+
+Quantidade atual:
+
+```text
+127 registros
+```
+
+Premiações catalogadas:
 
 ```text
 Spike Video Game Awards
@@ -132,7 +239,7 @@ VGX
 The Game Awards
 ```
 
-Colunas principais:
+Colunas no CSV:
 
 ```text
 ano
@@ -141,7 +248,89 @@ jogo
 status
 ```
 
-A base Awards History é independente da Foundation Collection, mas ambas podem ser comparadas pelo nome do jogo.
+No PostgreSQL, a tabela também possui uma coluna automática:
+
+```text
+id
+```
+
+A Awards History é independente da Foundation Collection, mas as duas bases podem ser comparadas pelo nome dos jogos.
+
+Essa comparação permite identificar:
+
+* vencedores presentes na Foundation Collection;
+* indicados presentes na Foundation Collection;
+* jogos premiados que ainda estão fora da coleção.
+
+---
+
+## PostgreSQL
+
+O projeto utiliza PostgreSQL como banco de dados relacional.
+
+Banco local:
+
+```text
+aaa_archive
+```
+
+Schema:
+
+```text
+public
+```
+
+Tabelas:
+
+```text
+games
+awards
+```
+
+A estrutura das tabelas está registrada em:
+
+```text
+database/schema.sql
+```
+
+Esse arquivo pode ser usado como referência para recriar o banco.
+
+---
+
+## Estrutura da Tabela `games`
+
+```sql
+CREATE TABLE IF NOT EXISTS games (
+    id INTEGER PRIMARY KEY,
+    nome VARCHAR(200) NOT NULL,
+    ano_lancamento INTEGER,
+    genero VARCHAR(100),
+    developer VARCHAR(150),
+    franchise VARCHAR(150),
+    descricao TEXT,
+    metacritic INTEGER,
+    nota_kadu NUMERIC(3, 1),
+    nota_pavam NUMERIC(3, 1),
+    historico_importante BOOLEAN,
+    historico_influente BOOLEAN
+);
+```
+
+---
+
+## Estrutura da Tabela `awards`
+
+```sql
+CREATE TABLE IF NOT EXISTS awards (
+    id SERIAL PRIMARY KEY,
+    ano INTEGER,
+    premiacao VARCHAR(150),
+    jogo VARCHAR(200),
+    status VARCHAR(50)
+);
+```
+
+O campo `id` é gerado automaticamente pelo PostgreSQL porque o arquivo `awards.csv` não possui uma coluna de identificação.
 
 ---
 
@@ -149,67 +338,206 @@ A base Awards History é independente da Foundation Collection, mas ambas podem 
 
 ```text
 The-AAA-Archive/
-
-assets/
-
-api/
-  main.py
-  test_main.py
-
-data/
-  games.csv
-  awards.csv
-
-docs/
-  api_checkpoint.md
-  api_plan.md
-  awards_dictionary.md
-  dashboard_checkpoint.md
-  dashboard_plan.md
-  data_dictionary.md
-  foundation_collection.md
-  project_blueprint.md
-  project_context.md
-  project_conventions.md
-
-dashboard/
-  app.py
-
-notebooks/
-
-scripts/
-  load_data.py
-  filters.py
-  search.py
-  site_statistics.py
-  awards.py
-  test_filters.py
-  test_search.py
-  test_site_statistics.py
-  test_awards.py
-
-README.md
-requirements.txt
-.gitignore
+│
+├── api/
+│   ├── main.py
+│   └── test_main.py
+│
+├── dashboard/
+│   ├── app.py
+│   └── dashboard_helpers.py
+│
+├── data/
+│   ├── games.csv
+│   └── awards.csv
+│
+├── database/
+│   └── schema.sql
+│
+├── docs/
+│   ├── api_checkpoint.md
+│   ├── api_plan.md
+│   ├── awards_dictionary.md
+│   ├── dashboard_checkpoint.md
+│   ├── dashboard_plan.md
+│   ├── data_dictionary.md
+│   ├── foundation_collection.md
+│   ├── postgresql_checkpoint.md
+│   ├── postgresql_plan.md
+│   ├── project_blueprint.md
+│   ├── project_context.md
+│   └── project_conventions.md
+│
+├── scripts/
+│   ├── awards.py
+│   ├── database.py
+│   ├── filters.py
+│   ├── import_to_postgres.py
+│   ├── load_data.py
+│   ├── search.py
+│   ├── site_statistics.py
+│   ├── test_awards.py
+│   ├── test_database.py
+│   ├── test_filters.py
+│   ├── test_search.py
+│   └── test_site_statistics.py
+│
+├── .env
+├── .env.example
+├── .gitignore
+├── README.md
+└── requirements.txt
 ```
+
+O arquivo `.env` existe apenas localmente e não deve ser enviado para o GitHub.
+
+---
+
+## Configuração de Ambiente
+
+As configurações do PostgreSQL são armazenadas em um arquivo:
+
+```text
+.env
+```
+
+Estrutura esperada:
+
+```env
+POSTGRES_DB=aaa_archive
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=sua_senha
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+```
+
+O arquivo `.env` deve permanecer fora do repositório.
+
+Para demonstrar as variáveis necessárias sem expor informações sensíveis, o projeto também deve possuir:
+
+```text
+.env.example
+```
+
+Exemplo:
+
+```env
+POSTGRES_DB=aaa_archive
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=sua_senha_aqui
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+```
+
+O `.gitignore` deve conter:
+
+```gitignore
+.env
+```
+
+---
+
+## Importação dos Dados
+
+O script responsável por importar os arquivos CSV para o PostgreSQL é:
+
+```text
+scripts/import_to_postgres.py
+```
+
+Fluxo:
+
+```text
+data/games.csv
+data/awards.csv
+        ↓
+Pandas
+        ↓
+PostgreSQL
+        ↓
+games
+awards
+```
+
+Para executar a importação:
+
+```bash
+python scripts/import_to_postgres.py
+```
+
+Resultado esperado:
+
+```text
+Registros na tabela games: 66
+Registros na tabela awards: 127
+Importação concluída com sucesso!
+```
+
+Atualmente, o fluxo de atualização dos dados funciona assim:
+
+```text
+Editar os CSVs
+↓
+Executar import_to_postgres.py
+↓
+Atualizar o PostgreSQL
+↓
+API e dashboard passam a utilizar os novos dados
+```
+
+---
+
+## Camada de Acesso ao Banco
+
+O arquivo responsável por centralizar a conexão e a leitura do PostgreSQL é:
+
+```text
+scripts/database.py
+```
+
+Funções principais:
+
+```python
+obter_configuracao_banco()
+conectar_postgres()
+executar_select()
+carregar_games_do_banco()
+carregar_awards_do_banco()
+contar_games_do_banco()
+contar_awards_do_banco()
+```
+
+Fluxo:
+
+```text
+.env
+↓
+scripts/database.py
+↓
+PostgreSQL
+↓
+DataFrame Pandas
+```
+
+A centralização da conexão evita que a API e o dashboard repitam configurações do banco.
 
 ---
 
 ## Módulos Python
 
-Os módulos principais do projeto ficam na pasta:
+Os módulos reutilizáveis ficam principalmente em:
 
 ```text
 scripts/
 ```
 
-Eles concentram a lógica de leitura, filtros, busca, estatísticas e premiações.
+Eles concentram a lógica de carregamento, filtros, busca, estatísticas, premiações, importação e conexão com o banco.
 
 ---
 
 ## `load_data.py`
 
-Responsável por carregar os datasets oficiais do projeto.
+Responsável por carregar os datasets originais em CSV.
 
 Funções principais:
 
@@ -218,16 +546,20 @@ carregar_dataset()
 carregar_awards()
 ```
 
-Atualmente carrega:
+Arquivos utilizados:
 
-* `data/games.csv`;
-* `data/awards.csv`.
+```text
+data/games.csv
+data/awards.csv
+```
+
+Esse módulo continua sendo útil para testes e operações diretamente relacionadas aos arquivos originais.
 
 ---
 
 ## `filters.py`
 
-Contém filtros para a Foundation Collection.
+Contém os filtros da Foundation Collection.
 
 Funções principais:
 
@@ -239,7 +571,7 @@ listar_jogos_por_ano()
 listar_jogos_por_decada()
 ```
 
-Permite filtrar os jogos por:
+Permite filtrar jogos por:
 
 * desenvolvedora;
 * gênero;
@@ -260,7 +592,7 @@ pesquisar_jogos()
 pesquisar_jogos_por_nome()
 ```
 
-A busca considera colunas como:
+A busca pode considerar colunas como:
 
 * nome;
 * gênero;
@@ -272,7 +604,7 @@ A busca considera colunas como:
 
 ## `site_statistics.py`
 
-Gera estatísticas usadas pela API e pelo dashboard.
+Gera estatísticas utilizadas pela API e pelo dashboard.
 
 Funções principais:
 
@@ -290,7 +622,7 @@ listar_jogos_influentes()
 gerar_estatisticas_home()
 ```
 
-Estatísticas geradas:
+Estatísticas disponíveis:
 
 * total de jogos;
 * total de desenvolvedoras;
@@ -307,7 +639,7 @@ Estatísticas geradas:
 
 ## `awards.py`
 
-Responsável por consultar e comparar a base Awards History.
+Responsável por consultar e comparar a Awards History.
 
 Funções principais:
 
@@ -327,33 +659,46 @@ listar_jogos_awards_fora_da_foundation()
 Permite:
 
 * listar premiações disponíveis;
-* listar anos disponíveis;
-* consultar vencedor por ano;
-* consultar indicados por ano;
-* listar vencedores;
-* filtrar por premiação;
-* comparar Awards History com a Foundation Collection;
-* identificar jogos premiados que ainda estão fora da Foundation Collection.
+* listar anos catalogados;
+* consultar vencedores;
+* consultar indicados;
+* filtrar registros por premiação;
+* comparar a Awards History com a Foundation Collection;
+* identificar jogos premiados que ainda estão fora da coleção.
 
 ---
 
 ## API FastAPI
 
-A API foi criada em:
+A API está localizada em:
 
 ```text
 api/main.py
 ```
 
-Ela reaproveita os módulos Python do backend e expõe os dados por meio de endpoints HTTP.
+Ela utiliza a camada de banco definida em:
 
-Para rodar a API:
+```text
+scripts/database.py
+```
+
+Fluxo:
+
+```text
+FastAPI
+↓
+scripts/database.py
+↓
+PostgreSQL
+```
+
+Para iniciar a API:
 
 ```bash
 fastapi dev api/main.py
 ```
 
-A documentação automática da API fica disponível em:
+A documentação automática fica disponível em:
 
 ```text
 http://127.0.0.1:8000/docs
@@ -361,19 +706,30 @@ http://127.0.0.1:8000/docs
 
 ---
 
-## Endpoints Atuais da API
-
-### Inicial
+## Endpoint Inicial
 
 ```text
 GET /
 ```
 
-Verifica se a API está online.
+Retorna informações básicas sobre o estado da API.
+
+Exemplo:
+
+```json
+{
+  "mensagem": "The AAA Archive API está funcionando",
+  "status": "online",
+  "versao": "0.2.0",
+  "fonte_dados": "PostgreSQL"
+}
+```
 
 ---
 
-### Games
+## Endpoints de Games
+
+### Listar todos os jogos
 
 ```text
 GET /games
@@ -381,13 +737,17 @@ GET /games
 
 Retorna todos os jogos da Foundation Collection.
 
+---
+
+### Pesquisa textual
+
 ```text
 GET /games/search?term=zelda
 ```
 
 Pesquisa jogos por termo.
 
-A busca considera:
+A busca considera campos como:
 
 ```text
 nome
@@ -397,63 +757,101 @@ franchise
 descricao
 ```
 
+---
+
+### Filtrar por desenvolvedora
+
 ```text
 GET /games/developer/{developer}
 ```
 
-Filtra jogos por desenvolvedora.
+Exemplo:
+
+```text
+GET /games/developer/Capcom
+```
+
+---
+
+### Filtrar por gênero
 
 ```text
 GET /games/genre/{genre}
 ```
 
-Filtra jogos por gênero.
+Exemplo:
+
+```text
+GET /games/genre/Survival Horror
+```
+
+---
+
+### Filtrar por franquia
 
 ```text
 GET /games/franchise/{franchise}
 ```
 
-Filtra jogos por franquia.
+Exemplo:
+
+```text
+GET /games/franchise/Resident Evil
+```
+
+---
+
+### Filtrar por ano
 
 ```text
 GET /games/year/{year}
 ```
 
-Filtra jogos por ano.
+Exemplo:
+
+```text
+GET /games/year/2018
+```
+
+---
+
+### Filtrar por década
 
 ```text
 GET /games/decade/{decade}
 ```
 
-Filtra jogos por década.
-
 Exemplo:
 
 ```text
-/games/decade/2000
+GET /games/decade/2000
 ```
 
 Retorna jogos lançados entre 2000 e 2009.
+
+---
+
+### Jogos historicamente importantes
 
 ```text
 GET /games/historical
 ```
 
-Retorna jogos marcados como historicamente importantes na Foundation Collection.
-
-Esse endpoint utiliza a coluna:
+Retorna jogos marcados na coluna:
 
 ```text
 historico_importante
 ```
 
+---
+
+### Jogos historicamente influentes
+
 ```text
 GET /games/influential
 ```
 
-Retorna jogos marcados como historicamente influentes na Foundation Collection.
-
-Esse endpoint utiliza a coluna:
+Retorna jogos marcados na coluna:
 
 ```text
 historico_influente
@@ -461,7 +859,7 @@ historico_influente
 
 ---
 
-### Estatísticas
+## Endpoint de Estatísticas
 
 ```text
 GET /stats/home
@@ -469,7 +867,7 @@ GET /stats/home
 
 Retorna estatísticas gerais da Foundation Collection.
 
-Exemplos de dados retornados:
+Entre os dados disponíveis estão:
 
 * total de jogos;
 * total de desenvolvedoras;
@@ -484,47 +882,67 @@ Exemplos de dados retornados:
 
 ---
 
-### Awards
+## Endpoints da Awards History
+
+### Listar todos os registros
 
 ```text
 GET /awards
 ```
 
-Retorna todos os registros da Awards History.
+---
+
+### Listar vencedores
 
 ```text
 GET /awards/winners
 ```
 
-Retorna vencedores de Game of the Year.
+---
+
+### Consultar uma edição por ano
 
 ```text
 GET /awards/{year}
 ```
 
-Retorna vencedor e indicados de um ano específico.
+Exemplo:
+
+```text
+GET /awards/2018
+```
+
+Retorna o vencedor e os indicados do ano informado.
+
+---
+
+### Vencedores presentes na Foundation Collection
 
 ```text
 GET /awards/foundation/winners
 ```
 
-Retorna vencedores que também estão na Foundation Collection.
+---
+
+### Indicados presentes na Foundation Collection
 
 ```text
 GET /awards/foundation/nominees
 ```
 
-Retorna indicados que também estão na Foundation Collection.
+---
+
+### Jogos fora da Foundation Collection
 
 ```text
 GET /awards/foundation/outside
 ```
 
-Retorna jogos da Awards History que ainda não estão na Foundation Collection.
+Retorna jogos da Awards History que ainda não estão presentes na Foundation Collection.
 
 ---
 
-## Resumo dos Endpoints da API
+## Resumo dos Endpoints
 
 ```text
 GET /
@@ -550,25 +968,39 @@ GET /awards/foundation/outside
 
 ## Dashboard Streamlit
 
-O dashboard foi criado em:
+O dashboard está localizado em:
 
 ```text
 dashboard/app.py
 ```
 
-Ele é a primeira camada visual do projeto.
+As funções auxiliares ficam em:
 
-O dashboard utiliza **Streamlit** para exibir dados da Foundation Collection e da Awards History de forma visual e interativa.
+```text
+dashboard/dashboard_helpers.py
+```
 
-Para rodar o dashboard:
+O dashboard utiliza PostgreSQL como fonte principal de dados.
+
+Fluxo:
+
+```text
+Streamlit
+↓
+dashboard_helpers.py
+↓
+scripts/database.py
+↓
+PostgreSQL
+```
+
+Para iniciar o dashboard:
 
 ```bash
 streamlit run dashboard/app.py
 ```
 
-O Streamlit normalmente abre automaticamente no navegador.
-
-O endereço local costuma ser:
+O endereço local normalmente é:
 
 ```text
 http://localhost:8501
@@ -578,24 +1010,29 @@ http://localhost:8501
 
 ## Funcionalidades do Dashboard
 
-A versão atual do dashboard possui:
+A versão atual possui:
 
 * organização visual por abas;
 * carregamento de dados com cache;
 * exploração da Foundation Collection;
 * exploração da Awards History;
 * filtros interativos;
-* busca textual;
+* pesquisa textual;
 * métricas principais;
-* gráficos simples;
+* gráficos;
 * tabelas dinâmicas;
-* recorte editorial com jogos históricos e influentes.
+* recorte editorial;
+* comparação entre as duas bases.
 
 ---
 
-### Organização por Abas
+## Organização por Abas
 
-O dashboard utiliza abas com `st.tabs()` para separar melhor as áreas principais.
+O dashboard utiliza:
+
+```python
+st.tabs()
+```
 
 Abas atuais:
 
@@ -604,37 +1041,41 @@ Foundation Collection
 Awards History
 ```
 
-Essa organização deixa a experiência mais limpa, evitando que todas as informações fiquem em uma única página longa.
+Essa separação evita que todas as informações sejam exibidas em uma única página extensa.
 
 ---
 
-### Cache no Carregamento dos Dados
+## Cache dos Dados
 
-O dashboard utiliza `@st.cache_data` no carregamento dos datasets.
+O carregamento utiliza:
 
-Datasets carregados com cache:
-
-```text
-data/games.csv
-data/awards.csv
+```python
+@st.cache_data
 ```
 
-Isso evita que os CSVs sejam recarregados do zero a cada interação do usuário com filtros, busca ou seleção de abas.
+Os dados são obtidos do PostgreSQL por meio das funções auxiliares do dashboard.
+
+O cache reduz recarregamentos desnecessários durante interações com:
+
+* filtros;
+* pesquisa;
+* seleção de abas;
+* atualização de componentes.
 
 ---
 
-### Foundation Collection
+## Aba Foundation Collection
 
-A aba **Foundation Collection** possui:
+A aba Foundation Collection possui:
 
 * métricas principais;
-* gráficos simples;
-* filtros interativos;
-* busca textual;
+* gráficos;
+* filtros;
+* pesquisa textual;
 * recorte editorial;
-* tabela dinâmica de jogos.
+* tabela dinâmica.
 
-Métricas exibidas:
+Métricas:
 
 ```text
 Jogos
@@ -643,7 +1084,7 @@ Franquias
 Gêneros
 ```
 
-Filtros disponíveis:
+Filtros:
 
 ```text
 Gênero
@@ -652,17 +1093,7 @@ Ano de lançamento
 Franquia
 ```
 
-Busca textual aplicada nas colunas:
-
-```text
-nome
-genero
-developer
-franchise
-descricao
-```
-
-Gráficos atuais:
+Gráficos:
 
 ```text
 Jogos por Década
@@ -672,51 +1103,45 @@ Desenvolvedoras com Mais Jogos
 
 ---
 
-### Recorte Editorial
+## Recorte Editorial
 
-A aba **Foundation Collection** também possui uma seção chamada:
-
-```text
-Recorte Editorial
-```
-
-Essa seção destaca jogos marcados no dataset como:
+A Foundation Collection possui uma seção editorial dedicada aos jogos marcados como:
 
 ```text
 historicamente importantes
 historicamente influentes
 ```
 
-Ela utiliza as colunas:
+Campos utilizados:
 
 ```text
 historico_importante
 historico_influente
 ```
 
-A seção possui:
+A seção pode apresentar:
 
-* métrica de jogos historicamente importantes;
-* métrica de jogos historicamente influentes;
-* tabela expansível de jogos historicamente importantes;
-* tabela expansível de jogos historicamente influentes.
+* quantidade de jogos historicamente importantes;
+* quantidade de jogos historicamente influentes;
+* tabela de jogos importantes;
+* tabela de jogos influentes.
 
-Esses resultados também reagem aos filtros e à busca textual.
+Esses resultados também respondem aos filtros e à busca textual.
 
 ---
 
-### Awards History
+## Aba Awards History
 
-A aba **Awards History** possui:
+A aba Awards History possui:
 
-* métricas da base de premiações;
+* métricas gerais;
 * consulta por ano;
 * vencedor do ano selecionado;
 * tabela da edição selecionada;
 * histórico de vencedores;
-* comparação entre Awards History e Foundation Collection.
+* comparação com a Foundation Collection.
 
-Métricas exibidas:
+Métricas:
 
 ```text
 Registros no Awards
@@ -725,19 +1150,19 @@ Vencedores
 Fora da Foundation
 ```
 
-Comparações exibidas:
+Comparações:
 
 ```text
 Vencedores presentes na Foundation Collection
 Indicados presentes na Foundation Collection
-Jogos do Awards fora da Foundation Collection
+Jogos da Awards History fora da Foundation Collection
 ```
 
 ---
 
 ## Testes
 
-O projeto utiliza scripts simples de teste em Python com `assert`.
+O projeto utiliza scripts de teste em Python com `assert`.
 
 Testes disponíveis:
 
@@ -746,34 +1171,76 @@ scripts/test_filters.py
 scripts/test_search.py
 scripts/test_site_statistics.py
 scripts/test_awards.py
+scripts/test_database.py
 api/test_main.py
 ```
 
-Para rodar todos os testes:
+---
+
+## Testes dos Módulos
 
 ```bash
 python scripts/test_filters.py
 python scripts/test_search.py
 python scripts/test_site_statistics.py
 python scripts/test_awards.py
-python api/test_main.py
 ```
 
-Se todos os testes passarem, os módulos atuais do backend e a API estão funcionando corretamente.
+Esses testes validam:
+
+* filtros;
+* pesquisa;
+* estatísticas;
+* consultas da Awards History.
+
+---
+
+## Teste do Banco
+
+Arquivo:
+
+```text
+scripts/test_database.py
+```
+
+Comando:
+
+```bash
+python scripts/test_database.py
+```
+
+O teste verifica:
+
+* leitura das variáveis do `.env`;
+* conexão com PostgreSQL;
+* leitura da tabela `games`;
+* leitura da tabela `awards`;
+* retorno dos dados como DataFrame;
+* quantidade esperada de registros.
+
+Resultado esperado:
+
+```text
+TODOS OS TESTES DO BANCO PASSARAM!
+```
 
 ---
 
 ## Testes da API
 
-O arquivo:
+Arquivo:
 
 ```text
 api/test_main.py
 ```
 
-testa os principais endpoints da API.
+Comando:
 
-Endpoints testados:
+```bash
+python api/test_main.py
+```
+
+O teste valida os principais endpoints:
 
 ```text
 GET /
@@ -795,64 +1262,135 @@ GET /awards/foundation/nominees
 GET /awards/foundation/outside
 ```
 
-Para rodar apenas os testes da API:
+Resultado esperado:
 
-```bash
-python api/test_main.py
+```text
+TODOS OS TESTES DA API PASSARAM!
 ```
 
 ---
 
-## Tecnologias
+## Tecnologias Utilizadas
 
-Tecnologias usadas atualmente:
+Tecnologias utilizadas atualmente:
 
 * Python;
 * Pandas;
-* CSV;
+* PostgreSQL;
+* psycopg;
+* python-dotenv;
 * FastAPI;
 * Streamlit;
+* CSV;
 * Git;
 * GitHub.
 
-Tecnologias planejadas para fases futuras:
+Tecnologias previstas para fases futuras:
 
-* PostgreSQL;
 * HTML;
 * CSS;
 * JavaScript;
-* website próprio;
-* possível deploy.
+* possível biblioteca ou framework front-end;
+* deploy da API;
+* deploy do banco;
+* deploy da aplicação web.
+
+A stack do front-end ainda não foi definida.
 
 ---
 
 ## Instalação das Dependências
 
-As dependências do projeto ficam no arquivo:
+As dependências estão registradas em:
 
 ```text
 requirements.txt
 ```
 
-Para instalar as dependências:
+Para instalar:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Dependências principais atuais:
+Dependências principais:
 
 ```text
 pandas
 fastapi
 streamlit
+psycopg
+python-dotenv
 ```
+
+A lista completa deve ser consultada no próprio `requirements.txt`.
 
 ---
 
 ## Como Rodar o Projeto
 
-### 1. Rodar os testes dos módulos
+### 1. Instalar as dependências
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+### 2. Configurar o PostgreSQL
+
+Crie o banco:
+
+```text
+aaa_archive
+```
+
+Depois, execute o conteúdo de:
+
+```text
+database/schema.sql
+```
+
+Isso criará as tabelas:
+
+```text
+games
+awards
+```
+
+---
+
+### 3. Configurar o `.env`
+
+Crie um arquivo `.env` na raiz do projeto:
+
+```env
+POSTGRES_DB=aaa_archive
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=sua_senha
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+```
+
+---
+
+### 4. Importar os dados
+
+```bash
+python scripts/import_to_postgres.py
+```
+
+---
+
+### 5. Testar o banco
+
+```bash
+python scripts/test_database.py
+```
+
+---
+
+### 6. Rodar os testes dos módulos
 
 ```bash
 python scripts/test_filters.py
@@ -863,7 +1401,7 @@ python scripts/test_awards.py
 
 ---
 
-### 2. Rodar os testes da API
+### 7. Rodar os testes da API
 
 ```bash
 python api/test_main.py
@@ -871,7 +1409,7 @@ python api/test_main.py
 
 ---
 
-### 3. Rodar a API
+### 8. Iniciar a API
 
 ```bash
 fastapi dev api/main.py
@@ -885,13 +1423,15 @@ http://127.0.0.1:8000/docs
 
 ---
 
-### 4. Rodar o Dashboard
+### 9. Iniciar o dashboard
+
+Em outro terminal:
 
 ```bash
 streamlit run dashboard/app.py
 ```
 
-Endereço local esperado:
+Endereço local:
 
 ```text
 http://localhost:8501
@@ -899,9 +1439,35 @@ http://localhost:8501
 
 ---
 
+## Papel Atual dos CSVs
+
+Embora a API e o dashboard utilizem PostgreSQL, os CSVs continuam importantes.
+
+Eles funcionam como:
+
+* fonte editorial original;
+* base de edição manual;
+* referência histórica do dataset;
+* entrada do processo de importação;
+* forma simples de visualizar e manter os dados.
+
+O fluxo atual é:
+
+```text
+CSV
+↓
+Importação
+↓
+PostgreSQL
+↓
+API e Dashboard
+```
+
+---
+
 ## Documentação
 
-A documentação principal do projeto fica na pasta:
+A documentação do projeto fica em:
 
 ```text
 docs/
@@ -917,79 +1483,150 @@ dashboard_checkpoint.md
 dashboard_plan.md
 data_dictionary.md
 foundation_collection.md
+postgresql_checkpoint.md
+postgresql_plan.md
 project_blueprint.md
 project_context.md
 project_conventions.md
 ```
 
-Esses documentos registram a visão do projeto, os datasets, as convenções, o planejamento da API, o checkpoint da API, o planejamento do dashboard e o checkpoint do dashboard.
+Os documentos possuem funções diferentes:
+
+* planos registram decisões anteriores à implementação;
+* checkpoints registram o resultado de uma fase;
+* dicionários explicam os dados;
+* documentos gerais registram a visão e as regras do projeto.
 
 ---
 
-## Roadmap
-
-Fases já iniciadas ou concluídas:
+## Fases Concluídas
 
 ```text
-Datasets em CSV
+Definição editorial do projeto
 ↓
-Módulos Python com Pandas
+Criação da Foundation Collection
+↓
+Criação da Awards History
+↓
+Leitura dos CSVs com Pandas
+↓
+Filtros
+↓
+Pesquisa textual
+↓
+Estatísticas
+↓
+Consultas de premiações
 ↓
 Testes dos módulos
 ↓
-API com FastAPI
+API FastAPI
 ↓
-Endpoints completos de consulta da Foundation Collection
+Testes da API
 ↓
-Endpoints editoriais na API
+Dashboard Streamlit
 ↓
-Dashboard com Streamlit
+Instalação do PostgreSQL
 ↓
-Documentação do dashboard
+Criação do banco e das tabelas
 ↓
-Documentação atualizada da API
+Importação dos CSVs
+↓
+Camada Python de acesso ao banco
+↓
+Migração da API para PostgreSQL
+↓
+Migração do dashboard para PostgreSQL
+↓
+Testes e documentação da fase PostgreSQL
 ```
 
-Próximas etapas possíveis:
+---
 
-```text
-melhorar documentação dos endpoints no Swagger
-↓
-adicionar filtros combinados com query params
-↓
-adicionar ordenação por ano, nota ou Metacritic
-↓
-adicionar paginação
-↓
-melhorar organização interna do dashboard/app.py
-↓
-refatorar a API com routers
-↓
-planejar migração para PostgreSQL
-↓
-futuramente criar website próprio
-```
+## Próxima Fase
+
+A próxima grande fase do projeto será o planejamento e desenvolvimento de uma aplicação web própria.
+
+Antes da implementação, serão definidos:
+
+* objetivo da aplicação;
+* experiência do usuário;
+* páginas;
+* navegação;
+* identidade visual;
+* conteúdo editorial;
+* relação entre Foundation Collection e Awards History;
+* consumo da API;
+* stack do front-end;
+* estratégia de deploy.
+
+Nenhuma stack de front-end foi escolhida até o momento.
+
+---
+
+## Melhorias Futuras Possíveis
+
+Algumas melhorias que poderão ser avaliadas futuramente:
+
+* preencher os campos editoriais da Foundation Collection;
+* adicionar descrições dos jogos;
+* adicionar notas;
+* adicionar dados do Metacritic;
+* melhorar a documentação dos endpoints no Swagger;
+* adicionar filtros combinados;
+* adicionar ordenação;
+* adicionar paginação;
+* refatorar a API com routers;
+* normalizar algumas entidades do banco;
+* adicionar imagens e capas;
+* desenvolver o front-end próprio;
+* publicar a API;
+* publicar o banco;
+* publicar a aplicação final.
+
+Essas melhorias não precisam ser implementadas ao mesmo tempo.
+
+Cada uma deve ser avaliada conforme a necessidade real do projeto.
 
 ---
 
 ## O que Ainda Não Está Sendo Feito
 
-Nesta fase, o projeto ainda não utiliza:
+Nesta fase, o projeto ainda não possui:
 
-* PostgreSQL;
-* frontend próprio com HTML/CSS/JavaScript;
+* frontend próprio;
 * autenticação;
-* deploy;
-* consumo da API dentro do Streamlit;
-* API refatorada em routers;
+* painel administrativo;
+* criação ou edição de jogos pela API;
+* deploy público;
+* API organizada com routers;
 * paginação;
-* filtros combinados por query params;
-* ordenação avançada.
+* filtros combinados por query parameters;
+* ordenação avançada;
+* normalização completa do banco;
+* atualização automática dos dados.
 
-Essas etapas podem ser feitas no futuro, mas ainda não são prioridade.
+Essas funcionalidades podem ser desenvolvidas em fases futuras.
+
+---
+
+## Segurança
+
+O arquivo `.env` não deve ser enviado para o GitHub nem incluído em pacotes públicos.
+
+Arquivos e pastas que normalmente devem permanecer fora de compartilhamentos públicos:
+
+```text
+.env
+.venv/
+__pycache__/
+.git/
+```
+
+O projeto deve compartilhar apenas o `.env.example`, sem credenciais reais.
 
 ---
 
 ## Autor
 
-Desenvolvido por **Kadu Almeida** como um projeto pessoal de software, análise de dados e portfólio.
+Desenvolvido por **Kadu Almeida** como projeto pessoal de software, análise de dados, história dos videogames e portfólio.
