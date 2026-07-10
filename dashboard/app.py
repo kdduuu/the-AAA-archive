@@ -8,8 +8,8 @@
 # Nesta fase, o dashboard possui:
 # - título inicial;
 # - descrição do projeto;
-# - carregamento do dataset games.csv com cache;
-# - carregamento do dataset awards.csv com cache;
+# - carregamento dos dados da Foundation Collection com cache;
+# - carregamento dos dados da Awards History com cache;
 # - filtros interativos na sidebar;
 # - busca textual;
 # - métricas principais da Foundation Collection;
@@ -18,6 +18,23 @@
 # - tabela com os jogos cadastrados;
 # - seção de Awards History;
 # - organização visual por abas.
+#
+# Mudança importante desta versão:
+# O dashboard está sendo preparado para usar PostgreSQL como fonte
+# principal de dados.
+#
+# O app.py continua focado na interface visual.
+# A origem dos dados fica concentrada no dashboard_helpers.py.
+#
+# Fluxo esperado:
+#
+# Streamlit
+#     ↓
+# dashboard_helpers.py
+#     ↓
+# database.py
+#     ↓
+# PostgreSQL
 #
 # Observação:
 # Nesta versão, parte da lógica auxiliar foi movida para
@@ -66,8 +83,13 @@ if str(DASHBOARD_PATH) not in sys.path:
     sys.path.append(str(DASHBOARD_PATH))
 
 
+# ==========================================================
+# IMPORTAÇÃO DOS MÓDULOS DO PROJETO
+# ==========================================================
+
 # Agora conseguimos importar os módulos do backend.
 from site_statistics import gerar_estatisticas_home
+
 from awards import (
     listar_jogos_por_ano as listar_awards_por_ano,
     buscar_vencedor_por_ano,
@@ -76,8 +98,10 @@ from awards import (
 # Importamos as funções auxiliares específicas do dashboard.
 #
 # Essas funções foram separadas para deixar o app.py mais limpo.
+#
 # O app.py continua sendo responsável pela tela.
-# O dashboard_helpers.py fica responsável por pequenas lógicas auxiliares.
+# O dashboard_helpers.py fica responsável por pequenas lógicas auxiliares,
+# incluindo o carregamento dos dados.
 from dashboard_helpers import (
     carregar_games_com_cache,
     carregar_awards_com_cache,
@@ -102,10 +126,19 @@ st.set_page_config(
 # CARREGAMENTO DOS DADOS
 # ==========================================================
 
-# Aqui carregamos os dois datasets principais do projeto.
+# Aqui carregamos as duas bases principais do projeto:
+#
+# - Foundation Collection;
+# - Awards History.
 #
 # As funções abaixo usam @st.cache_data dentro do dashboard_helpers.py.
-# Isso evita reler os CSVs desnecessariamente a cada interação.
+#
+# Isso evita consultar a fonte de dados do zero toda vez que o usuário
+# interage com filtros, abas ou campos de busca.
+#
+# A fonte atual será definida dentro do dashboard_helpers.py.
+# Na próxima etapa, esse helper será ajustado para buscar os dados
+# do PostgreSQL por meio do scripts/database.py.
 
 df_games = carregar_games_com_cache()
 df_awards = carregar_awards_com_cache()
@@ -245,6 +278,8 @@ st.write(
     e da Awards History, utilizando os dados já organizados no projeto.
     """
 )
+
+st.caption("Fonte de dados preparada para PostgreSQL + Pandas + Streamlit")
 
 st.divider()
 
@@ -660,5 +695,5 @@ with aba_awards:
 st.divider()
 
 st.caption(
-    "Dashboard inicial — CSV + Pandas + Streamlit"
+    "Dashboard inicial — PostgreSQL + Pandas + Streamlit"
 )

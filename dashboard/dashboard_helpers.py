@@ -6,8 +6,31 @@
 # Guardar funções auxiliares usadas pelo dashboard Streamlit.
 #
 # Este arquivo ajuda a deixar o app.py mais limpo.
+#
 # O app.py fica responsável pela interface visual.
-# O dashboard_helpers.py fica responsável por pequenas lógicas auxiliares.
+# O dashboard_helpers.py fica responsável por pequenas lógicas auxiliares,
+# como carregamento dos dados, busca, filtros e dados derivados.
+#
+# Mudança importante desta versão:
+# Antes, o dashboard carregava os dados diretamente dos CSVs.
+#
+# Fluxo antigo:
+#   dashboard_helpers.py
+#       ↓
+#   load_data.py
+#       ↓
+#   data/games.csv / data/awards.csv
+#
+# Agora, o dashboard carrega os dados do PostgreSQL.
+#
+# Fluxo novo:
+#   dashboard_helpers.py
+#       ↓
+#   database.py
+#       ↓
+#   PostgreSQL
+#       ↓
+#   DataFrame Pandas
 #
 # Autor: Kadu Almeida
 # ==========================================================
@@ -40,8 +63,24 @@ if str(SCRIPTS_PATH) not in sys.path:
     sys.path.append(str(SCRIPTS_PATH))
 
 
-# Agora conseguimos importar os módulos do backend.
-from load_data import carregar_dataset, carregar_awards
+# ==========================================================
+# IMPORTAÇÃO DOS MÓDULOS DO PROJETO
+# ==========================================================
+
+# Antes, este arquivo importava:
+#
+#   from load_data import carregar_dataset, carregar_awards
+#
+# Essas funções liam os arquivos CSV.
+#
+# Agora usamos as funções do database.py, que leem os dados
+# diretamente do PostgreSQL.
+
+from database import (
+    carregar_games_do_banco,
+    carregar_awards_do_banco,
+)
+
 from awards import (
     listar_anos_disponiveis,
     listar_vencedores,
@@ -58,25 +97,69 @@ from awards import (
 @st.cache_data
 def carregar_games_com_cache():
     """
-    Carrega o dataset games.csv usando cache do Streamlit.
+    Carrega os dados da tabela games usando cache do Streamlit.
 
-    O cache evita que o CSV seja recarregado do zero toda vez que
+    Antes:
+        games.csv
+            ↓
+        load_data.py
+            ↓
+        dashboard
+
+    Agora:
+        PostgreSQL
+            ↓
+        database.py
+            ↓
+        dashboard
+
+    O cache evita que o dashboard consulte o banco do zero toda vez que
     o usuário interage com filtros, abas ou campos de busca.
+
+    Observação:
+        Se os dados forem reimportados no PostgreSQL e o Streamlit ainda
+        mostrar dados antigos, basta reiniciar o app ou limpar o cache.
     """
 
-    return carregar_dataset()
+    df_games = carregar_games_do_banco()
+
+    return df_games
 
 
 @st.cache_data
 def carregar_awards_com_cache():
     """
-    Carrega o dataset awards.csv usando cache do Streamlit.
+    Carrega os dados da tabela awards usando cache do Streamlit.
 
-    Isso deixa o dashboard mais eficiente, principalmente quando
-    a aplicação é reexecutada após interações do usuário.
+    Antes:
+        awards.csv
+            ↓
+        load_data.py
+            ↓
+        dashboard
+
+    Agora:
+        PostgreSQL
+            ↓
+        database.py
+            ↓
+        dashboard
+
+    Observação importante:
+        No PostgreSQL, a tabela awards possui uma coluna id automática.
+
+        O awards.csv original não tinha essa coluna.
+
+        Para manter o dashboard visualmente parecido com a versão antiga,
+        removemos a coluna id aqui.
     """
 
-    return carregar_awards()
+    df_awards = carregar_awards_do_banco()
+
+    if "id" in df_awards.columns:
+        df_awards = df_awards.drop(columns=["id"])
+
+    return df_awards
 
 
 # ==========================================================
