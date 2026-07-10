@@ -5,18 +5,18 @@
 # Objetivo:
 # Centralizar funções de conexão e leitura do PostgreSQL.
 #
-# Este arquivo faz o caminho:
+# Agora este arquivo lê as configurações do banco a partir
+# do arquivo .env localizado na raiz do projeto.
 #
+# Fluxo:
+#
+# .env
+#   ↓
+# database.py
+#   ↓
 # PostgreSQL
-#     ↓
-# Python
-#     ↓
-# DataFrame
-#
-# Ou seja:
-# Ele busca dados que já estão no banco e transforma esses dados
-# em DataFrames do Pandas, para que o restante do projeto consiga
-# trabalhar com eles de forma parecida com os CSVs.
+#   ↓
+# DataFrame Pandas
 #
 # Autor: Kadu Almeida
 # ==========================================================
@@ -26,61 +26,124 @@
 # IMPORTAÇÃO DOS MÓDULOS
 # ==========================================================
 
-# Pandas será usado para transformar o resultado do banco em DataFrame.
-import pandas as pd
+from pathlib import Path
+import os
 
-# psycopg é a biblioteca que permite o Python conversar com o PostgreSQL.
+import pandas as pd
 import psycopg
 
+from dotenv import load_dotenv
+
 
 # ==========================================================
-# CONFIGURAÇÃO DO BANCO DE DADOS
+# LOCALIZAÇÃO DO PROJETO E DO .env
 # ==========================================================
 
-# Nome do banco criado no pgAdmin.
-DB_NAME = "aaa_archive"
+# Este arquivo está dentro da pasta scripts/.
+#
+# Estrutura:
+#
+# The-AAA-Archive/
+# │
+# ├── .env
+# │
+# └── scripts/
+#     └── database.py
+#
+# Por isso usamos parent.parent:
+#
+# database.py -> scripts -> The-AAA-Archive
 
-# Usuário padrão criado durante a instalação do PostgreSQL.
-DB_USER = "postgres"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-# localhost significa que o banco está rodando no seu próprio computador.
-DB_HOST = "localhost"
+# Caminho completo até o arquivo .env.
+ENV_PATH = PROJECT_ROOT / ".env"
 
-# Porta padrão do PostgreSQL.
-DB_PORT = 5432
+# Carrega as variáveis do arquivo .env.
+load_dotenv(ENV_PATH)
+
+
+# ==========================================================
+# FUNÇÃO PARA LER CONFIGURAÇÕES DO BANCO
+# ==========================================================
+
+def obter_configuracao_banco():
+    """
+    Lê as configurações do PostgreSQL a partir do arquivo .env.
+
+    O arquivo .env deve conter:
+
+        POSTGRES_DB=aaa_archive
+        POSTGRES_USER=postgres
+        POSTGRES_PASSWORD=sua_senha
+        POSTGRES_HOST=localhost
+        POSTGRES_PORT=5432
+
+    Retorno:
+        Um dicionário com as informações necessárias para conectar
+        no PostgreSQL.
+
+    Por que isso existe?
+        Para não deixar senha escrita diretamente no código.
+        Assim, o código pode ir para o GitHub, mas o .env fica apenas
+        no seu computador.
+    """
+
+    config = {
+        "dbname": os.getenv("POSTGRES_DB"),
+        "user": os.getenv("POSTGRES_USER"),
+        "password": os.getenv("POSTGRES_PASSWORD"),
+        "host": os.getenv("POSTGRES_HOST"),
+        "port": os.getenv("POSTGRES_PORT"),
+    }
+
+    # Verifica se alguma informação está faltando no .env.
+    variaveis_faltando = []
+
+    for chave, valor in config.items():
+        if valor is None or valor == "":
+            variaveis_faltando.append(chave)
+
+    if variaveis_faltando:
+        raise ValueError(
+            "Existem configurações faltando no arquivo .env: "
+            + ", ".join(variaveis_faltando)
+        )
+
+    # A porta vem do .env como texto.
+    # Exemplo: "5432"
+    #
+    # O psycopg aceita isso, mas converter para inteiro deixa mais correto.
+    config["port"] = int(config["port"])
+
+    return config
 
 
 # ==========================================================
 # FUNÇÃO DE CONEXÃO
 # ==========================================================
 
-def conectar_postgres(senha):
+def conectar_postgres():
     """
-    Cria uma conexão com o banco PostgreSQL.
+    Cria uma conexão com o banco PostgreSQL usando as configurações do .env.
 
-    Parâmetro:
-        senha:
-            Senha do usuário postgres.
+    Antes:
+        conectar_postgres(senha)
 
-    Retorno:
-        Uma conexão ativa com o banco aaa_archive.
+    Agora:
+        conectar_postgres()
 
-    Explicação simples:
-        Essa função é como "abrir a porta" do banco para o Python.
-
-        Python
-          ↓
-        psycopg
-          ↓
-        PostgreSQL
+    A senha e as outras informações são lidas automaticamente do .env.
     """
+
+    config = obter_configuracao_banco()
 
     conexao = psycopg.connect(
-        dbname=DB_NAME,
-        user=DB_USER,
-        password=senha,
-        host=DB_HOST,
-        port=DB_PORT
+        dbname=config["dbname"],
+        user=config["user"],
+        password=config["password"],
+        host=config["host"],
+        port=config["port"]
     )
 
     return conexao
@@ -90,49 +153,30 @@ def conectar_postgres(senha):
 # FUNÇÃO GENÉRICA PARA CONSULTAR DADOS
 # ==========================================================
 
-def executar_select(senha, sql):
+def executar_select(sql):
     """
     Executa um comando SELECT no PostgreSQL e retorna um DataFrame.
 
-    Parâmetros:
-        senha:
-            Senha do usuário postgres.
-
+    Parâmetro:
         sql:
             Comando SQL que será executado.
 
     Retorno:
         DataFrame com o resultado da consulta.
 
-    Por que essa função existe?
-        Para evitar repetir o mesmo código de conexão, cursor,
-        execução de SQL e conversão para DataFrame várias vezes.
-
-    Exemplo de SQL:
+    Exemplo:
         SELECT * FROM games;
     """
 
-    # Abrimos a conexão com o banco.
-    conexao = conectar_postgres(senha)
+    conexao = conectar_postgres()
 
     try:
-        # O cursor é o objeto responsável por executar comandos SQL.
         with conexao.cursor() as cursor:
-
-            # Executa o comando SQL recebido.
             cursor.execute(sql)
 
-            # cursor.description guarda informações sobre as colunas retornadas.
-            #
-            # Exemplo:
-            # Se o SELECT retorna id, nome e ano_lancamento,
-            # essa parte captura esses nomes.
             colunas = [coluna.name for coluna in cursor.description]
-
-            # fetchall() pega todas as linhas retornadas pelo SELECT.
             linhas = cursor.fetchall()
 
-            # Transformamos o resultado em DataFrame.
             df = pd.DataFrame(
                 linhas,
                 columns=colunas
@@ -141,9 +185,6 @@ def executar_select(senha, sql):
             return df
 
     finally:
-        # Fechamos a conexão ao final.
-        #
-        # Isso é importante para não deixar conexões abertas sem necessidade.
         conexao.close()
 
 
@@ -151,22 +192,9 @@ def executar_select(senha, sql):
 # FUNÇÕES ESPECÍFICAS DO PROJETO
 # ==========================================================
 
-def carregar_games_do_banco(senha):
+def carregar_games_do_banco():
     """
     Carrega todos os jogos da tabela games.
-
-    Essa função é o equivalente, no PostgreSQL, ao que antes era feito
-    com o games.csv.
-
-    Antes:
-        carregar_dataset()
-        ↓
-        lê data/games.csv
-
-    Agora:
-        carregar_games_do_banco()
-        ↓
-        lê tabela games no PostgreSQL
 
     Retorno:
         DataFrame com os jogos da Foundation Collection.
@@ -190,13 +218,13 @@ def carregar_games_do_banco(senha):
         ORDER BY id;
     """
 
-    df_games = executar_select(senha, sql)
+    df_games = executar_select(sql)
 
-    # Como as colunas nota_kadu e nota_pavam foram criadas como NUMERIC
-    # no PostgreSQL, elas podem voltar como Decimal no Python.
+    # Como nota_kadu e nota_pavam são NUMERIC no PostgreSQL,
+    # elas podem voltar como Decimal no Python.
     #
-    # Para facilitar o uso com Pandas e manter parecido com o CSV,
-    # convertemos essas colunas para float.
+    # Convertendo para float, o comportamento fica mais parecido
+    # com o que já acontecia quando líamos o CSV com Pandas.
     if "nota_kadu" in df_games.columns:
         df_games["nota_kadu"] = df_games["nota_kadu"].astype(float)
 
@@ -206,22 +234,9 @@ def carregar_games_do_banco(senha):
     return df_games
 
 
-def carregar_awards_do_banco(senha):
+def carregar_awards_do_banco():
     """
     Carrega todos os registros da tabela awards.
-
-    Essa função é o equivalente, no PostgreSQL, ao que antes era feito
-    com o awards.csv.
-
-    Antes:
-        carregar_awards()
-        ↓
-        lê data/awards.csv
-
-    Agora:
-        carregar_awards_do_banco()
-        ↓
-        lê tabela awards no PostgreSQL
 
     Retorno:
         DataFrame com os registros da Awards History.
@@ -238,7 +253,7 @@ def carregar_awards_do_banco(senha):
         ORDER BY ano, id;
     """
 
-    df_awards = executar_select(senha, sql)
+    df_awards = executar_select(sql)
 
     return df_awards
 
@@ -247,7 +262,7 @@ def carregar_awards_do_banco(senha):
 # FUNÇÕES DE CONFERÊNCIA
 # ==========================================================
 
-def contar_games_do_banco(senha):
+def contar_games_do_banco():
     """
     Conta quantos registros existem na tabela games.
 
@@ -260,14 +275,14 @@ def contar_games_do_banco(senha):
         FROM games;
     """
 
-    df_resultado = executar_select(senha, sql)
+    df_resultado = executar_select(sql)
 
     total = df_resultado.loc[0, "total"]
 
     return total
 
 
-def contar_awards_do_banco(senha):
+def contar_awards_do_banco():
     """
     Conta quantos registros existem na tabela awards.
 
@@ -280,7 +295,7 @@ def contar_awards_do_banco(senha):
         FROM awards;
     """
 
-    df_resultado = executar_select(senha, sql)
+    df_resultado = executar_select(sql)
 
     total = df_resultado.loc[0, "total"]
 

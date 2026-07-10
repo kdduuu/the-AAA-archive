@@ -5,12 +5,8 @@
 # Objetivo:
 # Testar se o Python consegue ler os dados do PostgreSQL.
 #
-# Este teste verifica:
-# - conexão com o banco aaa_archive;
-# - carregamento da tabela games;
-# - carregamento da tabela awards;
-# - contagem de registros;
-# - estrutura básica dos DataFrames retornados.
+# Agora este teste não pede mais a senha no terminal.
+# Ele usa as configurações do arquivo .env.
 #
 # Autor: Kadu Almeida
 # ==========================================================
@@ -20,32 +16,13 @@
 # IMPORTAÇÃO DOS MÓDULOS
 # ==========================================================
 
-# pathlib ajuda a trabalhar com caminhos de arquivos/pastas.
 from pathlib import Path
-
-# sys permite adicionar caminhos ao sistema de importação do Python.
 import sys
-
-# getpass permite pedir senha no terminal sem mostrar ela na tela.
-from getpass import getpass
 
 
 # ==========================================================
 # CONFIGURAÇÃO DOS CAMINHOS DO PROJETO
 # ==========================================================
-
-# Este arquivo está dentro da pasta scripts/.
-#
-# Estrutura:
-#
-# The-AAA-Archive/
-# │
-# └── scripts/
-#     ├── database.py
-#     └── test_database.py
-#
-# Como database.py também está dentro de scripts/,
-# precisamos garantir que o Python consiga importar esse módulo.
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS_PATH = PROJECT_ROOT / "scripts"
@@ -63,6 +40,7 @@ from database import (
     carregar_awards_do_banco,
     contar_games_do_banco,
     contar_awards_do_banco,
+    obter_configuracao_banco,
 )
 
 
@@ -70,46 +48,55 @@ from database import (
 # FUNÇÕES DE TESTE
 # ==========================================================
 
-def testar_contagem_games(senha):
+def testar_configuracao_env():
+    """
+    Testa se as informações do .env foram carregadas corretamente.
+
+    Este teste não mostra a senha no terminal.
+    Ele apenas confirma que as configurações existem.
+    """
+
+    config = obter_configuracao_banco()
+
+    assert config["dbname"] == "aaa_archive", "O banco deveria ser aaa_archive."
+    assert config["user"] == "postgres", "O usuário deveria ser postgres."
+    assert config["host"] == "localhost", "O host deveria ser localhost."
+    assert config["port"] == 5432, "A porta deveria ser 5432."
+    assert config["password"] is not None, "A senha não foi carregada."
+
+    print("Configurações do .env carregadas com sucesso.")
+
+
+def testar_contagem_games():
     """
     Testa se a tabela games possui a quantidade esperada de registros.
-
-    Atualmente, o games.csv possui 66 jogos.
-    Como importamos esse CSV para o PostgreSQL, esperamos encontrar
-    66 registros na tabela games.
     """
 
-    total_games = contar_games_do_banco(senha)
+    total_games = contar_games_do_banco()
 
     print(f"Registros encontrados na tabela games: {total_games}")
 
     assert total_games == 66, "A tabela games deveria ter 66 registros."
 
 
-def testar_contagem_awards(senha):
+def testar_contagem_awards():
     """
     Testa se a tabela awards possui a quantidade esperada de registros.
-
-    Atualmente, o awards.csv possui 127 registros.
-    Como importamos esse CSV para o PostgreSQL, esperamos encontrar
-    127 registros na tabela awards.
     """
 
-    total_awards = contar_awards_do_banco(senha)
+    total_awards = contar_awards_do_banco()
 
     print(f"Registros encontrados na tabela awards: {total_awards}")
 
     assert total_awards == 127, "A tabela awards deveria ter 127 registros."
 
 
-def testar_carregamento_games(senha):
+def testar_carregamento_games():
     """
     Testa se os dados da tabela games são carregados como DataFrame.
-
-    Também verifica se algumas colunas importantes existem.
     """
 
-    df_games = carregar_games_do_banco(senha)
+    df_games = carregar_games_do_banco()
 
     print(f"DataFrame de games carregado com {len(df_games)} registros.")
 
@@ -133,18 +120,15 @@ def testar_carregamento_games(senha):
     for coluna in colunas_esperadas:
         assert coluna in df_games.columns, f"A coluna {coluna} não foi encontrada em games."
 
-    assert "nome" in df_games.columns, "A coluna nome deveria existir."
     assert df_games["nome"].notna().any(), "A tabela games deveria possuir nomes de jogos."
 
 
-def testar_carregamento_awards(senha):
+def testar_carregamento_awards():
     """
     Testa se os dados da tabela awards são carregados como DataFrame.
-
-    Também verifica se algumas colunas importantes existem.
     """
 
-    df_awards = carregar_awards_do_banco(senha)
+    df_awards = carregar_awards_do_banco()
 
     print(f"DataFrame de awards carregado com {len(df_awards)} registros.")
 
@@ -161,7 +145,6 @@ def testar_carregamento_awards(senha):
     for coluna in colunas_esperadas:
         assert coluna in df_awards.columns, f"A coluna {coluna} não foi encontrada em awards."
 
-    assert "jogo" in df_awards.columns, "A coluna jogo deveria existir."
     assert df_awards["jogo"].notna().any(), "A tabela awards deveria possuir nomes de jogos."
 
 
@@ -172,8 +155,6 @@ def testar_carregamento_awards(senha):
 def main():
     """
     Executa todos os testes relacionados ao PostgreSQL.
-
-    A senha é pedida uma vez no início e reutilizada nos testes.
     """
 
     print("==========================================================")
@@ -181,16 +162,17 @@ def main():
     print("==========================================================")
     print()
 
-    senha = getpass("Digite a senha do usuário postgres: ")
+    print("Lendo configurações do arquivo .env...")
+    testar_configuracao_env()
 
     print()
-    print("Iniciando testes...")
+    print("Iniciando testes do banco...")
     print()
 
-    testar_contagem_games(senha)
-    testar_contagem_awards(senha)
-    testar_carregamento_games(senha)
-    testar_carregamento_awards(senha)
+    testar_contagem_games()
+    testar_contagem_awards()
+    testar_carregamento_games()
+    testar_carregamento_awards()
 
     print()
     print("==========================================================")

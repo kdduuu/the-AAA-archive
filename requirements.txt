@@ -2,3 +2,4 @@
 streamlit
 fastapi[standard]
 psycopg[binary]
+python-dotenv
