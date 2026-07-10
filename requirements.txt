@@ -1,4 +1,4 @@
-﻿pandas
+pandas
 streamlit
 fastapi[standard]
 psycopg[binary]

@@ -118,7 +118,7 @@ Atualmente, o projeto utiliza:
 
 Os dados editoriais originais são armazenados em:
 
-```text id="pry1z1"
+```text
 data/games.csv
 data/awards.csv
 ```
@@ -127,7 +127,7 @@ Os dados operacionais são armazenados no PostgreSQL.
 
 Tabelas:
 
-```text id="g7ns6b"
+```text
 games
 awards
 ```
@@ -210,7 +210,7 @@ Tecnologias futuras devem ser escolhidas somente após planejamento.
 
 # Arquitetura Atual
 
-```text id="1lduv9"
+```text
 CSV
 ↓
 import_to_postgres.py
@@ -241,7 +241,7 @@ Responsabilidades:
 
 # Estrutura Atual do Projeto
 
-```text id="9aueu1"
+```text
 The-AAA-Archive/
 │
 ├── api/
@@ -306,7 +306,7 @@ Utilizar **snake_case** para arquivos Python e documentos internos.
 
 Exemplos:
 
-```text id="nac3ls"
+```text
 load_data.py
 database.py
 import_to_postgres.py
@@ -320,7 +320,7 @@ Evitar nomes genéricos ou temporários.
 
 Exemplos ruins:
 
-```text id="2u89kc"
+```text
 coisas.py
 teste2.py
 arquivo_novo.py
@@ -335,7 +335,7 @@ Pastas devem possuir nomes simples, objetivos e em letras minúsculas.
 
 Exemplos:
 
-```text id="7zbbv1"
+```text
 api/
 dashboard/
 data/
@@ -353,7 +353,7 @@ Utilizar **snake_case**.
 
 Exemplos:
 
-```python id="vc0g92"
+```python
 nome_jogo
 ano_lancamento
 jogos_filtrados
@@ -373,7 +373,7 @@ Utilizar **snake_case**.
 
 Exemplos:
 
-```python id="1wuydg"
+```python
 carregar_dataset()
 conectar_postgres()
 listar_jogos_por_genero()
@@ -383,13 +383,13 @@ gerar_estatisticas_home()
 
 Os nomes devem representar:
 
-```text id="03gld2"
+```text
 ação + alvo
 ```
 
 Evitar nomes vagos:
 
-```python id="9z7j39"
+```python
 fazer()
 pegar()
 coisa()
@@ -404,7 +404,7 @@ Caso classes sejam utilizadas, empregar **PascalCase**.
 
 Exemplos:
 
-```python id="o3szjr"
+```python
 Game
 Developer
 GameAward
@@ -423,7 +423,7 @@ Utilizar **UPPER_CASE**.
 
 Exemplos:
 
-```python id="2svrqf"
+```python
 PROJECT_ROOT
 GAMES_CSV_PATH
 AWARDS_CSV_PATH
@@ -441,7 +441,7 @@ Utilizar nomes em letras minúsculas e `snake_case`.
 
 Exemplos:
 
-```text id="hyma4a"
+```text
 games
 awards
 ano_lancamento
@@ -464,7 +464,7 @@ Endpoints devem utilizar nomes em inglês, minúsculos e previsíveis.
 
 Exemplos:
 
-```text id="g18gh3"
+```text
 GET /games
 GET /games/search
 GET /games/year/{year}
@@ -621,7 +621,7 @@ Sempre que for útil e compreensível, utilizar type hints.
 
 Exemplo:
 
-```python id="ovkx0v"
+```python
 def listar_jogos_por_ano(df: pd.DataFrame, ano: int) -> pd.DataFrame:
     ...
 ```
@@ -638,7 +638,7 @@ Funções importantes podem utilizar docstrings.
 
 Exemplo:
 
-```python id="dn1chm"
+```python
 def carregar_games_do_banco() -> pd.DataFrame:
     """
     Carrega todos os registros da tabela games
@@ -671,14 +671,14 @@ Evitar comentários que apenas repetem o código.
 
 Exemplo ruim:
 
-```python id="4ih152"
+```python
 # Soma 1
 x = x + 1
 ```
 
 Exemplo melhor:
 
-```python id="70bcch"
+```python
 # Criamos uma cópia para evitar alterações acidentais
 # no DataFrame original usado por outras funções.
 resultado = df[filtro].copy()
@@ -705,7 +705,7 @@ Regras gerais:
 
 Organização recomendada dos imports:
 
-```python id="vs4j4l"
+```python
 # Bibliotecas padrão
 from pathlib import Path
 import sys
@@ -726,13 +726,13 @@ from scripts.database import carregar_games_do_banco
 
 Arquivo editorial:
 
-```text id="37b4tp"
+```text
 data/games.csv
 ```
 
 Tabela operacional:
 
-```text id="tmsl0s"
+```text
 games
 ```
 
@@ -740,7 +740,7 @@ Cada linha representa um jogo.
 
 Colunas:
 
-```text id="1efhfu"
+```text
 id
 nome
 ano_lancamento
@@ -757,7 +757,7 @@ historico_influente
 
 A documentação oficial fica em:
 
-```text id="c43p0a"
+```text
 docs/data_dictionary.md
 ```
 
@@ -767,19 +767,19 @@ docs/data_dictionary.md
 
 Arquivo editorial:
 
-```text id="ib6ikh"
+```text
 data/awards.csv
 ```
 
 Tabela operacional:
 
-```text id="6ztlva"
+```text
 awards
 ```
 
 Colunas no CSV:
 
-```text id="n18p4j"
+```text
 ano
 premiacao
 jogo
@@ -788,13 +788,13 @@ status
 
 A tabela também possui o campo:
 
-```text id="wwjcun"
+```text
 id
 ```
 
 A documentação oficial fica em:
 
-```text id="bip1rg"
+```text
 docs/awards_dictionary.md
 ```
 
@@ -804,7 +804,7 @@ docs/awards_dictionary.md
 
 O projeto mantém duas representações dos dados:
 
-```text id="c48pre"
+```text
 CSV
 → fonte editorial
 
@@ -814,7 +814,7 @@ PostgreSQL
 
 O fluxo oficial de atualização é:
 
-```text id="ktx2gl"
+```text
 Editar CSV
 ↓
 Executar import_to_postgres.py
@@ -838,7 +838,7 @@ Enquanto o projeto seguir esse modelo, os CSVs são a fonte principal de ediçã
 
 A estrutura oficial está em:
 
-```text id="88gfd0"
+```text
 database/schema.sql
 ```
 
@@ -852,7 +852,7 @@ Toda tabela deve possuir uma chave primária.
 
 Atualmente:
 
-```text id="yooqwx"
+```text
 games.id
 awards.id
 ```
@@ -867,7 +867,7 @@ Campos essenciais devem utilizar `NOT NULL`.
 
 Exemplo:
 
-```sql id="h0mhwp"
+```sql
 nome VARCHAR(200) NOT NULL
 ```
 
@@ -879,7 +879,7 @@ Escolher tipos compatíveis com o conteúdo.
 
 Exemplos:
 
-```text id="t8xaaw"
+```text
 INTEGER
 VARCHAR
 TEXT
@@ -912,13 +912,13 @@ Antes de alterar o schema:
 
 As configurações sensíveis devem ficar em:
 
-```text id="n6nl46"
+```text
 .env
 ```
 
 Exemplo:
 
-```env id="eo7esr"
+```env
 POSTGRES_DB=aaa_archive
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=sua_senha
@@ -940,13 +940,13 @@ O `.env` nunca deve ser:
 
 O projeto deve possuir:
 
-```text id="u2e44m"
+```text
 .env.example
 ```
 
 Exemplo:
 
-```env id="9wm6co"
+```env
 POSTGRES_DB=aaa_archive
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=sua_senha_aqui
@@ -962,7 +962,7 @@ Esse arquivo pode ser versionado porque não contém credenciais reais.
 
 Arquivos e pastas que não devem ser compartilhados publicamente:
 
-```text id="1pe8k8"
+```text
 .env
 .venv/
 __pycache__/
@@ -1049,7 +1049,7 @@ A Awards History não deve controlar a Foundation Collection.
 
 A API está em:
 
-```text id="6rqj92"
+```text
 api/main.py
 ```
 
@@ -1078,7 +1078,7 @@ Novos endpoints devem nascer de necessidades reais da aplicação web.
 
 # Endpoints Atuais
 
-```text id="qq47bw"
+```text
 GET /
 GET /games
 GET /games/search?term={term}
@@ -1104,13 +1104,13 @@ GET /awards/foundation/outside
 
 O dashboard está em:
 
-```text id="yg3nvf"
+```text
 dashboard/app.py
 ```
 
 As funções auxiliares ficam em:
 
-```text id="f1foy7"
+```text
 dashboard/dashboard_helpers.py
 ```
 
@@ -1134,7 +1134,7 @@ Sempre que uma função relevante for criada ou alterada, seu teste deve ser cri
 
 Testes atuais:
 
-```text id="9sfp0c"
+```text
 scripts/test_filters.py
 scripts/test_search.py
 scripts/test_site_statistics.py
@@ -1145,7 +1145,7 @@ api/test_main.py
 
 Comandos:
 
-```bash id="x89cmj"
+```bash
 python scripts/test_filters.py
 python scripts/test_search.py
 python scripts/test_site_statistics.py
@@ -1178,7 +1178,7 @@ Os testes que validam quantidades fixas devem ser atualizados quando o dataset c
 
 O arquivo de dependências é:
 
-```text id="iw54wq"
+```text
 requirements.txt
 ```
 
@@ -1186,7 +1186,7 @@ Ele deve conter apenas pacotes necessários para executar o projeto.
 
 Dependências principais esperadas:
 
-```text id="0d5w6v"
+```text
 pandas
 fastapi
 uvicorn
@@ -1199,7 +1199,7 @@ Não inserir comandos dentro do arquivo.
 
 Exemplo incorreto:
 
-```text id="7di5l1"
+```text
 pip freeze > requirements.txt
 ```
 
@@ -1213,7 +1213,7 @@ Documentos de plano podem preservar decisões históricas, desde que indiquem qu
 
 Categorias:
 
-```text id="lm9no7"
+```text
 Contexto
 Blueprint
 Convenções
@@ -1229,7 +1229,7 @@ README
 
 Devem ser mantidos atualizados:
 
-```text id="n9cfg4"
+```text
 README.md
 project_context.md
 project_blueprint.md
@@ -1242,7 +1242,7 @@ project_conventions.md
 
 Exemplos:
 
-```text id="ce7i6v"
+```text
 api_plan.md
 dashboard_plan.md
 postgresql_plan.md
@@ -1256,7 +1256,7 @@ Ao concluir uma fase, adicionar uma observação indicando que o documento repre
 
 Exemplos:
 
-```text id="x2k8aw"
+```text
 api_checkpoint.md
 dashboard_checkpoint.md
 postgresql_checkpoint.md
@@ -1280,13 +1280,13 @@ Utilizar mensagens curtas, objetivas e descritivas.
 
 Formato recomendado:
 
-```text id="kli3fp"
+```text
 tipo: descrição
 ```
 
 Tipos:
 
-```text id="d4riua"
+```text
 docs
 feat
 fix
@@ -1298,7 +1298,7 @@ chore
 
 Exemplos:
 
-```text id="7niog4"
+```text
 docs: update project context
 docs: align PostgreSQL documentation
 feat: add database connection layer
@@ -1327,7 +1327,7 @@ no mesmo commit, quando puderem ser separados.
 
 Antes de iniciar uma nova fase:
 
-```bash id="kxjqom"
+```bash
 git status
 ```
 
@@ -1341,7 +1341,7 @@ Confirmar:
 
 Depois:
 
-```bash id="5941rm"
+```bash
 git add .
 git commit -m "mensagem"
 git push
@@ -1355,7 +1355,7 @@ O comando `git add .` deve ser utilizado apenas após revisar o `git status`.
 
 O `.gitignore` deve incluir, quando aplicável:
 
-```gitignore id="vr4vkb"
+```gitignore
 .env
 .venv/
 venv/
@@ -1372,7 +1372,7 @@ Pastas ou arquivos gerados automaticamente não devem ser versionados.
 
 Antes de iniciar uma nova fase:
 
-```text id="j66bp7"
+```text
 1. Verificar o estado atual.
 2. Confirmar que a documentação está alinhada.
 3. Executar os testes.
@@ -1389,7 +1389,7 @@ Antes de iniciar uma nova fase:
 
 Toda funcionalidade deve seguir:
 
-```text id="zr3j9o"
+```text
 Identificar necessidade
 ↓
 Definir onde será usada
@@ -1504,7 +1504,7 @@ O objetivo é encerrar a fase PostgreSQL de maneira estável.
 
 Após o encerramento atual:
 
-```text id="uc1b7i"
+```text
 Planejamento do front-end
 ```
 

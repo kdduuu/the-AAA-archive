@@ -5,12 +5,14 @@
 # Objetivo:
 # Importar os dados dos arquivos CSV do projeto para o PostgreSQL.
 #
-# Em outras palavras:
+# Fluxo:
 #
 # data/games.csv
 # data/awards.csv
 #        ↓
 # Python + Pandas
+#        ↓
+# scripts/database.py
 #        ↓
 # PostgreSQL
 #        ↓
@@ -18,7 +20,7 @@
 #
 # Este script NÃO altera a API.
 # Este script NÃO altera o dashboard.
-# Este script apenas pega os dados dos CSVs e coloca no banco.
+# Ele apenas sincroniza os CSVs editoriais com o banco.
 #
 # Autor: Kadu Almeida
 # ==========================================================
@@ -28,112 +30,90 @@
 # IMPORTAÇÃO DOS MÓDULOS
 # ==========================================================
 
-# pathlib ajuda a trabalhar com caminhos de arquivos e pastas
-# de um jeito mais seguro do que escrever caminhos manualmente.
 from pathlib import Path
 
-# getpass permite pedir uma senha no terminal sem mostrar ela na tela.
-#
-# Quando você digitar a senha do PostgreSQL, ela não vai aparecer.
-# Isso é normal.
-#
-# Usamos isso para NÃO deixar a senha escrita dentro do código.
-from getpass import getpass
-
-# Pandas será usado para ler os arquivos CSV.
-#
-# Ele transforma o CSV em DataFrame.
-# DataFrame é como se fosse uma tabela dentro do Python.
 import pandas as pd
 
-# psycopg é a biblioteca que permite o Python conversar com o PostgreSQL.
+# A conexão com o PostgreSQL fica centralizada em database.py.
 #
-# Sem ela, o Python não consegue conectar no banco.
-import psycopg
+# Dessa forma, este script usa as mesmas configurações do:
+#
+# - test_database.py;
+# - api/main.py;
+# - dashboard/dashboard_helpers.py.
+#
+# O database.py lê as credenciais do arquivo .env.
+from database import conectar_postgres
 
 
 # ==========================================================
 # CONFIGURAÇÃO DOS CAMINHOS DO PROJETO
 # ==========================================================
 
-# Este arquivo import_to_postgres.py está dentro da pasta scripts/.
+# Este arquivo está dentro da pasta scripts/.
 #
-# Estrutura:
-#
-# The-AAA-Archive/
-# │
-# ├── data/
-# │   ├── games.csv
-# │   └── awards.csv
-# │
-# └── scripts/
-#     └── import_to_postgres.py
-#
-# Como este arquivo está dentro de scripts/,
-# a raiz do projeto é a pasta anterior.
-
+# Por isso, a raiz do projeto é a pasta anterior.
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-# Caminho completo até o games.csv.
 GAMES_CSV_PATH = PROJECT_ROOT / "data" / "games.csv"
-
-# Caminho completo até o awards.csv.
 AWARDS_CSV_PATH = PROJECT_ROOT / "data" / "awards.csv"
 
 
 # ==========================================================
-# CONFIGURAÇÃO DO BANCO DE DADOS
+# COLUNAS ESPERADAS
 # ==========================================================
 
-# Aqui ficam as informações necessárias para conectar no PostgreSQL.
+# Essas listas funcionam como uma validação básica do contrato
+# definido nos dicionários de dados.
+COLUNAS_GAMES = [
+    "id",
+    "nome",
+    "ano_lancamento",
+    "genero",
+    "developer",
+    "franchise",
+    "descricao",
+    "metacritic",
+    "nota_kadu",
+    "nota_pavam",
+    "historico_importante",
+    "historico_influente",
+]
+
+COLUNAS_AWARDS = [
+    "ano",
+    "premiacao",
+    "jogo",
+    "status",
+]
+
+
+# ==========================================================
+# CONSULTAS FIXAS DE CONTAGEM
+# ==========================================================
+
+# Evitamos montar nomes de tabelas diretamente com f-string.
 #
-# IMPORTANTE:
-# A senha NÃO fica aqui.
-# A senha será pedida no terminal usando getpass().
-#
-# Isso evita deixar senha salva no código e no GitHub.
-
-# Nome do banco que criamos no pgAdmin.
-DB_NAME = "aaa_archive"
-
-# Usuário padrão que você configurou na instalação do PostgreSQL.
-DB_USER = "postgres"
-
-# localhost significa:
-# "o banco está rodando no meu próprio computador".
-DB_HOST = "localhost"
-
-# 5432 é a porta padrão do PostgreSQL.
-DB_PORT = 5432
+# Como o script só precisa contar duas tabelas conhecidas,
+# mantemos as consultas permitidas em um dicionário fixo.
+CONSULTAS_CONTAGEM = {
+    "games": "SELECT COUNT(*) FROM games;",
+    "awards": "SELECT COUNT(*) FROM awards;",
+}
 
 
 # ==========================================================
 # FUNÇÕES AUXILIARES DE TRATAMENTO DE DADOS
 # ==========================================================
 
-# Por que essas funções existem?
-#
-# Porque os dados vêm do CSV.
-#
-# No CSV, alguns campos podem vir vazios.
-# Quando o Pandas lê um campo vazio, ele pode transformar isso em NaN.
-#
-# Só que o PostgreSQL não usa NaN do Pandas.
-# O PostgreSQL usa NULL.
-#
-# Em Python, para mandar NULL para o PostgreSQL, usamos None.
-#
-# Então essas funções ajudam a converter os valores antes da inserção.
-
-
 def tratar_valor(valor):
     """
     Trata valores vazios antes de inserir no PostgreSQL.
 
-    Se o valor estiver vazio no Pandas, retornamos None.
+    Valores vazios do Pandas, como NaN, são convertidos para None.
 
     No PostgreSQL:
-    None do Python vira NULL no banco.
+        None do Python vira NULL.
     """
 
     if pd.isna(valor):
@@ -145,9 +125,6 @@ def tratar_valor(valor):
 def converter_int(valor):
     """
     Converte um valor para inteiro.
-
-    Exemplo:
-    "2005" → 2005
 
     Se o valor estiver vazio, retorna None.
     """
@@ -164,9 +141,6 @@ def converter_float(valor):
     """
     Converte um valor para número decimal.
 
-    Exemplo:
-    "9.5" → 9.5
-
     Se o valor estiver vazio, retorna None.
     """
 
@@ -182,9 +156,6 @@ def converter_texto(valor):
     """
     Converte um valor para texto.
 
-    Exemplo:
-    Resident Evil 4 → "Resident Evil 4"
-
     Se o valor estiver vazio, retorna None.
     """
 
@@ -193,37 +164,23 @@ def converter_texto(valor):
     if valor is None:
         return None
 
-    return str(valor)
+    return str(valor).strip()
 
 
 def converter_booleano(valor):
     """
-    Converte um valor para booleano.
+    Converte diferentes representações para booleano.
 
-    Booleano é um tipo de dado que só pode ser:
+    Valores verdadeiros aceitos:
+        True, "true", "sim", "s", "yes", "y", "1"
 
-    True  → verdadeiro
-    False → falso
+    Valores falsos aceitos:
+        False, "false", "não", "nao", "n", "no", "0"
 
-    No nosso projeto, as colunas booleanas são:
+    Se o valor estiver vazio, retorna None.
 
-    - historico_importante
-    - historico_influente
-
-    Essa função aceita diferentes formas de representar verdadeiro/falso.
-
-    Exemplos que viram True:
-    - True
-    - "true"
-    - "sim"
-    - "1"
-
-    Exemplos que viram False:
-    - False
-    - "false"
-    - "não"
-    - "nao"
-    - "0"
+    Se o conteúdo não for reconhecido, gera um erro para impedir
+    que um valor inválido seja importado silenciosamente.
     """
 
     valor = tratar_valor(valor)
@@ -231,30 +188,28 @@ def converter_booleano(valor):
     if valor is None:
         return None
 
-    # Se o valor já for True ou False, retornamos direto.
     if isinstance(valor, bool):
         return valor
 
-    # Transformamos em texto, removemos espaços e deixamos minúsculo.
     valor_texto = str(valor).strip().lower()
 
-    valores_verdadeiros = [
+    valores_verdadeiros = {
         "true",
         "1",
         "sim",
         "s",
         "yes",
-        "y"
-    ]
+        "y",
+    }
 
-    valores_falsos = [
+    valores_falsos = {
         "false",
         "0",
         "não",
         "nao",
         "n",
-        "no"
-    ]
+        "no",
+    }
 
     if valor_texto in valores_verdadeiros:
         return True
@@ -262,9 +217,127 @@ def converter_booleano(valor):
     if valor_texto in valores_falsos:
         return False
 
-    # Se não reconhecermos o valor, retornamos None.
-    # Isso evita inserir algo errado no banco.
-    return None
+    raise ValueError(
+        f"Valor booleano não reconhecido: {valor!r}. "
+        "Use TRUE, FALSE ou deixe o campo vazio."
+    )
+
+
+# ==========================================================
+# FUNÇÕES DE VALIDAÇÃO DOS CSVs
+# ==========================================================
+
+def validar_arquivo_csv(caminho):
+    """
+    Verifica se o arquivo CSV existe antes da leitura.
+    """
+
+    if not caminho.exists():
+        raise FileNotFoundError(
+            f"Arquivo CSV não encontrado: {caminho}"
+        )
+
+
+def validar_colunas(df, colunas_esperadas, nome_arquivo):
+    """
+    Verifica se o CSV possui todas as colunas exigidas.
+
+    Colunas adicionais são permitidas, mas todas as colunas
+    esperadas precisam existir.
+    """
+
+    colunas_ausentes = [
+        coluna
+        for coluna in colunas_esperadas
+        if coluna not in df.columns
+    ]
+
+    if colunas_ausentes:
+        raise ValueError(
+            f"O arquivo {nome_arquivo} não possui as colunas "
+            f"obrigatórias: {', '.join(colunas_ausentes)}"
+        )
+
+
+def validar_games(df_games):
+    """
+    Executa validações básicas da Foundation Collection.
+    """
+
+    validar_colunas(
+        df_games,
+        COLUNAS_GAMES,
+        "games.csv",
+    )
+
+    if df_games["id"].isna().any():
+        raise ValueError(
+            "games.csv possui registros sem id."
+        )
+
+    if df_games["id"].duplicated().any():
+        ids_duplicados = (
+            df_games.loc[
+                df_games["id"].duplicated(keep=False),
+                "id",
+            ]
+            .astype(int)
+            .tolist()
+        )
+
+        raise ValueError(
+            f"games.csv possui ids duplicados: {ids_duplicados}"
+        )
+
+    if df_games["nome"].isna().any():
+        raise ValueError(
+            "games.csv possui registros sem nome."
+        )
+
+
+def validar_awards(df_awards):
+    """
+    Executa validações básicas da Awards History.
+    """
+
+    validar_colunas(
+        df_awards,
+        COLUNAS_AWARDS,
+        "awards.csv",
+    )
+
+    colunas_com_nulos = [
+        coluna
+        for coluna in COLUNAS_AWARDS
+        if df_awards[coluna].isna().any()
+    ]
+
+    if colunas_com_nulos:
+        raise ValueError(
+            "awards.csv possui valores vazios nas colunas "
+            f"obrigatórias: {', '.join(colunas_com_nulos)}"
+        )
+
+    status_permitidos = {
+        "Vencedor",
+        "Indicado",
+    }
+
+    status_encontrados = set(
+        df_awards["status"]
+        .astype(str)
+        .str.strip()
+    )
+
+    status_invalidos = (
+        status_encontrados - status_permitidos
+    )
+
+    if status_invalidos:
+        raise ValueError(
+            "awards.csv possui valores inválidos na coluna "
+            f"status: {', '.join(sorted(status_invalidos))}"
+        )
 
 
 # ==========================================================
@@ -273,111 +346,59 @@ def converter_booleano(valor):
 
 def carregar_csv_games():
     """
-    Carrega o arquivo data/games.csv usando Pandas.
-
-    Retorno:
-        DataFrame com os jogos da Foundation Collection.
+    Carrega e valida data/games.csv.
     """
+
+    validar_arquivo_csv(GAMES_CSV_PATH)
 
     print(f"Lendo arquivo: {GAMES_CSV_PATH}")
 
     df_games = pd.read_csv(GAMES_CSV_PATH)
+
+    validar_games(df_games)
 
     return df_games
 
 
 def carregar_csv_awards():
     """
-    Carrega o arquivo data/awards.csv usando Pandas.
-
-    Retorno:
-        DataFrame com os dados da Awards History.
+    Carrega e valida data/awards.csv.
     """
+
+    validar_arquivo_csv(AWARDS_CSV_PATH)
 
     print(f"Lendo arquivo: {AWARDS_CSV_PATH}")
 
     df_awards = pd.read_csv(AWARDS_CSV_PATH)
 
+    validar_awards(df_awards)
+
     return df_awards
 
 
 # ==========================================================
-# FUNÇÃO DE CONEXÃO COM O POSTGRESQL
-# ==========================================================
-
-def conectar_postgres():
-    """
-    Cria uma conexão com o banco PostgreSQL.
-
-    Aqui acontece uma parte importante:
-
-    Python
-      ↓
-    psycopg
-      ↓
-    PostgreSQL
-
-    A senha será digitada no terminal quando o script rodar.
-
-    No seu caso, você configurou a senha do usuário postgres durante
-    a instalação do PostgreSQL.
-
-    Quando aparecer:
-
-        Digite a senha do usuário postgres:
-
-    você digita sua senha e aperta Enter.
-
-    A senha não aparece na tela. Isso é normal.
-    """
-
-    senha = getpass("Digite a senha do usuário postgres: ")
-
-    conexao = psycopg.connect(
-        dbname=DB_NAME,
-        user=DB_USER,
-        password=senha,
-        host=DB_HOST,
-        port=DB_PORT
-    )
-
-    return conexao
-
-
-# ==========================================================
-# FUNÇÕES DE LIMPEZA DAS TABELAS
+# FUNÇÃO DE LIMPEZA DAS TABELAS
 # ==========================================================
 
 def limpar_tabelas(cursor):
     """
-    Limpa as tabelas antes de importar os dados novamente.
+    Limpa as tabelas antes de uma nova importação.
 
-    Por que limpar?
+    RESTART IDENTITY reinicia o id automático da tabela awards.
 
-    Imagine que o script importa 66 jogos.
-    Depois você roda o script de novo.
-    Se a gente não limpar antes, ele tentaria colocar os mesmos jogos de novo.
+    As alterações fazem parte da mesma transação da importação.
 
-    Então a ordem é:
-
-    1. apagar dados antigos das tabelas;
-    2. importar tudo novamente a partir dos CSVs.
-
-    TRUNCATE TABLE:
-        limpa todos os registros da tabela.
-
-    RESTART IDENTITY:
-        reinicia contadores automáticos, como o id SERIAL da tabela awards.
+    Portanto, se alguma inserção falhar, o PostgreSQL desfaz
+    também a limpeza das tabelas.
     """
 
-    # Limpamos awards primeiro.
-    #
-    # No nosso modelo atual, awards não depende de games por chave estrangeira.
-    # Mas separar os comandos deixa o processo mais claro.
-    cursor.execute("TRUNCATE TABLE awards RESTART IDENTITY;")
+    cursor.execute(
+        "TRUNCATE TABLE awards RESTART IDENTITY;"
+    )
 
-    # Limpamos games depois.
-    cursor.execute("TRUNCATE TABLE games RESTART IDENTITY;")
+    cursor.execute(
+        "TRUNCATE TABLE games RESTART IDENTITY;"
+    )
 
 
 # ==========================================================
@@ -386,25 +407,8 @@ def limpar_tabelas(cursor):
 
 def importar_games(cursor, df_games):
     """
-    Importa os dados do games.csv para a tabela games.
-
-    Cada linha do DataFrame vira uma linha na tabela games.
-
-    O DataFrame vem do CSV.
-    A tabela games está no PostgreSQL.
+    Importa os registros de games.csv para a tabela games.
     """
-
-    # Este é o comando SQL que será executado várias vezes.
-    #
-    # INSERT INTO games (...)
-    # significa:
-    # "insira dados dentro da tabela games".
-    #
-    # Os %s são espaços reservados.
-    # O psycopg troca esses %s pelos valores reais de forma segura.
-    #
-    # Não colocamos os valores diretamente dentro da string SQL.
-    # Isso é uma prática mais segura.
 
     sql = """
         INSERT INTO games (
@@ -422,46 +426,59 @@ def importar_games(cursor, df_games):
             historico_influente
         )
         VALUES (
-            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+            %s, %s, %s, %s, %s, %s,
+            %s, %s, %s, %s, %s, %s
         );
     """
 
-    # Esta lista vai guardar todos os registros já tratados.
     dados = []
 
-    # iterrows() percorre o DataFrame linha por linha.
-    #
-    # Cada "linha" representa um jogo do games.csv.
     for _, linha in df_games.iterrows():
-
-        # Aqui montamos uma tupla.
-        #
-        # Uma tupla é parecida com uma lista, mas geralmente usada
-        # para representar um conjunto fixo de valores.
-        #
-        # A ordem precisa bater com a ordem das colunas do INSERT.
         registro = (
-            converter_int(linha["id"]),
-            converter_texto(linha["nome"]),
-            converter_int(linha["ano_lancamento"]),
-            converter_texto(linha["genero"]),
-            converter_texto(linha["developer"]),
-            converter_texto(linha["franchise"]),
-            converter_texto(linha["descricao"]),
-            converter_int(linha["metacritic"]),
-            converter_float(linha["nota_kadu"]),
-            converter_float(linha["nota_pavam"]),
-            converter_booleano(linha["historico_importante"]),
-            converter_booleano(linha["historico_influente"]),
+            converter_int(
+                linha["id"]
+            ),
+            converter_texto(
+                linha["nome"]
+            ),
+            converter_int(
+                linha["ano_lancamento"]
+            ),
+            converter_texto(
+                linha["genero"]
+            ),
+            converter_texto(
+                linha["developer"]
+            ),
+            converter_texto(
+                linha["franchise"]
+            ),
+            converter_texto(
+                linha["descricao"]
+            ),
+            converter_int(
+                linha["metacritic"]
+            ),
+            converter_float(
+                linha["nota_kadu"]
+            ),
+            converter_float(
+                linha["nota_pavam"]
+            ),
+            converter_booleano(
+                linha["historico_importante"]
+            ),
+            converter_booleano(
+                linha["historico_influente"]
+            ),
         )
 
         dados.append(registro)
 
-    # executemany() executa o mesmo INSERT várias vezes.
-    #
-    # Em vez de mandar um jogo por vez manualmente,
-    # mandamos a lista inteira de registros.
-    cursor.executemany(sql, dados)
+    cursor.executemany(
+        sql,
+        dados,
+    )
 
 
 # ==========================================================
@@ -470,12 +487,10 @@ def importar_games(cursor, df_games):
 
 def importar_awards(cursor, df_awards):
     """
-    Importa os dados do awards.csv para a tabela awards.
+    Importa os registros de awards.csv para a tabela awards.
 
-    A tabela awards possui uma coluna id automática no PostgreSQL.
-
-    Como o CSV awards.csv não possui id, nós não inserimos id manualmente.
-    O PostgreSQL cria esse id sozinho por causa do SERIAL.
+    O id não é informado porque o PostgreSQL gera
+    automaticamente.
     """
 
     sql = """
@@ -493,39 +508,84 @@ def importar_awards(cursor, df_awards):
     dados = []
 
     for _, linha in df_awards.iterrows():
-
         registro = (
-            converter_int(linha["ano"]),
-            converter_texto(linha["premiacao"]),
-            converter_texto(linha["jogo"]),
-            converter_texto(linha["status"]),
+            converter_int(
+                linha["ano"]
+            ),
+            converter_texto(
+                linha["premiacao"]
+            ),
+            converter_texto(
+                linha["jogo"]
+            ),
+            converter_texto(
+                linha["status"]
+            ),
         )
 
         dados.append(registro)
 
-    cursor.executemany(sql, dados)
+    cursor.executemany(
+        sql,
+        dados,
+    )
 
 
 # ==========================================================
-# FUNÇÃO DE CONFERÊNCIA
+# FUNÇÕES DE CONFERÊNCIA
 # ==========================================================
 
 def contar_registros(cursor, nome_tabela):
     """
-    Conta quantos registros existem em uma tabela.
+    Conta registros de uma tabela permitida.
 
-    Exemplo de SQL executado:
-
-        SELECT COUNT(*) FROM games;
-
-    Isso ajuda a verificar se a importação deu certo.
+    Apenas as tabelas presentes em CONSULTAS_CONTAGEM
+    podem ser utilizadas.
     """
 
-    cursor.execute(f"SELECT COUNT(*) FROM {nome_tabela};")
+    consulta = CONSULTAS_CONTAGEM.get(
+        nome_tabela
+    )
 
-    total = cursor.fetchone()[0]
+    if consulta is None:
+        raise ValueError(
+            f"Tabela não permitida para contagem: "
+            f"{nome_tabela}"
+        )
 
-    return total
+    cursor.execute(
+        consulta
+    )
+
+    return cursor.fetchone()[0]
+
+
+def validar_quantidades_importadas(
+    total_games,
+    total_awards,
+    quantidade_games_csv,
+    quantidade_awards_csv,
+):
+    """
+    Confirma que as quantidades importadas são iguais
+    às quantidades presentes nos CSVs.
+    """
+
+    if total_games != quantidade_games_csv:
+        raise RuntimeError(
+            "A quantidade importada em games não "
+            "corresponde ao CSV. "
+            f"CSV: {quantidade_games_csv} | "
+            f"Banco: {total_games}"
+        )
+
+    if total_awards != quantidade_awards_csv:
+        raise RuntimeError(
+            "A quantidade importada em awards não "
+            "corresponde ao CSV. "
+            f"CSV: {quantidade_awards_csv} | "
+            f"Banco: {total_awards}"
+        )
 
 
 # ==========================================================
@@ -536,135 +596,227 @@ def main():
     """
     Executa o processo completo de importação.
 
-    Ordem do script:
+    Ordem:
 
-    1. Carregar games.csv
-    2. Carregar awards.csv
-    3. Conectar no PostgreSQL
-    4. Limpar tabelas antigas
-    5. Importar games
-    6. Importar awards
-    7. Conferir quantidade de registros
-    8. Encerrar conexão
+    1. Carregar e validar os CSVs.
+    2. Conectar ao PostgreSQL usando database.py e .env.
+    3. Limpar as tabelas.
+    4. Importar games.
+    5. Importar awards.
+    6. Conferir as quantidades.
+    7. Confirmar ou desfazer a transação.
+    8. Encerrar a conexão.
     """
 
-    print("==========================================================")
-    print("The AAA Archive — Importação CSV para PostgreSQL")
-    print("==========================================================")
+    print(
+        "=========================================================="
+    )
+    print(
+        "The AAA Archive — Importação CSV para PostgreSQL"
+    )
+    print(
+        "=========================================================="
+    )
     print()
 
-    # ------------------------------------------------------
-    # 1. Carregar CSVs
-    # ------------------------------------------------------
-
-    print("1. Carregando arquivos CSV...")
-    print()
-
-    df_games = carregar_csv_games()
-    df_awards = carregar_csv_awards()
-
-    print()
-    print(f"games.csv carregado com {len(df_games)} registros.")
-    print(f"awards.csv carregado com {len(df_awards)} registros.")
-    print()
-
-    # ------------------------------------------------------
-    # 2. Conectar no PostgreSQL
-    # ------------------------------------------------------
-
-    print("2. Conectando ao PostgreSQL...")
-    print()
-
-    conexao = conectar_postgres()
-
-    print()
-    print("Conexão realizada com sucesso.")
-    print()
-
-    # ------------------------------------------------------
-    # 3. Importar dados
-    # ------------------------------------------------------
+    conexao = None
 
     try:
-        # O "with conexao:" ajuda a controlar transações.
-        #
-        # Se tudo der certo, ele confirma as alterações.
-        # Se der erro, ele desfaz a operação.
-        with conexao:
+        # ------------------------------------------------------
+        # 1. Carregar e validar os CSVs
+        # ------------------------------------------------------
 
-            # O cursor é o objeto que executa comandos SQL.
-            #
-            # Sempre que quisermos rodar SELECT, INSERT, TRUNCATE etc.,
-            # usamos o cursor.
-            with conexao.cursor() as cursor:
+        print(
+            "1. Carregando e validando arquivos CSV..."
+        )
+        print()
 
-                print("3. Limpando tabelas antigas...")
-                limpar_tabelas(cursor)
-                print("Tabelas limpas com sucesso.")
-                print()
-
-                print("4. Importando games.csv para a tabela games...")
-                importar_games(cursor, df_games)
-                print("Importação de games concluída.")
-                print()
-
-                print("5. Importando awards.csv para a tabela awards...")
-                importar_awards(cursor, df_awards)
-                print("Importação de awards concluída.")
-                print()
-
-                print("6. Conferindo quantidade de registros no banco...")
-                total_games = contar_registros(cursor, "games")
-                total_awards = contar_registros(cursor, "awards")
-
-                print()
-                print(f"Registros na tabela games: {total_games}")
-                print(f"Registros na tabela awards: {total_awards}")
+        df_games = carregar_csv_games()
+        df_awards = carregar_csv_awards()
 
         print()
-        print("==========================================================")
-        print("Importação concluída com sucesso!")
-        print("==========================================================")
+        print(
+            f"games.csv carregado com "
+            f"{len(df_games)} registros."
+        )
+        print(
+            f"awards.csv carregado com "
+            f"{len(df_awards)} registros."
+        )
+        print()
+
+        # ------------------------------------------------------
+        # 2. Conectar ao PostgreSQL
+        # ------------------------------------------------------
+
+        print(
+            "2. Conectando ao PostgreSQL "
+            "usando o arquivo .env..."
+        )
+        print()
+
+        conexao = conectar_postgres()
+
+        print(
+            "Conexão realizada com sucesso."
+        )
+        print()
+
+        # ------------------------------------------------------
+        # 3. Executar a importação em uma transação
+        # ------------------------------------------------------
+
+        with conexao:
+            with conexao.cursor() as cursor:
+                print(
+                    "3. Limpando tabelas antigas..."
+                )
+
+                limpar_tabelas(
+                    cursor
+                )
+
+                print(
+                    "Tabelas limpas com sucesso."
+                )
+                print()
+
+                print(
+                    "4. Importando games.csv "
+                    "para a tabela games..."
+                )
+
+                importar_games(
+                    cursor,
+                    df_games,
+                )
+
+                print(
+                    "Importação de games concluída."
+                )
+                print()
+
+                print(
+                    "5. Importando awards.csv "
+                    "para a tabela awards..."
+                )
+
+                importar_awards(
+                    cursor,
+                    df_awards,
+                )
+
+                print(
+                    "Importação de awards concluída."
+                )
+                print()
+
+                print(
+                    "6. Conferindo quantidades importadas..."
+                )
+
+                total_games = contar_registros(
+                    cursor,
+                    "games",
+                )
+
+                total_awards = contar_registros(
+                    cursor,
+                    "awards",
+                )
+
+                validar_quantidades_importadas(
+                    total_games=total_games,
+                    total_awards=total_awards,
+                    quantidade_games_csv=len(df_games),
+                    quantidade_awards_csv=len(df_awards),
+                )
+
+                print()
+                print(
+                    f"Registros na tabela games: "
+                    f"{total_games}"
+                )
+                print(
+                    f"Registros na tabela awards: "
+                    f"{total_awards}"
+                )
+
+        print()
+        print(
+            "=========================================================="
+        )
+        print(
+            "Importação concluída com sucesso!"
+        )
+        print(
+            "=========================================================="
+        )
 
     except Exception as erro:
         print()
-        print("==========================================================")
-        print("Erro durante a importação.")
-        print("==========================================================")
+        print(
+            "=========================================================="
+        )
+        print(
+            "Erro durante a importação."
+        )
+        print(
+            "=========================================================="
+        )
         print()
-        print("Mensagem do erro:")
-        print(erro)
+        print(
+            "Mensagem do erro:"
+        )
+        print(
+            erro
+        )
         print()
-        print("Possíveis causas:")
-        print("- senha do PostgreSQL incorreta;")
-        print("- banco aaa_archive não existe;")
-        print("- tabelas games e awards não existem;")
-        print("- colunas do banco diferentes das colunas esperadas;")
-        print("- PostgreSQL não está rodando;")
-        print("- CSV com algum valor inesperado.")
+        print(
+            "Possíveis causas:"
+        )
+        print(
+            "- PostgreSQL não está em execução;"
+        )
+        print(
+            "- arquivo .env ausente ou incompleto;"
+        )
+        print(
+            "- credenciais do PostgreSQL incorretas;"
+        )
+        print(
+            "- banco aaa_archive não existe;"
+        )
+        print(
+            "- tabelas games e awards não existem;"
+        )
+        print(
+            "- colunas do banco diferentes das esperadas;"
+        )
+        print(
+            "- CSV ausente, inválido ou com valor inesperado."
+        )
+        print()
+
+        # Encerra o processo com código de erro.
+        #
+        # Isso permite que terminal, testes ou automações
+        # percebam que a importação não foi concluída.
+        raise SystemExit(1) from erro
 
     finally:
-        # Sempre fechamos a conexão no final.
-        #
-        # Isso é importante para não deixar conexões abertas sem necessidade.
-        conexao.close()
+        if conexao is not None:
+            conexao.close()
 
-        print()
-        print("Conexão com PostgreSQL encerrada.")
+            print()
+            print(
+                "Conexão com PostgreSQL encerrada."
+            )
 
 
 # ==========================================================
 # EXECUÇÃO DO SCRIPT
 # ==========================================================
-
-# Essa parte significa:
-#
-# "Se este arquivo for executado diretamente pelo terminal,
-# rode a função main()."
-#
-# Exemplo:
-#
-# python scripts/import_to_postgres.py
 
 if __name__ == "__main__":
     main()

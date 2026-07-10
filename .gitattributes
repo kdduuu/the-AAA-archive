@@ -1,0 +1,31 @@
+# ==========================================================
+# THE AAA ARCHIVE — PADRONIZAÇÃO DE ARQUIVOS
+# ==========================================================
+
+# Detecta automaticamente arquivos de texto.
+* text=auto
+
+# Código e documentação usam LF no repositório.
+*.py text eol=lf
+*.md text eol=lf
+*.csv text eol=lf
+*.sql text eol=lf
+*.txt text eol=lf
+*.json text eol=lf
+*.js text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+
+# Scripts do Windows podem continuar usando CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Arquivos binários não devem ser modificados pelo Git.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.zip binary
