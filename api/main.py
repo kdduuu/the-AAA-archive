@@ -4,7 +4,8 @@ The AAA Archive
 Arquivo: main.py
 
 Objetivo:
-Criar a primeira versão da API do The AAA Archive.
+Criar a API do The AAA Archive usando PostgreSQL como fonte
+principal de dados.
 
 Nesta fase, a API já possui:
 - endpoint inicial de teste;
@@ -15,9 +16,31 @@ Nesta fase, a API já possui:
 - endpoint para retornar estatísticas da Home;
 - endpoints para consultar o histórico de premiações.
 
+Mudança importante desta versão:
+Antes, a API lia os arquivos CSV diretamente.
+
+Fluxo antigo:
+    API
+      ↓
+    load_data.py
+      ↓
+    data/games.csv / data/awards.csv
+
+Agora, a API lê os dados do PostgreSQL.
+
+Fluxo novo:
+    API
+      ↓
+    database.py
+      ↓
+    PostgreSQL
+      ↓
+    DataFrame Pandas
+
 Autor: Kadu Almeida
 ===========================================================
 """
+
 
 # ==========================================================
 # IMPORTAÇÃO DOS MÓDULOS
@@ -49,7 +72,7 @@ The-AAA-Archive/
 │   └── main.py
 │
 └── scripts/
-    ├── load_data.py
+    ├── database.py
     ├── search.py
     ├── filters.py
     ├── site_statistics.py
@@ -66,9 +89,35 @@ if str(SCRIPTS_PATH) not in sys.path:
     sys.path.append(str(SCRIPTS_PATH))
 
 
-# Agora o Python consegue importar os módulos da pasta scripts.
-from load_data import carregar_dataset, carregar_awards
+# ==========================================================
+# IMPORTAÇÃO DOS MÓDULOS DO PROJETO
+# ==========================================================
+
+"""
+Nesta versão, removemos o uso direto de:
+
+    carregar_dataset()
+    carregar_awards()
+
+Essas funções liam os CSVs.
+
+Agora usamos:
+
+    carregar_games_do_banco()
+    carregar_awards_do_banco()
+
+Essas funções leem os dados do PostgreSQL por meio do arquivo:
+
+    scripts/database.py
+"""
+
+from database import (
+    carregar_games_do_banco,
+    carregar_awards_do_banco,
+)
+
 from search import pesquisar_jogos
+
 from filters import (
     listar_jogos_por_developer,
     listar_jogos_por_genero,
@@ -76,11 +125,13 @@ from filters import (
     listar_jogos_por_ano,
     listar_jogos_por_decada,
 )
+
 from site_statistics import (
     gerar_estatisticas_home,
     listar_jogos_historicos,
     listar_jogos_influentes,
 )
+
 from awards import (
     listar_jogos_por_ano as consultar_awards_por_ano,
     listar_vencedores,
@@ -97,12 +148,69 @@ from awards import (
 app = FastAPI(
     title="The AAA Archive API",
     description="API para consultar dados do projeto The AAA Archive.",
-    version="0.1.0"
+    version="0.2.0"
 )
 
 
 # ==========================================================
-# FUNÇÕES AUXILIARES
+# FUNÇÕES AUXILIARES DE CARREGAMENTO
+# ==========================================================
+
+def carregar_games_api():
+    """
+    Carrega os jogos que serão usados pela API.
+
+    Antes:
+        carregar_dataset()
+        ↓
+        games.csv
+
+    Agora:
+        carregar_games_do_banco()
+        ↓
+        PostgreSQL
+
+    Retorno:
+        DataFrame com os jogos da Foundation Collection.
+    """
+
+    df_games = carregar_games_do_banco()
+
+    return df_games
+
+
+def carregar_awards_api():
+    """
+    Carrega os dados de premiações que serão usados pela API.
+
+    Antes:
+        carregar_awards()
+        ↓
+        awards.csv
+
+    Agora:
+        carregar_awards_do_banco()
+        ↓
+        PostgreSQL
+
+    Observação:
+        No PostgreSQL, a tabela awards possui uma coluna id criada
+        automaticamente.
+
+        Como o awards.csv original não tinha essa coluna, removemos o id
+        aqui para manter a resposta da API parecida com a versão antiga.
+    """
+
+    df_awards = carregar_awards_do_banco()
+
+    if "id" in df_awards.columns:
+        df_awards = df_awards.drop(columns=["id"])
+
+    return df_awards
+
+
+# ==========================================================
+# FUNÇÕES AUXILIARES DE CONVERSÃO PARA JSON
 # ==========================================================
 
 def dataframe_para_json(df):
@@ -150,8 +258,6 @@ def dataframe_para_json(df):
 def dados_para_json(dados):
     """
     Converte diferentes tipos de dados para formatos compatíveis com JSON.
-
-    Por que essa função existe?
 
     Algumas funções do backend retornam apenas um DataFrame.
     Outras retornam um dicionário que contém vários DataFrames dentro.
@@ -220,7 +326,8 @@ def read_root():
     return {
         "mensagem": "The AAA Archive API está funcionando",
         "status": "online",
-        "versao": "0.1.0"
+        "versao": "0.2.0",
+        "fonte_dados": "PostgreSQL"
     }
 
 
@@ -237,7 +344,7 @@ def listar_games():
         GET /games
 
     Fluxo:
-        1. Carrega o games.csv usando carregar_dataset().
+        1. Carrega os jogos do PostgreSQL usando carregar_games_api().
         2. Converte o DataFrame em lista de dicionários.
         3. Retorna os dados em formato JSON.
 
@@ -245,7 +352,7 @@ def listar_games():
         list: lista com todos os jogos cadastrados.
     """
 
-    df_games = carregar_dataset()
+    df_games = carregar_games_api()
 
     games = dataframe_para_json(df_games)
 
@@ -270,7 +377,7 @@ def pesquisar_games(
 
     Fluxo:
         1. Recebe o termo pesquisado pela URL.
-        2. Carrega o games.csv usando carregar_dataset().
+        2. Carrega os jogos do PostgreSQL.
         3. Usa a função pesquisar_jogos() do módulo search.py.
         4. Converte o resultado para JSON.
         5. Retorna os jogos encontrados.
@@ -282,7 +389,7 @@ def pesquisar_games(
         list: lista de jogos encontrados.
     """
 
-    df_games = carregar_dataset()
+    df_games = carregar_games_api()
 
     resultado = pesquisar_jogos(df_games, term)
 
@@ -304,7 +411,7 @@ def listar_games_por_developer(developer: str):
 
     Fluxo:
         1. Recebe o nome da desenvolvedora pela URL.
-        2. Carrega o games.csv usando carregar_dataset().
+        2. Carrega os jogos do PostgreSQL.
         3. Usa a função listar_jogos_por_developer() do módulo filters.py.
         4. Converte o resultado para JSON.
         5. Retorna os jogos encontrados.
@@ -316,7 +423,7 @@ def listar_games_por_developer(developer: str):
         list: lista de jogos da desenvolvedora informada.
     """
 
-    df_games = carregar_dataset()
+    df_games = carregar_games_api()
 
     resultado = listar_jogos_por_developer(df_games, developer)
 
@@ -338,7 +445,7 @@ def listar_games_por_genero(genre: str):
 
     Fluxo:
         1. Recebe o gênero pela URL.
-        2. Carrega o games.csv usando carregar_dataset().
+        2. Carrega os jogos do PostgreSQL.
         3. Usa a função listar_jogos_por_genero() do módulo filters.py.
         4. Converte o resultado para JSON.
         5. Retorna os jogos encontrados.
@@ -350,7 +457,7 @@ def listar_games_por_genero(genre: str):
         list: lista de jogos do gênero informado.
     """
 
-    df_games = carregar_dataset()
+    df_games = carregar_games_api()
 
     resultado = listar_jogos_por_genero(df_games, genre)
 
@@ -372,7 +479,7 @@ def listar_games_por_franquia(franchise: str):
 
     Fluxo:
         1. Recebe o nome da franquia pela URL.
-        2. Carrega o games.csv usando carregar_dataset().
+        2. Carrega os jogos do PostgreSQL.
         3. Usa a função listar_jogos_por_franquia() do módulo filters.py.
         4. Converte o resultado para JSON.
         5. Retorna os jogos encontrados.
@@ -384,7 +491,7 @@ def listar_games_por_franquia(franchise: str):
         list: lista de jogos da franquia informada.
     """
 
-    df_games = carregar_dataset()
+    df_games = carregar_games_api()
 
     resultado = listar_jogos_por_franquia(df_games, franchise)
 
@@ -406,7 +513,7 @@ def listar_games_por_ano(year: int):
 
     Fluxo:
         1. Recebe o ano pela URL.
-        2. Carrega o games.csv usando carregar_dataset().
+        2. Carrega os jogos do PostgreSQL.
         3. Usa a função listar_jogos_por_ano() do módulo filters.py.
         4. Converte o resultado para JSON.
         5. Retorna os jogos encontrados.
@@ -418,7 +525,7 @@ def listar_games_por_ano(year: int):
         list: lista de jogos lançados no ano informado.
     """
 
-    df_games = carregar_dataset()
+    df_games = carregar_games_api()
 
     resultado = listar_jogos_por_ano(df_games, year)
 
@@ -440,7 +547,7 @@ def listar_games_por_decada(decade: int):
 
     Fluxo:
         1. Recebe a década pela URL.
-        2. Carrega o games.csv usando carregar_dataset().
+        2. Carrega os jogos do PostgreSQL.
         3. Usa a função listar_jogos_por_decada() do módulo filters.py.
         4. Converte o resultado para JSON.
         5. Retorna os jogos encontrados.
@@ -452,7 +559,7 @@ def listar_games_por_decada(decade: int):
         list: lista de jogos lançados na década informada.
     """
 
-    df_games = carregar_dataset()
+    df_games = carregar_games_api()
 
     resultado = listar_jogos_por_decada(df_games, decade)
 
@@ -470,7 +577,7 @@ def listar_games_historicos():
         GET /games/historical
 
     Fluxo:
-        1. Carrega o games.csv usando carregar_dataset().
+        1. Carrega os jogos do PostgreSQL.
         2. Usa a função listar_jogos_historicos() do módulo site_statistics.py.
         3. Converte o resultado para JSON.
         4. Retorna os jogos historicamente importantes.
@@ -479,7 +586,7 @@ def listar_games_historicos():
         list: lista de jogos marcados como historicamente importantes.
     """
 
-    df_games = carregar_dataset()
+    df_games = carregar_games_api()
 
     resultado = listar_jogos_historicos(df_games)
 
@@ -497,7 +604,7 @@ def listar_games_influentes():
         GET /games/influential
 
     Fluxo:
-        1. Carrega o games.csv usando carregar_dataset().
+        1. Carrega os jogos do PostgreSQL.
         2. Usa a função listar_jogos_influentes() do módulo site_statistics.py.
         3. Converte o resultado para JSON.
         4. Retorna os jogos historicamente influentes.
@@ -506,7 +613,7 @@ def listar_games_influentes():
         list: lista de jogos marcados como historicamente influentes.
     """
 
-    df_games = carregar_dataset()
+    df_games = carregar_games_api()
 
     resultado = listar_jogos_influentes(df_games)
 
@@ -528,7 +635,7 @@ def obter_estatisticas_home():
         GET /stats/home
 
     Fluxo:
-        1. Carrega o games.csv usando carregar_dataset().
+        1. Carrega os jogos do PostgreSQL.
         2. Usa a função gerar_estatisticas_home() do módulo site_statistics.py.
         3. Converte os dados para um formato compatível com JSON.
         4. Retorna as estatísticas da Home.
@@ -537,7 +644,7 @@ def obter_estatisticas_home():
         dict: estatísticas gerais da Foundation Collection.
     """
 
-    df_games = carregar_dataset()
+    df_games = carregar_games_api()
 
     estatisticas = gerar_estatisticas_home(df_games)
 
@@ -559,7 +666,7 @@ def listar_awards():
         GET /awards
 
     Fluxo:
-        1. Carrega o awards.csv usando carregar_awards().
+        1. Carrega os dados de awards do PostgreSQL.
         2. Converte o DataFrame em lista de dicionários.
         3. Retorna todos os registros em JSON.
 
@@ -567,7 +674,7 @@ def listar_awards():
         list: lista com vencedores e indicados cadastrados.
     """
 
-    df_awards = carregar_awards()
+    df_awards = carregar_awards_api()
 
     awards = dataframe_para_json(df_awards)
 
@@ -583,7 +690,7 @@ def listar_awards_vencedores():
         GET /awards/winners
 
     Fluxo:
-        1. Carrega o awards.csv.
+        1. Carrega os dados de awards do PostgreSQL.
         2. Usa a função listar_vencedores() do módulo awards.py.
         3. Converte o resultado para JSON.
         4. Retorna os vencedores.
@@ -592,7 +699,7 @@ def listar_awards_vencedores():
         list: lista com todos os vencedores.
     """
 
-    df_awards = carregar_awards()
+    df_awards = carregar_awards_api()
 
     resultado = listar_vencedores(df_awards)
 
@@ -611,8 +718,8 @@ def listar_awards_vencedores_na_foundation():
         GET /awards/foundation/winners
 
     Fluxo:
-        1. Carrega o awards.csv.
-        2. Carrega o games.csv.
+        1. Carrega os dados de awards do PostgreSQL.
+        2. Carrega os jogos do PostgreSQL.
         3. Usa a função listar_vencedores_na_foundation().
         4. Converte o resultado para JSON.
         5. Retorna os vencedores encontrados nas duas bases.
@@ -621,8 +728,8 @@ def listar_awards_vencedores_na_foundation():
         list: lista com vencedores presentes na Foundation Collection.
     """
 
-    df_awards = carregar_awards()
-    df_games = carregar_dataset()
+    df_awards = carregar_awards_api()
+    df_games = carregar_games_api()
 
     resultado = listar_vencedores_na_foundation(df_awards, df_games)
 
@@ -641,8 +748,8 @@ def listar_awards_indicados_na_foundation():
         GET /awards/foundation/nominees
 
     Fluxo:
-        1. Carrega o awards.csv.
-        2. Carrega o games.csv.
+        1. Carrega os dados de awards do PostgreSQL.
+        2. Carrega os jogos do PostgreSQL.
         3. Usa a função listar_indicados_na_foundation().
         4. Converte o resultado para JSON.
         5. Retorna os indicados encontrados nas duas bases.
@@ -651,8 +758,8 @@ def listar_awards_indicados_na_foundation():
         list: lista com indicados presentes na Foundation Collection.
     """
 
-    df_awards = carregar_awards()
-    df_games = carregar_dataset()
+    df_awards = carregar_awards_api()
+    df_games = carregar_games_api()
 
     resultado = listar_indicados_na_foundation(df_awards, df_games)
 
@@ -671,8 +778,8 @@ def listar_awards_fora_da_foundation():
         GET /awards/foundation/outside
 
     Fluxo:
-        1. Carrega o awards.csv.
-        2. Carrega o games.csv.
+        1. Carrega os dados de awards do PostgreSQL.
+        2. Carrega os jogos do PostgreSQL.
         3. Usa a função listar_jogos_awards_fora_da_foundation().
         4. Converte o resultado para JSON.
         5. Retorna os jogos fora da Foundation Collection.
@@ -681,8 +788,8 @@ def listar_awards_fora_da_foundation():
         list: lista com jogos do Awards que não estão na Foundation Collection.
     """
 
-    df_awards = carregar_awards()
-    df_games = carregar_dataset()
+    df_awards = carregar_awards_api()
+    df_games = carregar_games_api()
 
     resultado = listar_jogos_awards_fora_da_foundation(df_awards, df_games)
 
@@ -704,7 +811,7 @@ def obter_awards_por_ano(year: int):
 
     Fluxo:
         1. Recebe o ano pela URL.
-        2. Carrega o awards.csv.
+        2. Carrega os dados de awards do PostgreSQL.
         3. Usa a função listar_jogos_por_ano() do módulo awards.py.
         4. Converte o resultado para JSON.
         5. Retorna vencedor e indicados daquele ano.
@@ -716,7 +823,7 @@ def obter_awards_por_ano(year: int):
         list: lista com vencedor e indicados do ano informado.
     """
 
-    df_awards = carregar_awards()
+    df_awards = carregar_awards_api()
 
     resultado = consultar_awards_por_ano(df_awards, year)
 

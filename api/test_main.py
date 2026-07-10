@@ -6,16 +6,31 @@ Arquivo: test_main.py
 Objetivo:
 Testar os endpoints principais da API do The AAA Archive.
 
-Esses testes verificam se a API está respondendo corretamente
-e se os dados retornados fazem sentido.
+Esses testes verificam se a API está respondendo corretamente,
+se os dados retornados fazem sentido e se a API está usando
+PostgreSQL como fonte principal de dados.
+
+Nesta fase, a API não lê mais diretamente os CSVs.
+Ela usa:
+
+    api/main.py
+        ↓
+    scripts/database.py
+        ↓
+    PostgreSQL
 
 Autor: Kadu Almeida
 ===========================================================
 """
 
+
 # ==========================================================
 # IMPORTAÇÃO DOS MÓDULOS
 # ==========================================================
+
+# warnings será usado apenas para esconder um aviso de depreciação
+# do TestClient que não interfere nos nossos testes.
+import warnings
 
 from fastapi.testclient import TestClient
 
@@ -23,8 +38,43 @@ from main import app
 
 
 # ==========================================================
+# CONFIGURAÇÃO DE AVISOS
+# ==========================================================
+
+"""
+O FastAPI/Starlette pode mostrar um aviso assim:
+
+    StarletteDeprecationWarning
+
+Esse aviso não significa que nossa API está quebrada.
+É apenas um aviso interno sobre uma dependência do TestClient.
+
+Como ele pode confundir durante os testes, vamos ocultar esse aviso específico.
+"""
+
+warnings.filterwarnings(
+    "ignore",
+    message=r"Using `httpx` with `starlette\.testclient` is deprecated.*"
+)
+
+
+# ==========================================================
 # CLIENTE DE TESTE
 # ==========================================================
+
+"""
+O TestClient permite testar a API sem precisar subir o servidor manualmente.
+
+Ou seja, em vez de abrir:
+
+    fastapi dev api/main.py
+
+e depois acessar pelo navegador, o teste faz requisições internas como:
+
+    client.get("/games")
+
+Isso ajuda a validar os endpoints automaticamente.
+"""
 
 client = TestClient(app)
 
@@ -36,6 +86,11 @@ client = TestClient(app)
 def testar_endpoint_inicial():
     """
     Testa se o endpoint inicial da API está funcionando.
+
+    Agora a API deve informar:
+    - status online;
+    - versão 0.2.0;
+    - fonte de dados PostgreSQL.
     """
 
     resposta = client.get("/")
@@ -44,8 +99,10 @@ def testar_endpoint_inicial():
 
     dados = resposta.json()
 
+    assert dados["mensagem"] == "The AAA Archive API está funcionando"
     assert dados["status"] == "online"
-    assert dados["versao"] == "0.1.0"
+    assert dados["versao"] == "0.2.0"
+    assert dados["fonte_dados"] == "PostgreSQL"
 
 
 # ==========================================================
@@ -55,6 +112,9 @@ def testar_endpoint_inicial():
 def testar_listar_games():
     """
     Testa se o endpoint /games retorna uma lista de jogos.
+
+    Como a tabela games no PostgreSQL possui atualmente 66 registros,
+    esperamos receber 66 jogos.
     """
 
     resposta = client.get("/games")
@@ -64,15 +124,22 @@ def testar_listar_games():
     dados = resposta.json()
 
     assert isinstance(dados, list)
-    assert len(dados) > 0
+    assert len(dados) == 66
 
+    assert "id" in dados[0]
     assert "nome" in dados[0]
     assert "ano_lancamento" in dados[0]
+    assert "genero" in dados[0]
+    assert "developer" in dados[0]
+    assert "franchise" in dados[0]
 
 
 def testar_pesquisar_games():
     """
     Testa se a busca textual da API funciona.
+
+    Pesquisamos por "zelda" e esperamos encontrar algum jogo
+    com Zelda no nome.
     """
 
     resposta = client.get("/games/search?term=zelda")
@@ -92,6 +159,9 @@ def testar_pesquisar_games():
 def testar_games_por_developer():
     """
     Testa o filtro de jogos por desenvolvedora.
+
+    Exemplo usado:
+        Capcom
     """
 
     resposta = client.get("/games/developer/Capcom")
@@ -109,6 +179,9 @@ def testar_games_por_developer():
 def testar_games_por_genero():
     """
     Testa o filtro de jogos por gênero.
+
+    Exemplo usado:
+        Survival Horror
     """
 
     resposta = client.get("/games/genre/Survival%20Horror")
@@ -126,6 +199,9 @@ def testar_games_por_genero():
 def testar_games_por_franquia():
     """
     Testa o filtro de jogos por franquia.
+
+    Exemplo usado:
+        Resident Evil
     """
 
     resposta = client.get("/games/franchise/Resident%20Evil")
@@ -143,6 +219,9 @@ def testar_games_por_franquia():
 def testar_games_por_ano():
     """
     Testa o filtro de jogos por ano.
+
+    Exemplo usado:
+        2018
     """
 
     resposta = client.get("/games/year/2018")
@@ -160,6 +239,12 @@ def testar_games_por_ano():
 def testar_games_por_decada():
     """
     Testa o filtro de jogos por década.
+
+    Exemplo usado:
+        2000
+
+    Nesse caso, todos os jogos retornados precisam estar entre
+    2000 e 2009.
     """
 
     resposta = client.get("/games/decade/2000")
@@ -194,6 +279,11 @@ def testar_games_historicos():
         assert "nome" in dados[0]
         assert "historico_importante" in dados[0]
 
+        assert all(
+            jogo["historico_importante"] is True
+            for jogo in dados
+        )
+
 
 def testar_games_influentes():
     """
@@ -212,6 +302,11 @@ def testar_games_influentes():
         assert "nome" in dados[0]
         assert "historico_influente" in dados[0]
 
+        assert all(
+            jogo["historico_influente"] is True
+            for jogo in dados
+        )
+
 
 # ==========================================================
 # TESTE - ESTATÍSTICAS
@@ -220,6 +315,9 @@ def testar_games_influentes():
 def testar_estatisticas_home():
     """
     Testa se o endpoint /stats/home retorna estatísticas gerais.
+
+    Esse endpoint usa os dados da tabela games para gerar números
+    usados futuramente na Home do projeto.
     """
 
     resposta = client.get("/stats/home")
@@ -235,7 +333,10 @@ def testar_estatisticas_home():
     assert "total_franquias" in dados
     assert "total_generos" in dados
 
-    assert dados["total_jogos"] > 0
+    assert dados["total_jogos"] == 66
+    assert dados["total_developers"] > 0
+    assert dados["total_franquias"] > 0
+    assert dados["total_generos"] > 0
 
 
 # ==========================================================
@@ -245,6 +346,14 @@ def testar_estatisticas_home():
 def testar_listar_awards():
     """
     Testa se o endpoint /awards retorna registros de premiações.
+
+    Como a tabela awards no PostgreSQL possui atualmente 127 registros,
+    esperamos receber 127 registros.
+
+    Observação:
+    A tabela awards no PostgreSQL possui uma coluna id automática,
+    mas a API remove essa coluna para manter a resposta parecida
+    com a antiga versão baseada em CSV.
     """
 
     resposta = client.get("/awards")
@@ -254,17 +363,19 @@ def testar_listar_awards():
     dados = resposta.json()
 
     assert isinstance(dados, list)
-    assert len(dados) > 0
+    assert len(dados) == 127
 
     assert "ano" in dados[0]
     assert "premiacao" in dados[0]
     assert "jogo" in dados[0]
     assert "status" in dados[0]
 
+    assert "id" not in dados[0]
+
 
 def testar_awards_vencedores():
     """
-    Testa se o endpoint /awards/winners retorna vencedores.
+    Testa se o endpoint /awards/winners retorna apenas vencedores.
     """
 
     resposta = client.get("/awards/winners")
@@ -282,6 +393,10 @@ def testar_awards_vencedores():
 def testar_awards_por_ano():
     """
     Testa se o endpoint /awards/2018 retorna a edição de 2018.
+
+    Esperamos encontrar:
+    - God of War;
+    - Red Dead Redemption 2.
     """
 
     resposta = client.get("/awards/2018")
@@ -292,6 +407,8 @@ def testar_awards_por_ano():
 
     assert isinstance(dados, list)
     assert len(dados) > 0
+
+    assert all(item["ano"] == 2018 for item in dados)
 
     jogos = [item["jogo"] for item in dados]
 
@@ -342,6 +459,11 @@ def testar_awards_indicados_na_foundation():
 def testar_awards_fora_da_foundation():
     """
     Testa jogos do Awards que ainda não estão na Foundation Collection.
+
+    God of War está na Foundation Collection, então ele não deve aparecer
+    nessa lista.
+
+    Madden NFL 2004 não está na Foundation Collection, então deve aparecer.
     """
 
     resposta = client.get("/awards/foundation/outside")
