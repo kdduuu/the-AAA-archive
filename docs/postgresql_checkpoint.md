@@ -11,6 +11,8 @@ Ele serve para documentar:
 - os arquivos relacionados ao PostgreSQL;
 - o fluxo de importação dos dados;
 - o fluxo de leitura dos dados pelo Python;
+- a migração da API para PostgreSQL;
+- a migração do dashboard para PostgreSQL;
 - o status atual dos testes.
 
 ---
@@ -75,80 +77,6 @@ CREATE TABLE IF NOT EXISTS games (
 );
 ```
 
-## Explicação das principais colunas
-
-```text
-id
-```
-
-Identificador único de cada jogo. Ele vem do próprio `games.csv`.
-
-```text
-nome
-```
-
-Nome do jogo.
-
-```text
-ano_lancamento
-```
-
-Ano em que o jogo foi lançado.
-
-```text
-genero
-```
-
-Gênero principal usado no dataset.
-
-```text
-developer
-```
-
-Desenvolvedora do jogo.
-
-```text
-franchise
-```
-
-Franquia à qual o jogo pertence.
-
-```text
-descricao
-```
-
-Descrição editorial do jogo dentro do projeto.
-
-```text
-metacritic
-```
-
-Nota do jogo no Metacritic.
-
-```text
-nota_kadu
-```
-
-Nota pessoal do Kadu.
-
-```text
-nota_pavam
-```
-
-Nota pessoal do Pavam.
-
-```text
-historico_importante
-```
-
-Indica se o jogo é considerado historicamente importante.
-
-```text
-historico_influente
-```
-
-Indica se o jogo é considerado historicamente influente.
-
 ## Quantidade esperada de registros
 
 ```text
@@ -181,53 +109,6 @@ CREATE TABLE IF NOT EXISTS awards (
 );
 ```
 
-## Explicação das colunas
-
-```text
-id
-```
-
-Identificador único criado automaticamente pelo PostgreSQL.
-
-```text
-ano
-```
-
-Ano da premiação.
-
-```text
-premiacao
-```
-
-Nome da premiação.
-
-Exemplos:
-
-```text
-Spike Video Game Awards
-VGX
-The Game Awards
-```
-
-```text
-jogo
-```
-
-Nome do jogo indicado ou vencedor.
-
-```text
-status
-```
-
-Status do jogo naquela premiação.
-
-Exemplos:
-
-```text
-Vencedor
-Indicado
-```
-
 ## Observação sobre o `id`
 
 O arquivo `awards.csv` não possui uma coluna `id`.
@@ -239,14 +120,6 @@ id SERIAL PRIMARY KEY
 ```
 
 Isso faz o próprio PostgreSQL gerar os ids automaticamente.
-
-Exemplo:
-
-```text
-primeiro registro  -> id 1
-segundo registro   -> id 2
-terceiro registro  -> id 3
-```
 
 ## Quantidade esperada de registros
 
@@ -357,23 +230,13 @@ Em vez de cada parte do projeto criar conexão com o PostgreSQL sozinha, esse ar
 
 Isso ajuda a manter o projeto mais organizado.
 
-Exemplo de fluxo futuro:
+Fluxo atual:
 
 ```text
-API
-↓
-database.py
-↓
-PostgreSQL
-```
-
-E também:
-
-```text
-Dashboard
-↓
-database.py
-↓
+API / Dashboard
+       ↓
+scripts/database.py
+       ↓
 PostgreSQL
 ```
 
@@ -422,7 +285,7 @@ Isso deixa o projeto:
 - mais seguro;
 - mais organizado;
 - mais próximo de uma aplicação real;
-- mais fácil de adaptar para API e dashboard.
+- mais fácil de adaptar para API, dashboard e futura aplicação web.
 
 ---
 
@@ -508,7 +371,7 @@ Comando para rodar:
 python scripts/test_database.py
 ```
 
-Resultado obtido:
+Resultado esperado:
 
 ```text
 The AAA Archive — Testes do PostgreSQL
@@ -528,9 +391,242 @@ TODOS OS TESTES DO BANCO PASSARAM!
 
 ---
 
-# 12. Status atual da fase PostgreSQL
+# 12. API migrada para PostgreSQL
 
-A fase inicial do PostgreSQL está funcionando.
+A API foi migrada para usar PostgreSQL como fonte principal de dados.
+
+Antes, a API carregava os dados diretamente dos CSVs por meio do `load_data.py`.
+
+Fluxo antigo:
+
+```text
+API
+↓
+scripts/load_data.py
+↓
+data/games.csv / data/awards.csv
+```
+
+Agora, a API usa o `database.py`.
+
+Fluxo atual:
+
+```text
+API
+↓
+scripts/database.py
+↓
+.env
+↓
+PostgreSQL
+```
+
+## Arquivos alterados
+
+```text
+api/main.py
+api/test_main.py
+```
+
+## Mudanças principais no `api/main.py`
+
+O `api/main.py` passou a usar:
+
+```python
+carregar_games_do_banco()
+carregar_awards_do_banco()
+```
+
+Essas funções vêm de:
+
+```text
+scripts/database.py
+```
+
+A API agora informa no endpoint inicial:
+
+```json
+{
+  "mensagem": "The AAA Archive API está funcionando",
+  "status": "online",
+  "versao": "0.2.0",
+  "fonte_dados": "PostgreSQL"
+}
+```
+
+## Teste da API
+
+O arquivo:
+
+```text
+api/test_main.py
+```
+
+foi atualizado para considerar:
+
+- versão `0.2.0`;
+- fonte de dados `PostgreSQL`;
+- 66 jogos em `/games`;
+- 127 registros em `/awards`;
+- endpoints principais funcionando.
+
+Comando para rodar:
+
+```bash
+python api/test_main.py
+```
+
+Resultado esperado:
+
+```text
+TODOS OS TESTES DA API PASSARAM!
+```
+
+---
+
+# 13. Endpoints da API usando PostgreSQL
+
+Os endpoints principais continuam os mesmos por fora.
+
+A diferença é interna: agora eles buscam dados no PostgreSQL.
+
+Endpoints de jogos:
+
+```text
+GET /
+GET /games
+GET /games/search?term=
+GET /games/developer/{developer}
+GET /games/genre/{genre}
+GET /games/franchise/{franchise}
+GET /games/year/{year}
+GET /games/decade/{decade}
+GET /games/historical
+GET /games/influential
+```
+
+Endpoints de estatísticas:
+
+```text
+GET /stats/home
+```
+
+Endpoints de awards:
+
+```text
+GET /awards
+GET /awards/winners
+GET /awards/{year}
+GET /awards/foundation/winners
+GET /awards/foundation/nominees
+GET /awards/foundation/outside
+```
+
+---
+
+# 14. Dashboard migrado para PostgreSQL
+
+O dashboard Streamlit também foi migrado para usar PostgreSQL como fonte principal de dados.
+
+Antes, o dashboard carregava os CSVs por meio do `load_data.py`.
+
+Fluxo antigo:
+
+```text
+Dashboard
+↓
+dashboard_helpers.py
+↓
+scripts/load_data.py
+↓
+data/games.csv / data/awards.csv
+```
+
+Agora, o dashboard usa o `database.py`.
+
+Fluxo atual:
+
+```text
+Dashboard
+↓
+dashboard_helpers.py
+↓
+scripts/database.py
+↓
+.env
+↓
+PostgreSQL
+```
+
+## Arquivos alterados
+
+```text
+dashboard/app.py
+dashboard/dashboard_helpers.py
+```
+
+## Mudanças principais no `dashboard_helpers.py`
+
+O `dashboard_helpers.py` passou a usar:
+
+```python
+carregar_games_do_banco()
+carregar_awards_do_banco()
+```
+
+Essas funções vêm de:
+
+```text
+scripts/database.py
+```
+
+As funções com cache continuam existindo:
+
+```python
+carregar_games_com_cache()
+carregar_awards_com_cache()
+```
+
+Mas agora elas carregam os dados do PostgreSQL.
+
+## Mudanças principais no `dashboard/app.py`
+
+O `app.py` continua focado na interface visual.
+
+A estrutura visual foi mantida:
+
+- filtros na sidebar;
+- busca textual;
+- métricas;
+- gráficos;
+- tabelas;
+- aba Foundation Collection;
+- aba Awards History.
+
+O rodapé foi atualizado para:
+
+```text
+Dashboard inicial — PostgreSQL + Pandas + Streamlit
+```
+
+## Comando para rodar o dashboard
+
+```bash
+streamlit run dashboard/app.py
+```
+
+Resultado esperado:
+
+```text
+O dashboard abre normalmente no navegador.
+Os dados vêm do PostgreSQL.
+```
+
+---
+
+# 15. Status atual da fase PostgreSQL
+
+A fase PostgreSQL está concluída.
 
 Status:
 
@@ -546,13 +642,17 @@ database.py lendo dados do banco ✅
 .env configurado ✅
 .env ignorado pelo Git ✅
 test_database.py passando ✅
+API migrada para PostgreSQL ✅
+api/test_main.py passando ✅
+Dashboard migrado para PostgreSQL ✅
+Streamlit abrindo com dados do PostgreSQL ✅
 ```
 
 ---
 
-# 13. Fluxo atual do projeto
+# 16. Fluxo final atual do projeto
 
-## Importação
+## Importação de dados
 
 ```text
 CSV
@@ -562,7 +662,7 @@ scripts/import_to_postgres.py
 PostgreSQL
 ```
 
-## Leitura
+## Leitura pelo Python
 
 ```text
 .env
@@ -574,90 +674,154 @@ PostgreSQL
 DataFrame Pandas
 ```
 
----
-
-# 14. O que ainda não foi alterado
-
-Até este checkpoint, a API e o dashboard ainda não foram migrados para PostgreSQL.
-
-Eles ainda podem estar usando os arquivos CSV como fonte principal.
-
-Arquivos ainda não migrados para PostgreSQL:
+## API
 
 ```text
-api/main.py
-dashboard/app.py
-dashboard/dashboard_helpers.py
-scripts/load_data.py
+FastAPI
+↓
+scripts/database.py
+↓
+PostgreSQL
 ```
 
-Essa decisão foi intencional para evitar quebrar o projeto.
-
-Primeiro validamos o PostgreSQL isoladamente.
-
-Depois adaptaremos API e dashboard com segurança.
-
----
-
-# 15. Próximas etapas recomendadas
-
-A próxima fase será adaptar a API para usar PostgreSQL.
-
-Ordem recomendada:
+## Dashboard
 
 ```text
-1. Manter o CSV funcionando como referência.
-2. Adaptar a API para buscar dados via database.py.
-3. Testar todos os endpoints da API.
-4. Garantir que os endpoints continuam iguais para o usuário.
-5. Depois adaptar o dashboard.
-```
-
-Endpoints da API que provavelmente serão adaptados depois:
-
-```text
-GET /
-GET /games
-GET /games/search?term=
-GET /games/developer/{developer}
-GET /games/genre/{genre}
-GET /games/franchise/{franchise}
-GET /games/year/{year}
-GET /games/decade/{decade}
-GET /games/historical
-GET /games/influential
-GET /stats/home
-GET /awards
-GET /awards/winners
-GET /awards/{year}
-GET /awards/foundation/winners
-GET /awards/foundation/nominees
-GET /awards/foundation/outside
+Streamlit
+↓
+dashboard_helpers.py
+↓
+scripts/database.py
+↓
+PostgreSQL
 ```
 
 ---
 
-# 16. Resumo final
+# 17. O papel dos CSVs agora
 
-O projeto agora possui uma primeira integração real com PostgreSQL.
+Os arquivos CSV ainda continuam no projeto.
 
-O banco `aaa_archive` contém os dados principais do projeto, importados a partir dos CSVs.
+Eles servem como:
 
-O Python já consegue:
+- fonte original dos dados;
+- base de edição manual;
+- referência histórica do dataset;
+- entrada para o script de importação.
+
+Arquivos:
 
 ```text
-conectar ao banco;
-ler configurações pelo .env;
-consultar tabelas;
-transformar os dados em DataFrames;
-validar a quantidade de registros.
+data/games.csv
+data/awards.csv
 ```
 
-A fase PostgreSQL inicial está concluída e pronta para servir como base da futura migração da API e do dashboard.
+O PostgreSQL passou a ser a fonte principal usada pela API e pelo dashboard.
+
+Fluxo de atualização atual:
+
+```text
+Editar CSV
+↓
+Rodar scripts/import_to_postgres.py
+↓
+Atualizar PostgreSQL
+↓
+API e dashboard passam a usar os novos dados
+```
 
 ---
 
-# 17. Arquivos criados ou alterados nesta fase
+# 18. O que ainda não foi feito
+
+A aplicação web/front-end final ainda não foi criada.
+
+Até este checkpoint, o projeto possui:
+
+```text
+Backend/API ✅
+Banco de dados ✅
+Dashboard interno ✅
+Documentação da fase PostgreSQL ✅
+```
+
+Ainda falta:
+
+```text
+Front-end/aplicação web final
+Integração do front-end com a API
+Polimento visual final
+Deploy completo
+```
+
+---
+
+# 19. Próxima fase recomendada
+
+A próxima fase será criar a aplicação web final.
+
+Fluxo desejado:
+
+```text
+Aplicação Web / Front-end
+↓
+API FastAPI
+↓
+scripts/database.py
+↓
+PostgreSQL
+```
+
+A aplicação web não deve acessar o banco diretamente.
+
+Ela deve consumir os dados pela API.
+
+---
+
+# 20. Preparação antes do front-end
+
+Antes de criar o front-end, ainda é recomendado preparar a API para ser consumida por uma aplicação externa.
+
+Uma etapa provável será configurar CORS no FastAPI.
+
+Isso permite que um front-end rodando em uma porta diferente consiga acessar a API.
+
+Exemplo:
+
+```text
+Front-end:
+http://localhost:5173
+
+API:
+http://127.0.0.1:8000
+```
+
+Sem CORS configurado, o navegador pode bloquear a comunicação entre o front-end e a API.
+
+---
+
+# 21. Roadmap da próxima fase
+
+Ordem recomendada para a fase final:
+
+```text
+1. Configurar CORS na API.
+2. Testar a API novamente.
+3. Escolher a stack do front-end.
+4. Criar estrutura inicial da aplicação web.
+5. Criar Home.
+6. Criar página/listagem de jogos.
+7. Criar busca e filtros.
+8. Criar página de detalhes do jogo.
+9. Criar página de Awards.
+10. Conectar o front-end com a API.
+11. Polir visual e responsividade.
+12. Planejar deploy.
+```
+
+---
+
+# 22. Arquivos criados ou alterados nesta fase
 
 Arquivos criados:
 
@@ -675,6 +839,10 @@ Arquivos alterados:
 ```text
 .gitignore
 requirements.txt
+api/main.py
+api/test_main.py
+dashboard/app.py
+dashboard/dashboard_helpers.py
 ```
 
 Observação importante:
@@ -687,7 +855,7 @@ Ele existe apenas localmente no computador do desenvolvedor.
 
 ---
 
-# 18. Comandos úteis desta fase
+# 23. Comandos úteis
 
 ## Rodar importação dos CSVs para o PostgreSQL
 
@@ -701,24 +869,67 @@ python scripts/import_to_postgres.py
 python scripts/test_database.py
 ```
 
+## Rodar testes da API
+
+```bash
+python api/test_main.py
+```
+
+## Subir a API
+
+```bash
+fastapi dev api/main.py
+```
+
+## Rodar dashboard
+
+```bash
+streamlit run dashboard/app.py
+```
+
 ## Conferir status do Git
 
 ```bash
 git status
 ```
 
-## Commit sugerido para este checkpoint
+## Commit sugerido para atualização deste checkpoint
 
 ```bash
 git add docs/postgresql_checkpoint.md
-git commit -m "docs: add postgresql checkpoint"
+git commit -m "docs: update postgresql checkpoint after api and dashboard migration"
 git push
 ```
 
-Caso os outros arquivos da fase PostgreSQL ainda não tenham sido commitados, usar:
+Caso os arquivos da migração ainda não tenham sido commitados, usar:
 
 ```bash
-git add .gitignore requirements.txt database/schema.sql scripts/import_to_postgres.py scripts/database.py scripts/test_database.py docs/postgresql_checkpoint.md
-git commit -m "feat: add postgresql integration"
+git add .gitignore requirements.txt database/schema.sql scripts/import_to_postgres.py scripts/database.py scripts/test_database.py docs/postgresql_checkpoint.md api/main.py api/test_main.py dashboard/app.py dashboard/dashboard_helpers.py
+git commit -m "feat: complete postgresql integration"
 git push
+```
+
+---
+
+# 24. Resumo final
+
+A fase PostgreSQL do projeto **The AAA Archive** foi concluída.
+
+O projeto agora possui:
+
+```text
+PostgreSQL como banco local principal;
+dados importados a partir dos CSVs;
+camada database.py para leitura dos dados;
+.env para configuração segura;
+API consumindo PostgreSQL;
+dashboard consumindo PostgreSQL;
+testes principais passando;
+documentação atualizada.
+```
+
+O projeto está pronto para iniciar a fase final:
+
+```text
+Front-end / aplicação web final
 ```
