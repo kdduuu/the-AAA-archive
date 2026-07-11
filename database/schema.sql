@@ -486,13 +486,21 @@ ORDER BY table_name;
 --   games: 66 registros
 --   awards: 127 registros
 --
--- Próximas evoluções possíveis:
+-- Integrações concluídas:
 --
---   1. usar .env para configurar a conexão;
---   2. adaptar API para ler do PostgreSQL;
---   3. adaptar dashboard para ler do PostgreSQL;
---   4. futuramente normalizar tabelas;
---   5. futuramente criar relações entre games e awards;
---   6. futuramente criar tabelas separadas para developers, genres e franchises.
+--   1. conexão com o PostgreSQL configurada por meio do arquivo .env;
+--   2. API FastAPI adaptada para ler dados do PostgreSQL;
+--   3. dashboard Streamlit adaptado para ler dados do PostgreSQL.
+--
+-- Possíveis evoluções futuras:
+--
+--   1. avaliar a criação de uma relação entre games e awards
+--      somente quando a aplicação web demonstrar essa necessidade;
+--   2. avaliar a normalização do banco apenas se a estrutura atual
+--      deixar de atender às necessidades reais do projeto;
+--   3. criar tabelas separadas para developers, genres e franchises
+--      somente se houver benefício claro para consultas e manutenção;
+--   4. criar novas tabelas ou relacionamentos apenas após planejamento,
+--      implementação, testes e documentação.
 --
 -- ==========================================================
