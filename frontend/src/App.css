@@ -1,0 +1,52 @@
+/*
+===========================================================
+The AAA Archive
+Arquivo: App.css
+
+Objetivo:
+Estilizar somente a tela temporária de confirmação da
+preparação do front-end.
+===========================================================
+*/
+
+.preparation-page {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.preparation-panel {
+  width: min(100%, 620px);
+  padding: 48px;
+  border: 1px solid #343434;
+  background-color: #101010;
+}
+
+.preparation-label {
+  margin: 0 0 32px;
+  color: #8e8e8e;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+}
+
+.preparation-panel h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.preparation-description {
+  margin: 24px 0 0;
+  color: #a9a9a9;
+  line-height: 1.7;
+}
+
+.preparation-status {
+  margin: 40px 0 0;
+  color: #7ba384;
+  font-size: 0.85rem;
+}

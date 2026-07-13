@@ -1,0 +1,52 @@
+/*
+===========================================================
+The AAA Archive
+Arquivo: index.css
+
+Objetivo:
+Aplicar somente a normalização global necessária para o
+funcionamento inicial do front-end.
+===========================================================
+*/
+
+:root {
+  font-family:
+    Consolas,
+    'Courier New',
+    monospace;
+  color: #e8e6df;
+  background-color: #090909;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background-color: #090909;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
