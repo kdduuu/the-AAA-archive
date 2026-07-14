@@ -1,0 +1,521 @@
+/*
+===========================================================
+The AAA Archive
+Arquivo: IntroductionPage.css
+
+Objetivo:
+Estilizar a página de Introdução do arquivo.
+
+A composição utiliza:
+- painel central;
+- sequência de terminal;
+- revelação progressiva;
+- botão de desbloqueio;
+- atmosfera escura e tecnológica.
+===========================================================
+*/
+
+
+/* =========================================================
+   PÁGINA
+========================================================= */
+
+.introduction-page {
+  position: relative;
+
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+
+  padding:
+    clamp(24px, 5vw, 72px);
+
+  overflow: hidden;
+}
+
+.introduction-page::before {
+  position: absolute;
+  inset: 0;
+
+  content: '';
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgb(0 0 0 / 58%),
+      transparent 22%,
+      transparent 78%,
+      rgb(0 0 0 / 58%)
+    ),
+    radial-gradient(
+      circle at center,
+      rgb(255 255 255 / 2.5%),
+      transparent 58%
+    );
+}
+
+
+/* =========================================================
+   BOTÃO PARA PULAR
+========================================================= */
+
+.introduction-skip {
+  position: fixed;
+  z-index: 10;
+  top: var(--space-lg);
+  right: var(--space-lg);
+
+  padding:
+    9px
+    12px;
+
+  border: 1px solid transparent;
+  background-color: transparent;
+
+  color: var(--color-text-faint);
+
+  font-size: 0.58rem;
+  line-height: 1;
+  letter-spacing: 0.12em;
+
+  cursor: pointer;
+
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.introduction-skip:hover:not(:disabled) {
+  border-color: var(--color-border);
+  background-color: rgb(255 255 255 / 2%);
+
+  color: var(--color-text-soft);
+}
+
+.introduction-skip:disabled {
+  color: var(--color-text-faint);
+
+  cursor: default;
+  opacity: 0.45;
+}
+
+
+/* =========================================================
+   PAINEL PRINCIPAL
+========================================================= */
+
+.introduction-panel {
+  position: relative;
+  z-index: 1;
+
+  width: min(100%, 720px);
+
+  padding:
+    clamp(32px, 6vw, 64px);
+
+  border: 1px solid var(--color-border);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgb(255 255 255 / 2.5%),
+      transparent 38%
+    ),
+    rgb(13 13 13 / 94%);
+
+  box-shadow:
+    0 28px 90px rgb(0 0 0 / 58%),
+    var(--shadow-inset);
+}
+
+.introduction-panel::before {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+
+  width: 6px;
+  height: 6px;
+
+  content: '';
+
+  border: 1px solid var(--color-border-light);
+  background-color: var(--color-background);
+}
+
+.introduction-panel::after {
+  position: absolute;
+  top: -1px;
+  right: 12%;
+  left: 12%;
+
+  height: 1px;
+
+  content: '';
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      var(--color-border-light),
+      transparent
+    );
+}
+
+
+/* =========================================================
+   CABEÇALHO
+========================================================= */
+
+.introduction-header {
+  padding-bottom: var(--space-xl);
+
+  border-bottom: 1px solid var(--color-border);
+}
+
+.introduction-node {
+  margin:
+    0
+    0
+    var(--space-lg);
+
+  color: var(--color-text-faint);
+
+  font-size: 0.58rem;
+  line-height: 1.5;
+  letter-spacing: 0.16em;
+}
+
+.introduction-header h1 {
+  margin: 0;
+
+  color: var(--color-text);
+
+  font-size:
+    clamp(
+      2rem,
+      6vw,
+      3.5rem
+    );
+
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: 0.15em;
+}
+
+.introduction-subtitle {
+  margin:
+    var(--space-md)
+    0
+    0;
+
+  color: var(--color-text-muted);
+
+  font-size:
+    clamp(
+      0.76rem,
+      2vw,
+      1rem
+    );
+
+  line-height: 1.6;
+  letter-spacing: 0.08em;
+}
+
+
+/* =========================================================
+   TERMINAL
+========================================================= */
+
+.introduction-terminal {
+  display: grid;
+  min-height: 230px;
+  align-content: center;
+  gap: 14px;
+
+  padding:
+    var(--space-xl)
+    0;
+}
+
+.introduction-terminal__line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-lg);
+
+  color: var(--color-text-soft);
+
+  font-size:
+    clamp(
+      0.72rem,
+      2vw,
+      0.9rem
+    );
+
+  line-height: 1.5;
+  letter-spacing: 0.035em;
+
+  opacity: 0;
+  transform: translateY(5px);
+
+  transition:
+    opacity 280ms ease,
+    transform 280ms ease;
+}
+
+.introduction-terminal__line--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.introduction-terminal__message {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+}
+
+.introduction-terminal__message > span {
+  color: var(--color-text-muted);
+}
+
+.introduction-terminal__status {
+  flex-shrink: 0;
+
+  color: var(--color-text-faint);
+
+  font-size: 0.74em;
+  letter-spacing: 0.08em;
+}
+
+
+/* =========================================================
+   ACESSO LIBERADO
+========================================================= */
+
+.introduction-access {
+  visibility: hidden;
+
+  padding-top: var(--space-lg);
+
+  border-top: 1px solid var(--color-border);
+
+  opacity: 0;
+  transform: translateY(8px);
+
+  transition:
+    visibility 0s linear 280ms,
+    opacity 280ms ease,
+    transform 280ms ease;
+}
+
+.introduction-access--visible {
+  visibility: visible;
+
+  opacity: 1;
+  transform: translateY(0);
+
+  transition-delay: 0s;
+}
+
+.introduction-access__label {
+  margin:
+    0
+    0
+    var(--space-md);
+
+  color: var(--color-stable);
+
+  font-size: 0.65rem;
+  line-height: 1.5;
+  letter-spacing: 0.14em;
+}
+
+
+/* =========================================================
+   BOTÃO DE DESBLOQUEIO
+========================================================= */
+
+.introduction-unlock {
+  display: grid;
+  width: 100%;
+  min-height: 72px;
+  align-items: center;
+
+  padding:
+    0
+    var(--space-lg);
+
+  border: 1px solid var(--color-border-light);
+  background:
+    linear-gradient(
+      90deg,
+      rgb(255 255 255 / 2%),
+      transparent 48%
+    ),
+    rgb(255 255 255 / 1%);
+
+  grid-template-columns:
+    24px
+    minmax(0, 1fr)
+    24px;
+
+  gap: var(--space-lg);
+
+  color: var(--color-text-soft);
+
+  cursor: pointer;
+
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.introduction-unlock:hover {
+  border-color: var(--color-border-active);
+
+  color: var(--color-text);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgb(255 255 255 / 4%),
+      transparent 58%
+    ),
+    rgb(255 255 255 / 2%);
+}
+
+.introduction-unlock span {
+  font-size:
+    clamp(
+      0.8rem,
+      2.5vw,
+      1rem
+    );
+
+  line-height: 1;
+  letter-spacing: 0.14em;
+}
+
+.introduction-unlock__icon,
+.introduction-unlock__arrow {
+  width: 24px;
+  height: 24px;
+
+  color: var(--color-text-muted);
+}
+
+.introduction-unlock__arrow {
+  transition:
+    transform var(--transition-fast);
+}
+
+.introduction-unlock:hover
+.introduction-unlock__arrow {
+  transform: translateX(4px);
+}
+
+
+/* =========================================================
+   RODAPÉ
+========================================================= */
+
+.introduction-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-lg);
+
+  margin-top: var(--space-lg);
+  padding-top: var(--space-lg);
+
+  border-top: 1px solid var(--color-border);
+
+  color: var(--color-text-faint);
+
+  font-size: 0.68rem;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+}
+
+.introduction-footer__status {
+  flex-shrink: 0;
+
+  color: var(--color-stable-soft);
+
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE
+========================================================= */
+
+@media (max-width: 600px) {
+  .introduction-page {
+    align-items: flex-start;
+
+    padding:
+      90px
+      var(--space-md)
+      var(--space-xl);
+  }
+
+  .introduction-skip {
+    top: var(--space-md);
+    right: var(--space-md);
+  }
+
+  .introduction-panel {
+    padding:
+      var(--space-xl)
+      var(--space-lg);
+  }
+
+  .introduction-header h1 {
+    font-size: 2rem;
+    letter-spacing: 0.1em;
+  }
+
+  .introduction-terminal {
+    min-height: 250px;
+    gap: 12px;
+  }
+
+  .introduction-terminal__line {
+    align-items: flex-start;
+  }
+
+  .introduction-unlock {
+    min-height: 64px;
+
+    padding:
+      0
+      var(--space-md);
+
+    grid-template-columns:
+      20px
+      minmax(0, 1fr)
+      20px;
+
+    gap: var(--space-md);
+  }
+
+  .introduction-unlock__icon,
+  .introduction-unlock__arrow {
+    width: 20px;
+    height: 20px;
+  }
+
+  .introduction-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+}
