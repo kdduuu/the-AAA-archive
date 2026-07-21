@@ -1,0 +1,826 @@
+/*
+===========================================================
+The AAA Archive
+Arquivo: AwardsPage.css
+
+Objetivo:
+Estilizar a exploração da Awards History por ano.
+
+Nesta etapa, o arquivo contém:
+- hero introdutório;
+- estados das requisições;
+- índice interativo de anos;
+- vencedor e indicados;
+- Foundation Status integrado;
+- link para o registro individual confirmado;
+- contexto da premiação selecionada;
+- responsividade inicial.
+===========================================================
+*/
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.awards-page__hero {
+  display: grid;
+  min-height: 360px;
+  overflow: hidden;
+
+  grid-template-columns:
+    minmax(400px, 0.9fr)
+    minmax(440px, 1.1fr);
+
+  scroll-margin-top:
+    calc(
+      var(--header-height)
+      +
+      var(--space-md)
+    );
+}
+
+.awards-page__hero-content {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+
+  padding:
+    clamp(
+      32px,
+      5vw,
+      64px
+    );
+}
+
+.awards-page__hero h1 {
+  margin: 0;
+
+  color: var(--color-text);
+
+  font-size:
+    clamp(
+      2.2rem,
+      5vw,
+      4rem
+    );
+
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0.12em;
+}
+
+.awards-page__description {
+  max-width: 620px;
+
+  margin:
+    var(--space-lg)
+    0
+    0;
+
+  color: var(--color-text-soft);
+
+  font-size: 0.82rem;
+  line-height: 1.9;
+}
+
+.awards-page__status {
+  margin-top: var(--space-xl);
+}
+
+.awards-page__status--error span {
+  color: var(--color-error);
+}
+
+
+/* =========================================================
+   ÁREA VISUAL TEMPORÁRIA
+========================================================= */
+
+.awards-page__hero-visual {
+  position: relative;
+
+  display: flex;
+  min-height: 360px;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  border-left: 1px solid var(--color-border);
+
+  background:
+    radial-gradient(
+      circle at 50% 30%,
+      rgb(255 255 255 / 8%),
+      transparent 20%
+    ),
+    linear-gradient(
+      150deg,
+      #171717,
+      #070707 72%
+    );
+}
+
+.awards-page__hero-visual::before {
+  position: absolute;
+  inset: 0;
+
+  content: '';
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--color-surface),
+      transparent 25%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 38px,
+      rgb(255 255 255 / 2%) 39px
+    );
+}
+
+.awards-page__hero-visual::after {
+  position: absolute;
+  inset: 10%;
+
+  content: '';
+
+  border: 1px solid rgb(255 255 255 / 4%);
+
+  box-shadow:
+    inset
+    0
+    0
+    90px
+    rgb(0 0 0 / 78%);
+}
+
+.awards-page__hero-grid {
+  position: absolute;
+  inset: 14% 10%;
+
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 58px,
+      rgb(255 255 255 / 2%) 59px
+    );
+}
+
+.awards-page__hero-placeholder {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+
+  padding:
+    var(--space-lg)
+    var(--space-xl);
+
+  border: 1px solid var(--color-border);
+
+  background-color: rgb(4 4 4 / 78%);
+
+  text-align: center;
+}
+
+.awards-page__hero-placeholder span {
+  color: var(--color-text-faint);
+
+  font-size: 0.54rem;
+  letter-spacing: 0.14em;
+}
+
+.awards-page__hero-placeholder strong {
+  margin-top: var(--space-sm);
+
+  color: var(--color-text-soft);
+
+  font-size: 1.1rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+}
+
+.awards-page__hero-placeholder small {
+  margin-top: var(--space-md);
+
+  color: var(--color-text-faint);
+
+  font-size: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+
+/* =========================================================
+   PAINÉIS
+========================================================= */
+
+.awards-page__panels {
+  display: grid;
+  gap: var(--space-md);
+
+  margin-top: var(--space-md);
+
+  grid-template-columns:
+    minmax(280px, 0.7fr)
+    minmax(0, 1.3fr);
+}
+
+.awards-page__panels .archive-panel {
+  scroll-margin-top:
+    calc(
+      var(--header-height)
+      +
+      var(--space-md)
+    );
+}
+
+.awards-page__foundation-panel,
+.awards-page__about-panel {
+  grid-column: 1 / -1;
+}
+
+.awards-page__foundation-content,
+.awards-page__about-content,
+.awards-page__year-index-content,
+.awards-page__selected-year-content {
+  display: grid;
+  align-content: center;
+  gap: var(--space-sm);
+
+  min-height: 210px;
+  padding: var(--space-xl);
+
+  background:
+    linear-gradient(
+      110deg,
+      rgb(255 255 255 / 2%),
+      transparent 58%
+    );
+}
+
+.awards-page__foundation-label,
+.awards-page__about-label,
+.awards-page__request-state span,
+.awards-page__year-index-header span {
+  color: var(--color-text-faint);
+
+  font-size: 0.54rem;
+  letter-spacing: 0.12em;
+}
+
+.awards-page__foundation-content p,
+.awards-page__about-content p,
+.awards-page__request-state p {
+  max-width: 680px;
+
+  margin: 0;
+
+  color: var(--color-text-muted);
+
+  font-size: 0.66rem;
+  line-height: 1.8;
+}
+
+
+/* =========================================================
+   ESTADOS DAS REQUISIÇÕES
+========================================================= */
+
+.awards-page__request-state {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.awards-page__request-state strong {
+  color: var(--color-text-soft);
+
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+}
+
+.awards-page__request-state--error strong {
+  color: var(--color-error);
+}
+
+
+/* =========================================================
+   ÍNDICE DE ANOS
+========================================================= */
+
+.awards-page__year-index-content {
+  align-content: start;
+}
+
+.awards-page__year-index-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+
+  margin-bottom: var(--space-md);
+}
+
+.awards-page__year-index-header small {
+  color: var(--color-text-faint);
+
+  font-size: 0.48rem;
+  letter-spacing: 0.04em;
+  text-align: right;
+}
+
+.awards-page__years {
+  display: grid;
+  gap: var(--space-sm);
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(64px, 1fr)
+    );
+}
+
+.awards-page__year {
+  display: grid;
+  min-height: 38px;
+  place-items: center;
+
+  padding: 0;
+
+  border: 1px solid var(--color-border);
+
+  background-color: rgb(255 255 255 / 1.5%);
+
+  color: var(--color-text-muted);
+
+  font: inherit;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+
+  cursor: pointer;
+
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.awards-page__year:hover {
+  border-color: rgb(255 255 255 / 22%);
+
+  background-color: rgb(255 255 255 / 4%);
+
+  color: var(--color-text-soft);
+}
+
+.awards-page__year--active {
+  border-color: var(--color-text-muted);
+
+  background-color: rgb(255 255 255 / 7%);
+
+  color: var(--color-text);
+}
+
+.awards-page__year:focus-visible {
+  outline: 1px solid var(--color-text-soft);
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   REGISTRO DA CERIMÔNIA
+========================================================= */
+
+.awards-page__selected-year-content {
+  align-content: start;
+}
+
+.awards-page__ceremony-record {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.awards-page__ceremony-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-xl);
+
+  padding-bottom: var(--space-lg);
+
+  border-bottom: 1px solid var(--color-border);
+}
+
+.awards-page__ceremony-header > div {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.awards-page__ceremony-header span,
+.awards-page__winner span,
+.awards-page__nominees-header span {
+  color: var(--color-text-faint);
+
+  font-size: 0.54rem;
+  letter-spacing: 0.12em;
+}
+
+.awards-page__ceremony-header strong {
+  color: var(--color-text);
+
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+}
+
+.awards-page__ceremony-header p {
+  margin: 0;
+
+  color: var(--color-text-muted);
+
+  font-size: 0.62rem;
+  line-height: 1.6;
+  text-align: right;
+}
+
+.awards-page__winner {
+  display: grid;
+  gap: var(--space-sm);
+
+  padding: var(--space-lg);
+
+  border: 1px solid rgb(255 255 255 / 14%);
+
+  background:
+    linear-gradient(
+      120deg,
+      rgb(255 255 255 / 6%),
+      transparent 66%
+    );
+}
+
+.awards-page__winner strong {
+  color: var(--color-text);
+
+  font-size: 0.88rem;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.06em;
+}
+
+.awards-page__nominees {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.awards-page__nominees-header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.awards-page__nominees-header small {
+  color: var(--color-text-faint);
+
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+}
+
+.awards-page__nominees-list {
+  display: grid;
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+.awards-page__nominees-list li {
+  display: grid;
+  align-items: center;
+  gap: var(--space-md);
+
+  min-width: 0;
+  padding:
+    var(--space-sm)
+    0;
+
+  border-bottom: 1px solid var(--color-border);
+
+  grid-template-columns: 28px minmax(0, 1fr);
+}
+
+.awards-page__nominees-list li:last-child {
+  border-bottom: 0;
+}
+
+.awards-page__nominees-list span {
+  color: var(--color-text-faint);
+
+  font-size: 0.52rem;
+}
+
+.awards-page__nominees-list strong {
+  min-width: 0;
+
+  color: var(--color-text-soft);
+
+  font-size: 0.62rem;
+  font-weight: 400;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.awards-page__no-nominees {
+  margin: 0;
+
+  color: var(--color-text-faint);
+
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+}
+
+
+/* =========================================================
+   FOUNDATION STATUS
+========================================================= */
+
+.awards-page__foundation-content {
+  position: relative;
+
+  min-height: 180px;
+}
+
+.awards-page__foundation-content::before {
+  position: absolute;
+  top: var(--space-xl);
+  right: var(--space-xl);
+
+  width: 8px;
+  height: 8px;
+
+  content: '';
+
+  border: 1px solid var(--color-border);
+
+  background-color: var(--color-text-faint);
+}
+
+.awards-page__foundation-content--confirmed::before {
+  border-color: var(--color-stable);
+
+  background-color: var(--color-stable);
+
+  box-shadow:
+    0
+    0
+    10px
+    rgb(108 163 124 / 28%);
+}
+
+.awards-page__foundation-content--outside::before {
+  border-color: var(--color-error);
+
+  background-color: var(--color-error);
+}
+
+.awards-page__foundation-content > strong {
+  color: var(--color-text-soft);
+
+  font-size: 0.78rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+}
+
+.awards-page__foundation-content--confirmed > strong {
+  color: var(--color-stable);
+}
+
+.awards-page__foundation-content--outside > strong {
+  color: var(--color-error);
+}
+
+.awards-page__foundation-content b {
+  color: var(--color-text-soft);
+
+  font-weight: 400;
+}
+
+.awards-page__foundation-link {
+  width: fit-content;
+
+  margin-top: var(--space-md);
+  padding:
+    var(--space-sm)
+    var(--space-md);
+
+  border: 1px solid var(--color-border);
+
+  color: var(--color-text-muted);
+
+  font-size: 0.56rem;
+  letter-spacing: 0.1em;
+
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.awards-page__foundation-link:hover {
+  border-color: var(--color-stable);
+
+  background-color: rgb(108 163 124 / 7%);
+
+  color: var(--color-text);
+}
+
+.awards-page__foundation-link:focus-visible {
+  outline: 1px solid var(--color-text-soft);
+  outline-offset: 4px;
+}
+
+
+/* =========================================================
+   SOBRE A PREMIAÇÃO
+========================================================= */
+
+.awards-page__about-content {
+  min-height: 180px;
+}
+
+.awards-page__about-content > strong {
+  color: var(--color-text-soft);
+
+  font-size: 0.78rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+}
+
+.awards-page__about-content > p {
+  max-width: 860px;
+}
+
+.awards-page__about-metadata {
+  display: grid;
+  gap: var(--space-sm);
+
+  max-width: 720px;
+  margin:
+    var(--space-md)
+    0
+    0;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+}
+
+.awards-page__about-metadata div {
+  display: grid;
+  gap: var(--space-xs);
+
+  min-width: 0;
+  padding:
+    var(--space-sm)
+    var(--space-md);
+
+  border: 1px solid var(--color-border);
+
+  background-color: rgb(255 255 255 / 1.5%);
+}
+
+.awards-page__about-metadata dt {
+  color: var(--color-text-faint);
+
+  font-size: 0.5rem;
+  letter-spacing: 0.09em;
+}
+
+.awards-page__about-metadata dd {
+  min-width: 0;
+  margin: 0;
+
+  color: var(--color-text-soft);
+
+  font-size: 0.6rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE
+========================================================= */
+
+@media (max-width: 1000px) {
+  .awards-page__years {
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(64px, 1fr)
+      );
+  }
+}
+
+@media (max-width: 900px) {
+  .awards-page__hero {
+    grid-template-columns: 1fr;
+  }
+
+  .awards-page__hero-visual {
+    min-height: 260px;
+
+    border-top: 1px solid var(--color-border);
+    border-left: 0;
+  }
+
+  .awards-page__panels {
+    grid-template-columns: 1fr;
+  }
+
+  .awards-page__foundation-panel,
+  .awards-page__about-panel {
+    grid-column: auto;
+  }
+
+  .awards-page__years {
+    grid-template-columns:
+      repeat(
+        4,
+        minmax(64px, 1fr)
+      );
+  }
+}
+
+@media (max-width: 700px) {
+  .awards-page__hero-content {
+    padding:
+      var(--space-xl)
+      var(--space-lg);
+  }
+
+  .awards-page__hero h1 {
+    font-size: 2rem;
+    letter-spacing: 0.08em;
+  }
+
+  .awards-page__hero-visual {
+    min-height: 220px;
+  }
+
+  .awards-page__hero-placeholder,
+  .awards-page__foundation-content,
+  .awards-page__about-content,
+  .awards-page__year-index-content,
+  .awards-page__selected-year-content {
+    padding: var(--space-lg);
+  }
+
+  .awards-page__year-index-header,
+  .awards-page__ceremony-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .awards-page__year-index-header small,
+  .awards-page__ceremony-header p {
+    text-align: left;
+  }
+
+  .awards-page__years {
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(56px, 1fr)
+      );
+  }
+
+  .awards-page__about-metadata {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* =========================================================
+   REDUÇÃO DE MOVIMENTO
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .awards-page__year,
+  .awards-page__foundation-link {
+    transition: none;
+  }
+}

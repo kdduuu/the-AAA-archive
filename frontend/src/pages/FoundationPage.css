@@ -1,0 +1,839 @@
+/*
+===========================================================
+The AAA Archive
+Arquivo: FoundationPage.css
+
+Objetivo:
+Estilizar a estrutura visual atual da Foundation Collection.
+
+Nesta etapa, o arquivo contém:
+- header principal;
+- área atmosférica temporária;
+- Search Terminal integrado à API;
+- Filter Terminal integrado à API;
+- Sort Terminal local;
+- painel de registros;
+- estados de comunicação;
+- grid completo e responsivo.
+
+As imagens definitivas e as páginas individuais dos jogos
+serão implementadas posteriormente.
+===========================================================
+*/
+
+
+/* =========================================================
+   HEADER PRINCIPAL
+========================================================= */
+
+.foundation-hero {
+  display: grid;
+  min-height: 310px;
+  overflow: hidden;
+
+  grid-template-columns:
+    minmax(420px, 0.9fr)
+    minmax(440px, 1.1fr);
+}
+
+.foundation-hero__content {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+
+  padding:
+    clamp(
+      32px,
+      5vw,
+      64px
+    );
+}
+
+.foundation-hero h1 {
+  margin: 0;
+
+  color: var(--color-text);
+
+  font-size:
+    clamp(
+      2.1rem,
+      4.5vw,
+      3.8rem
+    );
+
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0.13em;
+}
+
+.foundation-hero__description {
+  max-width: 520px;
+
+  margin:
+    var(--space-lg)
+    0
+    0;
+
+  color: var(--color-text-soft);
+
+  font-size: 0.82rem;
+  line-height: 1.8;
+  letter-spacing: 0.025em;
+}
+
+.foundation-hero__integrity--error span {
+  color: var(--color-error);
+}
+
+
+/* =========================================================
+   ÁREA VISUAL ATMOSFÉRICA
+========================================================= */
+
+.foundation-hero__visual {
+  position: relative;
+
+  display: flex;
+  min-height: 310px;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  border-left: 1px solid var(--color-border);
+
+  background:
+    radial-gradient(
+      circle at 50% 18%,
+      rgb(255 255 255 / 10%),
+      transparent 8%
+    ),
+    linear-gradient(
+      145deg,
+      #171717,
+      #090909 72%
+    );
+}
+
+.foundation-hero__visual::before {
+  position: absolute;
+  inset: 0;
+
+  content: '';
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--color-surface),
+      transparent 24%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 78px,
+      rgb(255 255 255 / 2%) 79px
+    );
+
+  opacity: 0.9;
+}
+
+.foundation-hero__visual::after {
+  position: absolute;
+  right: 7%;
+  bottom: -28%;
+  left: 7%;
+
+  height: 58%;
+
+  content: '';
+
+  border: 1px solid var(--color-border);
+
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 52px,
+      rgb(255 255 255 / 3%) 53px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 30px,
+      rgb(255 255 255 / 2%) 31px
+    );
+
+  transform:
+    perspective(270px)
+    rotateX(56deg);
+
+  transform-origin: bottom;
+}
+
+.foundation-hero__shelves {
+  position: absolute;
+  inset:
+    13%
+    8%
+    16%;
+
+  border:
+    1px
+    solid
+    rgb(255 255 255 / 5%);
+
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgb(0 0 0 / 70%) 0,
+      rgb(0 0 0 / 70%) 58px,
+      rgb(255 255 255 / 3%) 59px,
+      rgb(255 255 255 / 3%) 60px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 44px,
+      rgb(255 255 255 / 3%) 45px
+    );
+}
+
+.foundation-hero__visual-content {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+
+  padding:
+    var(--space-lg)
+    var(--space-xl);
+
+  border: 1px solid var(--color-border);
+
+  background-color: rgb(4 4 4 / 76%);
+
+  text-align: center;
+}
+
+.foundation-hero__visual-content span {
+  color: var(--color-text-faint);
+
+  font-size: 0.56rem;
+  letter-spacing: 0.15em;
+}
+
+.foundation-hero__visual-content strong {
+  margin-top: var(--space-sm);
+
+  color: var(--color-text-soft);
+
+  font-size: 1.1rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+}
+
+.foundation-hero__visual-content small {
+  margin-top: var(--space-md);
+
+  color: var(--color-text-faint);
+
+  font-size: 0.52rem;
+  letter-spacing: 0.05em;
+}
+
+
+/* =========================================================
+   PAINÉIS DOS TERMINAIS
+========================================================= */
+
+.foundation-search,
+.foundation-filter,
+.foundation-sort,
+.foundation-records {
+  margin-top: var(--space-md);
+
+  scroll-margin-top:
+    calc(
+      var(--header-height)
+      +
+      var(--space-md)
+    );
+}
+
+.foundation-search__form,
+.foundation-filter__form {
+  display: grid;
+}
+
+
+/* =========================================================
+   LINHAS DE COMANDO
+========================================================= */
+
+.foundation-search__command,
+.foundation-filter__command,
+.foundation-sort__command {
+  display: grid;
+  min-height: 58px;
+
+  border-bottom: 1px solid var(--color-border);
+}
+
+.foundation-search__command {
+  grid-template-columns:
+    minmax(130px, 170px)
+    minmax(0, 1fr)
+    minmax(110px, 145px);
+}
+
+.foundation-filter__command {
+  grid-template-columns:
+    minmax(130px, 170px)
+    minmax(145px, 190px)
+    minmax(0, 1fr)
+    minmax(110px, 145px);
+}
+
+.foundation-sort__command {
+  grid-template-columns:
+    minmax(130px, 170px)
+    minmax(0, 1fr)
+    minmax(130px, 165px);
+}
+
+.foundation-search__label,
+.foundation-filter__label,
+.foundation-sort__label {
+  display: flex;
+  align-items: center;
+
+  padding:
+    0
+    var(--space-lg);
+
+  border-right: 1px solid var(--color-border);
+
+  color: var(--color-text-muted);
+
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+}
+
+
+/* =========================================================
+   INPUTS E SELECTS
+========================================================= */
+
+.foundation-search__command input,
+.foundation-filter__command input,
+.foundation-filter__command select,
+.foundation-sort__command select {
+  min-width: 0;
+
+  border: 0;
+  outline: 0;
+
+  background-color: rgb(0 0 0 / 20%);
+
+  color: var(--color-text-soft);
+
+  font-size: 0.68rem;
+  letter-spacing: 0.025em;
+}
+
+.foundation-search__command input,
+.foundation-filter__command input {
+  padding:
+    0
+    var(--space-lg);
+}
+
+.foundation-filter__command select,
+.foundation-sort__command select {
+  padding:
+    0
+    var(--space-md);
+
+  cursor: pointer;
+}
+
+.foundation-filter__command select {
+  border-right: 1px solid var(--color-border);
+}
+
+.foundation-filter__command select option,
+.foundation-sort__command select option {
+  background-color: var(--color-surface);
+
+  color: var(--color-text-soft);
+}
+
+.foundation-search__command input::placeholder,
+.foundation-filter__command input::placeholder {
+  color: var(--color-text-faint);
+}
+
+.foundation-search__command input:focus-visible,
+.foundation-filter__command input:focus-visible,
+.foundation-filter__command select:focus-visible,
+.foundation-sort__command select:focus-visible {
+  box-shadow:
+    inset
+    0
+    0
+    0
+    1px
+    rgb(255 255 255 / 16%);
+}
+
+.foundation-search__command input:disabled,
+.foundation-filter__command input:disabled,
+.foundation-filter__command select:disabled,
+.foundation-sort__command select:disabled {
+  color: var(--color-text-faint);
+
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+
+/* =========================================================
+   BOTÕES DOS TERMINAIS
+========================================================= */
+
+.foundation-search__command button,
+.foundation-filter__command button,
+.foundation-sort__command button {
+  border: 0;
+  border-left: 1px solid var(--color-border);
+
+  background-color: rgb(255 255 255 / 2%);
+
+  color: var(--color-text-soft);
+
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+
+  cursor: pointer;
+
+  transition:
+    color 160ms ease,
+    background-color 160ms ease;
+}
+
+.foundation-search__command button:hover:not(:disabled),
+.foundation-filter__command button:hover:not(:disabled),
+.foundation-sort__command button:hover:not(:disabled) {
+  background-color: rgb(255 255 255 / 5%);
+
+  color: var(--color-text);
+}
+
+.foundation-search__command button:disabled,
+.foundation-filter__command button:disabled,
+.foundation-sort__command button:disabled {
+  color: var(--color-text-faint);
+
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+
+/* =========================================================
+   FEEDBACK DOS TERMINAIS
+========================================================= */
+
+.foundation-search__feedback,
+.foundation-filter__feedback,
+.foundation-sort__feedback {
+  display: flex;
+  min-height: 104px;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xl);
+
+  padding:
+    var(--space-lg)
+    var(--space-xl);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgb(255 255 255 / 1.5%),
+      transparent 62%
+    );
+}
+
+.foundation-search__feedback-text,
+.foundation-filter__feedback-text,
+.foundation-sort__feedback-text {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.foundation-search__feedback-text span,
+.foundation-filter__feedback-text span,
+.foundation-sort__feedback-text span {
+  color: var(--color-text-faint);
+
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+}
+
+.foundation-search__feedback-text strong,
+.foundation-filter__feedback-text strong,
+.foundation-sort__feedback-text strong {
+  color: var(--color-text-soft);
+
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  overflow-wrap: anywhere;
+}
+
+.foundation-search__feedback-text p,
+.foundation-filter__feedback-text p,
+.foundation-sort__feedback-text p {
+  max-width: 680px;
+
+  margin: 0;
+
+  color: var(--color-text-muted);
+
+  font-size: 0.62rem;
+  line-height: 1.7;
+}
+
+.foundation-search__clear,
+.foundation-filter__clear {
+  flex-shrink: 0;
+
+  padding:
+    var(--space-sm)
+    var(--space-md);
+
+  border: 1px solid var(--color-border);
+
+  background-color: transparent;
+
+  color: var(--color-text-muted);
+
+  font-size: 0.55rem;
+  letter-spacing: 0.09em;
+
+  cursor: pointer;
+
+  transition:
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.foundation-search__clear:hover,
+.foundation-filter__clear:hover {
+  border-color: rgb(255 255 255 / 22%);
+
+  color: var(--color-text-soft);
+}
+
+.foundation-sort__local {
+  flex-shrink: 0;
+
+  color: var(--color-stable);
+
+  font-size: 0.54rem;
+  letter-spacing: 0.11em;
+}
+
+
+/* =========================================================
+   ESTADOS DA REQUISIÇÃO
+========================================================= */
+
+.foundation-records__status {
+  display: grid;
+  min-height: 150px;
+  align-content: center;
+  gap: var(--space-sm);
+
+  padding:
+    var(--space-xl);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgb(255 255 255 / 1.5%),
+      transparent 58%
+    );
+}
+
+.foundation-records__status-label {
+  color: var(--color-text-faint);
+
+  font-size: 0.58rem;
+  letter-spacing: 0.13em;
+}
+
+.foundation-records__status strong {
+  color: var(--color-text-soft);
+
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0.11em;
+}
+
+.foundation-records__status p {
+  max-width: 620px;
+
+  margin: 0;
+
+  color: var(--color-text-muted);
+
+  font-size: 0.68rem;
+  line-height: 1.7;
+}
+
+.foundation-records__status--error strong {
+  color: var(--color-error);
+}
+
+.foundation-records__status--empty strong {
+  color: var(--color-text-muted);
+}
+
+
+/* =========================================================
+   HEADER DA COLEÇÃO
+========================================================= */
+
+.foundation-records__collection-header {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+
+  padding:
+    0
+    var(--space-lg);
+
+  border-bottom: 1px solid var(--color-border);
+
+  background-color: rgb(255 255 255 / 1%);
+}
+
+.foundation-records__collection-header span,
+.foundation-records__collection-header small {
+  font-size: 0.56rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+}
+
+.foundation-records__collection-header span {
+  color: var(--color-text-muted);
+}
+
+.foundation-records__collection-header small {
+  color: var(--color-text-faint);
+}
+
+
+/* =========================================================
+   GRID DOS JOGOS
+========================================================= */
+
+.foundation-records__grid {
+  display: grid;
+  gap: var(--space-md);
+
+  padding: var(--space-lg);
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE
+========================================================= */
+
+@media (max-width: 1280px) {
+  .foundation-records__grid {
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(0, 1fr)
+      );
+  }
+}
+
+@media (max-width: 1050px) {
+  .foundation-hero {
+    grid-template-columns:
+      minmax(340px, 0.9fr)
+      minmax(360px, 1.1fr);
+  }
+
+  .foundation-records__grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+}
+
+@media (max-width: 900px) {
+  .foundation-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .foundation-hero__visual {
+    min-height: 260px;
+
+    border-top: 1px solid var(--color-border);
+    border-left: 0;
+  }
+
+  .foundation-search__command,
+  .foundation-sort__command {
+    grid-template-columns:
+      minmax(120px, 150px)
+      minmax(0, 1fr);
+  }
+
+  .foundation-search__command button,
+  .foundation-sort__command button {
+    min-height: 48px;
+
+    border-top: 1px solid var(--color-border);
+    border-left: 0;
+
+    grid-column: 1 / -1;
+  }
+
+  .foundation-filter__command {
+    grid-template-columns:
+      minmax(130px, 170px)
+      minmax(0, 1fr);
+  }
+
+  .foundation-filter__command input,
+  .foundation-filter__command button {
+    min-height: 48px;
+
+    border-top: 1px solid var(--color-border);
+  }
+}
+
+@media (max-width: 700px) {
+  .foundation-hero__content {
+    padding:
+      var(--space-xl)
+      var(--space-lg);
+  }
+
+  .foundation-hero h1 {
+    font-size: 2rem;
+    letter-spacing: 0.09em;
+  }
+
+  .foundation-hero__visual {
+    min-height: 220px;
+  }
+
+  .foundation-hero__visual-content {
+    padding:
+      var(--space-md)
+      var(--space-lg);
+  }
+
+  .foundation-search__command,
+  .foundation-filter__command,
+  .foundation-sort__command {
+    grid-template-columns: 1fr;
+  }
+
+  .foundation-search__label,
+  .foundation-filter__label,
+  .foundation-sort__label {
+    min-height: 42px;
+
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .foundation-search__command input,
+  .foundation-filter__command input,
+  .foundation-filter__command select,
+  .foundation-sort__command select {
+    min-height: 52px;
+
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .foundation-search__command button,
+  .foundation-filter__command button,
+  .foundation-sort__command button {
+    min-height: 48px;
+
+    border-top: 0;
+    border-left: 0;
+  }
+
+  .foundation-search__feedback,
+  .foundation-filter__feedback,
+  .foundation-sort__feedback {
+    align-items: flex-start;
+    flex-direction: column;
+
+    padding:
+      var(--space-lg);
+  }
+
+  .foundation-records__status {
+    min-height: 130px;
+
+    padding:
+      var(--space-lg);
+  }
+
+  .foundation-records__collection-header {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+
+    padding:
+      var(--space-md)
+      var(--space-lg);
+  }
+
+  .foundation-records__grid {
+    padding: var(--space-md);
+
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* =========================================================
+   REDUÇÃO DE MOVIMENTO
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .foundation-search__command button,
+  .foundation-filter__command button,
+  .foundation-sort__command button,
+  .foundation-search__clear,
+  .foundation-filter__clear {
+    transition: none;
+  }
+}

@@ -10,6 +10,7 @@ principal de dados.
 Nesta fase, a API já possui:
 - endpoint inicial de teste;
 - endpoint para listar os jogos da Foundation Collection;
+- endpoint para consultar um jogo individual pelo ID;
 - endpoint para pesquisar jogos da Foundation Collection;
 - endpoints para filtrar jogos por desenvolvedora, gênero, franquia, ano e década;
 - endpoints para listar jogos historicamente importantes e influentes;
@@ -50,7 +51,8 @@ from pathlib import Path
 import sys
 
 import pandas as pd
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 
 
 # ==========================================================
@@ -149,6 +151,35 @@ app = FastAPI(
     title="The AAA Archive API",
     description="API para consultar dados do projeto The AAA Archive.",
     version="0.2.0"
+)
+
+
+# ==========================================================
+# CONFIGURAÇÃO DE CORS
+# ==========================================================
+
+"""
+Durante o desenvolvimento local, o React e a FastAPI rodam
+em endereços diferentes:
+
+React:
+    http://localhost:5173
+
+FastAPI:
+    http://127.0.0.1:8000
+
+O navegador considera esses endereços origens diferentes.
+Por isso, precisamos autorizar o front-end a acessar a API.
+"""
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -620,6 +651,51 @@ def listar_games_influentes():
     games = dataframe_para_json(resultado)
 
     return games
+
+
+@app.get("/games/{game_id}")
+def obter_game_por_id(game_id: int):
+    """
+    Retorna um jogo específico da Foundation Collection.
+
+    Endpoint:
+        GET /games/{game_id}
+
+    Exemplo:
+        /games/1
+
+    Fluxo:
+        1. Recebe o ID do jogo pela URL.
+        2. Carrega os jogos do PostgreSQL.
+        3. Procura o registro correspondente ao ID.
+        4. Retorna um único objeto JSON.
+        5. Retorna erro 404 quando o ID não existe.
+
+    Args:
+        game_id: identificação numérica do jogo.
+
+    Returns:
+        dict: dados do jogo encontrado.
+
+    Raises:
+        HTTPException: erro 404 quando nenhum jogo possui o ID informado.
+    """
+
+    df_games = carregar_games_api()
+
+    resultado = df_games[
+        df_games["id"] == game_id
+    ]
+
+    if resultado.empty:
+        raise HTTPException(
+            status_code=404,
+            detail="Jogo não encontrado na Foundation Collection.",
+        )
+
+    game = dataframe_para_json(resultado)[0]
+
+    return game
 
 
 # ==========================================================

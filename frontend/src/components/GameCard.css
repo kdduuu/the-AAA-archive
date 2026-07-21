@@ -1,0 +1,233 @@
+/*
+===========================================================
+The AAA Archive
+Arquivo: GameCard.css
+
+Objetivo:
+Estilizar o componente reutilizável GameCard.
+
+Nesta versão, o card funciona como um link para o registro
+individual do jogo e utiliza uma representação visual
+temporária no lugar das imagens definitivas.
+
+Posteriormente, essa área poderá receber:
+frontend/public/assets/games/{id}/cover.webp
+===========================================================
+*/
+
+
+/* =========================================================
+   ESTRUTURA DO CARD
+========================================================= */
+
+.game-card {
+  display: grid;
+  min-width: 0;
+  overflow: hidden;
+
+  border: 1px solid var(--color-border);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgb(255 255 255 / 2%),
+      transparent 45%
+    ),
+    var(--color-surface);
+
+  color: inherit;
+  text-decoration: none;
+
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.game-card:hover {
+  border-color: rgb(255 255 255 / 22%);
+
+  background-color: rgb(255 255 255 / 2%);
+
+  transform: translateY(-2px);
+}
+
+.game-card:focus-visible {
+  border-color: var(--color-text-soft);
+
+  outline: 1px solid var(--color-text-soft);
+  outline-offset: 4px;
+}
+
+
+/* =========================================================
+   ÁREA VISUAL
+========================================================= */
+
+.game-card__visual {
+  position: relative;
+
+  display: grid;
+  aspect-ratio: 16 / 9;
+  place-items: center;
+
+  min-height: 150px;
+  overflow: hidden;
+
+  border-bottom: 1px solid var(--color-border);
+
+  background:
+    radial-gradient(
+      circle at 50% 42%,
+      rgb(255 255 255 / 6%),
+      transparent 26%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 46px,
+      rgb(255 255 255 / 2%) 47px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 30px,
+      rgb(255 255 255 / 2%) 31px
+    ),
+    #080808;
+}
+
+.game-card__visual::before {
+  position: absolute;
+  inset: 0;
+
+  content: '';
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgb(0 0 0 / 10%),
+      rgb(0 0 0 / 72%)
+    );
+}
+
+
+/* =========================================================
+   IDENTIFICAÇÃO DO REGISTRO
+========================================================= */
+
+.game-card__record-id,
+.game-card__year {
+  position: absolute;
+  z-index: 2;
+  top: var(--space-sm);
+
+  color: var(--color-text-muted);
+
+  font-size: 0.56rem;
+  letter-spacing: 0.08em;
+}
+
+.game-card__record-id {
+  left: var(--space-sm);
+}
+
+.game-card__year {
+  right: var(--space-sm);
+}
+
+
+/* =========================================================
+   PLACEHOLDER DA IMAGEM
+========================================================= */
+
+.game-card__placeholder {
+  position: relative;
+  z-index: 1;
+
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: var(--space-sm);
+
+  padding:
+    var(--space-md)
+    var(--space-lg);
+
+  border: 1px solid rgb(255 255 255 / 7%);
+
+  background-color: rgb(0 0 0 / 38%);
+
+  text-align: center;
+}
+
+.game-card__placeholder span {
+  color: var(--color-text-muted);
+
+  font-size: 0.6rem;
+  letter-spacing: 0.13em;
+}
+
+.game-card__placeholder small {
+  color: var(--color-text-faint);
+
+  font-size: 0.48rem;
+  letter-spacing: 0.09em;
+}
+
+
+/* =========================================================
+   INFORMAÇÕES DO JOGO
+========================================================= */
+
+.game-card__content {
+  display: grid;
+  gap: var(--space-sm);
+
+  padding:
+    var(--space-md)
+    var(--space-lg)
+    var(--space-lg);
+}
+
+.game-card__content h2 {
+  min-width: 0;
+
+  margin: 0;
+
+  color: var(--color-text-soft);
+
+  font-size: 0.76rem;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.07em;
+  overflow-wrap: anywhere;
+}
+
+.game-card__content p {
+  min-width: 0;
+
+  margin: 0;
+
+  color: var(--color-text-muted);
+
+  font-size: 0.61rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   REDUÇÃO DE MOVIMENTO
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .game-card {
+    transition: none;
+  }
+
+  .game-card:hover {
+    transform: none;
+  }
+}

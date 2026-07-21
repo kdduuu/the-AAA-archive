@@ -7,32 +7,65 @@ Objetivo:
 Representar a navegação superior da aplicação e exibir
 informações globais sobre o estado do arquivo.
 
-Nesta fase, os itens da navegação ainda são somente
-elementos visuais. As rotas serão ativadas durante a
-implementação das páginas reais.
+Nesta etapa:
+- HOME navega para /home;
+- FOUNDATION navega para /foundation;
+- AWARDS navega para /awards;
+- o item correspondente à rota atual é marcado como ativo;
+- DATA ROOM permanece bloqueado porque sua página ainda não
+  foi implementada.
 ===========================================================
 */
 
+import { NavLink } from 'react-router'
+
 import SystemClock from './SystemClock'
+
+
+// ==========================================================
+// ITENS DA NAVEGAÇÃO
+// ==========================================================
+
+/*
+Cada item possui:
+
+label
+→ texto exibido na interface;
+
+path
+→ endereço da página;
+
+available
+→ informa se a rota já pode ser acessada.
+*/
 
 const navigationItems = [
   {
     label: 'HOME',
-    active: true,
+    path: '/home',
+    available: true,
   },
   {
     label: 'FOUNDATION',
-    active: false,
+    path: '/foundation',
+    available: true,
   },
   {
     label: 'AWARDS',
-    active: false,
+    path: '/awards',
+    available: true,
   },
   {
     label: 'DATA ROOM',
-    active: false,
+    path: '/data-room',
+    available: false,
   },
 ]
+
+
+// ==========================================================
+// COMPONENTE PRINCIPAL
+// ==========================================================
 
 function TopNavigation() {
   return (
@@ -45,23 +78,48 @@ function TopNavigation() {
         className="top-navigation__links"
         aria-label="Navegação principal"
       >
-        {navigationItems.map((item) => (
-          <span
-            key={item.label}
-            className={
-              item.active
-                ? 'top-navigation__item top-navigation__item--active'
-                : 'top-navigation__item'
-            }
-            aria-current={
-              item.active
-                ? 'page'
-                : undefined
-            }
-          >
-            {item.label}
-          </span>
-        ))}
+        {navigationItems.map((item) => {
+          /*
+          Enquanto a página ainda não existe, mostramos
+          somente um elemento visual sem navegação.
+          */
+
+          if (!item.available) {
+            return (
+              <span
+                key={item.label}
+                className="top-navigation__item"
+                aria-disabled="true"
+                title="Página ainda não implementada"
+              >
+                {item.label}
+              </span>
+            )
+          }
+
+          /*
+          NavLink conhece a rota atual.
+
+          Quando o endereço do item corresponde à página
+          aberta, isActive será verdadeiro e a classe
+          visual de item ativo será adicionada.
+          */
+
+          return (
+            <NavLink
+              key={item.label}
+              to={item.path}
+              end
+              className={({ isActive }) => (
+                isActive
+                  ? 'top-navigation__item top-navigation__item--active'
+                  : 'top-navigation__item'
+              )}
+            >
+              {item.label}
+            </NavLink>
+          )
+        })}
       </nav>
 
       <div

@@ -6,12 +6,16 @@ Arquivo: test_main.py
 Objetivo:
 Testar os endpoints principais da API do The AAA Archive.
 
-Esses testes verificam se a API está respondendo corretamente,
-se os dados retornados fazem sentido e se a API está usando
-PostgreSQL como fonte principal de dados.
+Esses testes verificam se:
+- a API está respondendo corretamente;
+- os dados retornados fazem sentido;
+- a API utiliza PostgreSQL como fonte principal;
+- um jogo individual pode ser localizado pelo ID;
+- um ID inexistente retorna o status 404 esperado.
 
 Nesta fase, a API não lê mais diretamente os CSVs.
-Ela usa:
+
+Arquitetura:
 
     api/main.py
         ↓
@@ -25,12 +29,36 @@ Autor: Kadu Almeida
 
 
 # ==========================================================
-# IMPORTAÇÃO DOS MÓDULOS
+# IMPORTAÇÃO E CONFIGURAÇÃO DOS AVISOS
 # ==========================================================
 
-# warnings será usado apenas para esconder um aviso de depreciação
-# do TestClient que não interfere nos nossos testes.
 import warnings
+
+
+"""
+O FastAPI/Starlette pode mostrar um aviso interno relacionado
+ao TestClient:
+
+    StarletteDeprecationWarning
+
+Esse aviso não significa que nossa API está quebrada.
+
+O filtro precisa ser configurado antes da importação do
+TestClient, pois o aviso acontece durante essa importação.
+"""
+
+warnings.filterwarnings(
+    "ignore",
+    message=(
+        r"Using `httpx` with "
+        r"`starlette\.testclient` is deprecated.*"
+    ),
+)
+
+
+# ==========================================================
+# IMPORTAÇÃO DOS MÓDULOS DA API
+# ==========================================================
 
 from fastapi.testclient import TestClient
 
@@ -38,56 +66,36 @@ from main import app
 
 
 # ==========================================================
-# CONFIGURAÇÃO DE AVISOS
-# ==========================================================
-
-"""
-O FastAPI/Starlette pode mostrar um aviso assim:
-
-    StarletteDeprecationWarning
-
-Esse aviso não significa que nossa API está quebrada.
-É apenas um aviso interno sobre uma dependência do TestClient.
-
-Como ele pode confundir durante os testes, vamos ocultar esse aviso específico.
-"""
-
-warnings.filterwarnings(
-    "ignore",
-    message=r"Using `httpx` with `starlette\.testclient` is deprecated.*"
-)
-
-
-# ==========================================================
 # CLIENTE DE TESTE
 # ==========================================================
 
 """
-O TestClient permite testar a API sem precisar subir o servidor manualmente.
+O TestClient permite testar a API sem precisar iniciar
+manualmente o servidor da FastAPI.
 
-Ou seja, em vez de abrir:
+Em vez de abrir:
 
     fastapi dev api/main.py
 
-e depois acessar pelo navegador, o teste faz requisições internas como:
+o teste realiza requisições internas como:
 
     client.get("/games")
 
-Isso ajuda a validar os endpoints automaticamente.
+Isso permite validar automaticamente os endpoints.
 """
 
 client = TestClient(app)
 
 
 # ==========================================================
-# TESTE - ENDPOINT INICIAL
+# TESTE — ENDPOINT INICIAL
 # ==========================================================
 
 def testar_endpoint_inicial():
     """
     Testa se o endpoint inicial da API está funcionando.
 
-    Agora a API deve informar:
+    A API deve informar:
     - status online;
     - versão 0.2.0;
     - fonte de dados PostgreSQL.
@@ -99,21 +107,25 @@ def testar_endpoint_inicial():
 
     dados = resposta.json()
 
-    assert dados["mensagem"] == "The AAA Archive API está funcionando"
+    assert (
+        dados["mensagem"]
+        == "The AAA Archive API está funcionando"
+    )
+
     assert dados["status"] == "online"
     assert dados["versao"] == "0.2.0"
     assert dados["fonte_dados"] == "PostgreSQL"
 
 
 # ==========================================================
-# TESTE - GAMES
+# TESTES — GAMES
 # ==========================================================
 
 def testar_listar_games():
     """
     Testa se o endpoint /games retorna uma lista de jogos.
 
-    Como a tabela games no PostgreSQL possui atualmente 66 registros,
+    Como a tabela games possui atualmente 66 registros,
     esperamos receber 66 jogos.
     """
 
@@ -134,6 +146,70 @@ def testar_listar_games():
     assert "franchise" in dados[0]
 
 
+def testar_game_por_id():
+    """
+    Testa o endpoint responsável por buscar um único jogo.
+
+    Endpoint:
+
+        GET /games/{game_id}
+
+    Utilizamos o registro de ID 1 e esperamos receber
+    Final Fantasy VII.
+    """
+
+    resposta = client.get("/games/1")
+
+    assert resposta.status_code == 200
+
+    dados = resposta.json()
+
+    """
+    Diferentemente de GET /games, este endpoint deve retornar
+    um único objeto, e não uma lista.
+    """
+
+    assert isinstance(dados, dict)
+
+    assert dados["id"] == 1
+    assert dados["nome"] == "Final Fantasy VII"
+
+    assert "ano_lancamento" in dados
+    assert "genero" in dados
+    assert "developer" in dados
+    assert "franchise" in dados
+    assert "descricao" in dados
+    assert "metacritic" in dados
+    assert "nota_kadu" in dados
+    assert "nota_pavam" in dados
+    assert "historico_importante" in dados
+    assert "historico_influente" in dados
+
+
+def testar_game_por_id_inexistente():
+    """
+    Testa a resposta da API quando o ID não existe.
+
+    Utilizamos o ID 999, que não pertence à Foundation
+    Collection atual.
+
+    Resultado esperado:
+    - status 404;
+    - mensagem amigável.
+    """
+
+    resposta = client.get("/games/999")
+
+    assert resposta.status_code == 404
+
+    dados = resposta.json()
+
+    assert (
+        dados["detail"]
+        == "Jogo não encontrado na Foundation Collection."
+    )
+
+
 def testar_pesquisar_games():
     """
     Testa se a busca textual da API funciona.
@@ -142,7 +218,9 @@ def testar_pesquisar_games():
     com Zelda no nome.
     """
 
-    resposta = client.get("/games/search?term=zelda")
+    resposta = client.get(
+        "/games/search?term=zelda",
+    )
 
     assert resposta.status_code == 200
 
@@ -151,103 +229,28 @@ def testar_pesquisar_games():
     assert isinstance(dados, list)
     assert len(dados) > 0
 
-    nomes = [jogo["nome"] for jogo in dados]
+    nomes = [
+        jogo["nome"]
+        for jogo in dados
+    ]
 
-    assert any("Zelda" in nome for nome in nomes)
+    assert any(
+        "Zelda" in nome
+        for nome in nomes
+    )
 
 
 def testar_games_por_developer():
     """
     Testa o filtro de jogos por desenvolvedora.
 
-    Exemplo usado:
+    Exemplo utilizado:
         Capcom
     """
 
-    resposta = client.get("/games/developer/Capcom")
-
-    assert resposta.status_code == 200
-
-    dados = resposta.json()
-
-    assert isinstance(dados, list)
-    assert len(dados) > 0
-
-    assert all(jogo["developer"] == "Capcom" for jogo in dados)
-
-
-def testar_games_por_genero():
-    """
-    Testa o filtro de jogos por gênero.
-
-    Exemplo usado:
-        Survival Horror
-    """
-
-    resposta = client.get("/games/genre/Survival%20Horror")
-
-    assert resposta.status_code == 200
-
-    dados = resposta.json()
-
-    assert isinstance(dados, list)
-    assert len(dados) > 0
-
-    assert all(jogo["genero"] == "Survival Horror" for jogo in dados)
-
-
-def testar_games_por_franquia():
-    """
-    Testa o filtro de jogos por franquia.
-
-    Exemplo usado:
-        Resident Evil
-    """
-
-    resposta = client.get("/games/franchise/Resident%20Evil")
-
-    assert resposta.status_code == 200
-
-    dados = resposta.json()
-
-    assert isinstance(dados, list)
-    assert len(dados) > 0
-
-    assert all(jogo["franchise"] == "Resident Evil" for jogo in dados)
-
-
-def testar_games_por_ano():
-    """
-    Testa o filtro de jogos por ano.
-
-    Exemplo usado:
-        2018
-    """
-
-    resposta = client.get("/games/year/2018")
-
-    assert resposta.status_code == 200
-
-    dados = resposta.json()
-
-    assert isinstance(dados, list)
-    assert len(dados) > 0
-
-    assert all(jogo["ano_lancamento"] == 2018 for jogo in dados)
-
-
-def testar_games_por_decada():
-    """
-    Testa o filtro de jogos por década.
-
-    Exemplo usado:
-        2000
-
-    Nesse caso, todos os jogos retornados precisam estar entre
-    2000 e 2009.
-    """
-
-    resposta = client.get("/games/decade/2000")
+    resposta = client.get(
+        "/games/developer/Capcom",
+    )
 
     assert resposta.status_code == 200
 
@@ -257,7 +260,112 @@ def testar_games_por_decada():
     assert len(dados) > 0
 
     assert all(
-        2000 <= jogo["ano_lancamento"] <= 2009
+        jogo["developer"] == "Capcom"
+        for jogo in dados
+    )
+
+
+def testar_games_por_genero():
+    """
+    Testa o filtro de jogos por gênero.
+
+    Exemplo utilizado:
+        Survival Horror
+    """
+
+    resposta = client.get(
+        "/games/genre/Survival%20Horror",
+    )
+
+    assert resposta.status_code == 200
+
+    dados = resposta.json()
+
+    assert isinstance(dados, list)
+    assert len(dados) > 0
+
+    assert all(
+        jogo["genero"] == "Survival Horror"
+        for jogo in dados
+    )
+
+
+def testar_games_por_franquia():
+    """
+    Testa o filtro de jogos por franquia.
+
+    Exemplo utilizado:
+        Resident Evil
+    """
+
+    resposta = client.get(
+        "/games/franchise/Resident%20Evil",
+    )
+
+    assert resposta.status_code == 200
+
+    dados = resposta.json()
+
+    assert isinstance(dados, list)
+    assert len(dados) > 0
+
+    assert all(
+        jogo["franchise"] == "Resident Evil"
+        for jogo in dados
+    )
+
+
+def testar_games_por_ano():
+    """
+    Testa o filtro de jogos por ano.
+
+    Exemplo utilizado:
+        2018
+    """
+
+    resposta = client.get(
+        "/games/year/2018",
+    )
+
+    assert resposta.status_code == 200
+
+    dados = resposta.json()
+
+    assert isinstance(dados, list)
+    assert len(dados) > 0
+
+    assert all(
+        jogo["ano_lancamento"] == 2018
+        for jogo in dados
+    )
+
+
+def testar_games_por_decada():
+    """
+    Testa o filtro de jogos por década.
+
+    Exemplo utilizado:
+        2000
+
+    Todos os jogos retornados precisam ter sido lançados
+    entre 2000 e 2009.
+    """
+
+    resposta = client.get(
+        "/games/decade/2000",
+    )
+
+    assert resposta.status_code == 200
+
+    dados = resposta.json()
+
+    assert isinstance(dados, list)
+    assert len(dados) > 0
+
+    assert all(
+        2000
+        <= jogo["ano_lancamento"]
+        <= 2009
         for jogo in dados
     )
 
@@ -267,7 +375,9 @@ def testar_games_historicos():
     Testa o endpoint de jogos historicamente importantes.
     """
 
-    resposta = client.get("/games/historical")
+    resposta = client.get(
+        "/games/historical",
+    )
 
     assert resposta.status_code == 200
 
@@ -277,7 +387,11 @@ def testar_games_historicos():
 
     if len(dados) > 0:
         assert "nome" in dados[0]
-        assert "historico_importante" in dados[0]
+
+        assert (
+            "historico_importante"
+            in dados[0]
+        )
 
         assert all(
             jogo["historico_importante"] is True
@@ -290,7 +404,9 @@ def testar_games_influentes():
     Testa o endpoint de jogos historicamente influentes.
     """
 
-    resposta = client.get("/games/influential")
+    resposta = client.get(
+        "/games/influential",
+    )
 
     assert resposta.status_code == 200
 
@@ -300,7 +416,11 @@ def testar_games_influentes():
 
     if len(dados) > 0:
         assert "nome" in dados[0]
-        assert "historico_influente" in dados[0]
+
+        assert (
+            "historico_influente"
+            in dados[0]
+        )
 
         assert all(
             jogo["historico_influente"] is True
@@ -309,18 +429,18 @@ def testar_games_influentes():
 
 
 # ==========================================================
-# TESTE - ESTATÍSTICAS
+# TESTE — ESTATÍSTICAS
 # ==========================================================
 
 def testar_estatisticas_home():
     """
-    Testa se o endpoint /stats/home retorna estatísticas gerais.
-
-    Esse endpoint usa os dados da tabela games para gerar números
-    usados futuramente na Home do projeto.
+    Testa se o endpoint /stats/home retorna estatísticas
+    gerais da Foundation Collection.
     """
 
-    resposta = client.get("/stats/home")
+    resposta = client.get(
+        "/stats/home",
+    )
 
     assert resposta.status_code == 200
 
@@ -340,23 +460,24 @@ def testar_estatisticas_home():
 
 
 # ==========================================================
-# TESTE - AWARDS
+# TESTES — AWARDS
 # ==========================================================
 
 def testar_listar_awards():
     """
-    Testa se o endpoint /awards retorna registros de premiações.
+    Testa se o endpoint /awards retorna os registros de
+    premiações.
 
-    Como a tabela awards no PostgreSQL possui atualmente 127 registros,
-    esperamos receber 127 registros.
+    Como a tabela possui atualmente 127 registros,
+    esperamos receber 127 itens.
 
-    Observação:
-    A tabela awards no PostgreSQL possui uma coluna id automática,
-    mas a API remove essa coluna para manter a resposta parecida
-    com a antiga versão baseada em CSV.
+    A coluna id do PostgreSQL é removida da resposta para
+    preservar o formato anteriormente utilizado pela API.
     """
 
-    resposta = client.get("/awards")
+    resposta = client.get(
+        "/awards",
+    )
 
     assert resposta.status_code == 200
 
@@ -375,10 +496,12 @@ def testar_listar_awards():
 
 def testar_awards_vencedores():
     """
-    Testa se o endpoint /awards/winners retorna apenas vencedores.
+    Testa se /awards/winners retorna apenas vencedores.
     """
 
-    resposta = client.get("/awards/winners")
+    resposta = client.get(
+        "/awards/winners",
+    )
 
     assert resposta.status_code == 200
 
@@ -387,19 +510,24 @@ def testar_awards_vencedores():
     assert isinstance(dados, list)
     assert len(dados) > 0
 
-    assert all(item["status"] == "Vencedor" for item in dados)
+    assert all(
+        item["status"] == "Vencedor"
+        for item in dados
+    )
 
 
 def testar_awards_por_ano():
     """
-    Testa se o endpoint /awards/2018 retorna a edição de 2018.
+    Testa se /awards/2018 retorna a edição de 2018.
 
     Esperamos encontrar:
     - God of War;
     - Red Dead Redemption 2.
     """
 
-    resposta = client.get("/awards/2018")
+    resposta = client.get(
+        "/awards/2018",
+    )
 
     assert resposta.status_code == 200
 
@@ -408,9 +536,15 @@ def testar_awards_por_ano():
     assert isinstance(dados, list)
     assert len(dados) > 0
 
-    assert all(item["ano"] == 2018 for item in dados)
+    assert all(
+        item["ano"] == 2018
+        for item in dados
+    )
 
-    jogos = [item["jogo"] for item in dados]
+    jogos = [
+        item["jogo"]
+        for item in dados
+    ]
 
     assert "God of War" in jogos
     assert "Red Dead Redemption 2" in jogos
@@ -418,10 +552,13 @@ def testar_awards_por_ano():
 
 def testar_awards_vencedores_na_foundation():
     """
-    Testa vencedores do Awards que estão na Foundation Collection.
+    Testa os vencedores do Awards que também estão
+    presentes na Foundation Collection.
     """
 
-    resposta = client.get("/awards/foundation/winners")
+    resposta = client.get(
+        "/awards/foundation/winners",
+    )
 
     assert resposta.status_code == 200
 
@@ -430,7 +567,10 @@ def testar_awards_vencedores_na_foundation():
     assert isinstance(dados, list)
     assert len(dados) > 0
 
-    jogos = [item["jogo"] for item in dados]
+    jogos = [
+        item["jogo"]
+        for item in dados
+    ]
 
     assert "God of War" in jogos
     assert "Elden Ring" in jogos
@@ -438,10 +578,13 @@ def testar_awards_vencedores_na_foundation():
 
 def testar_awards_indicados_na_foundation():
     """
-    Testa indicados do Awards que estão na Foundation Collection.
+    Testa os indicados do Awards que estão presentes
+    na Foundation Collection.
     """
 
-    resposta = client.get("/awards/foundation/nominees")
+    resposta = client.get(
+        "/awards/foundation/nominees",
+    )
 
     assert resposta.status_code == 200
 
@@ -450,7 +593,10 @@ def testar_awards_indicados_na_foundation():
     assert isinstance(dados, list)
     assert len(dados) > 0
 
-    jogos = [item["jogo"] for item in dados]
+    jogos = [
+        item["jogo"]
+        for item in dados
+    ]
 
     assert "Red Dead Redemption 2" in jogos
     assert "The Last of Us" in jogos
@@ -458,15 +604,17 @@ def testar_awards_indicados_na_foundation():
 
 def testar_awards_fora_da_foundation():
     """
-    Testa jogos do Awards que ainda não estão na Foundation Collection.
+    Testa jogos do Awards que ainda não pertencem à
+    Foundation Collection.
 
-    God of War está na Foundation Collection, então ele não deve aparecer
-    nessa lista.
+    God of War está na Foundation e não deve aparecer.
 
-    Madden NFL 2004 não está na Foundation Collection, então deve aparecer.
+    Madden NFL 2004 não está na Foundation e deve aparecer.
     """
 
-    resposta = client.get("/awards/foundation/outside")
+    resposta = client.get(
+        "/awards/foundation/outside",
+    )
 
     assert resposta.status_code == 200
 
@@ -475,27 +623,34 @@ def testar_awards_fora_da_foundation():
     assert isinstance(dados, list)
     assert len(dados) > 0
 
-    jogos = [item["jogo"] for item in dados]
+    jogos = [
+        item["jogo"]
+        for item in dados
+    ]
 
     assert "Madden NFL 2004" in jogos
     assert "God of War" not in jogos
 
 
 # ==========================================================
-# EXECUÇÃO DOS TESTES
+# EXECUÇÃO MANUAL DOS TESTES
 # ==========================================================
 
 if __name__ == "__main__":
     """
     Executa todos os testes da API manualmente.
 
-    Se nenhum erro aparecer no terminal,
-    significa que todos os endpoints testados passaram.
+    Essa parte não é necessária quando utilizamos pytest,
+    mas permite executar diretamente:
+
+        python api/test_main.py
     """
 
     testar_endpoint_inicial()
 
     testar_listar_games()
+    testar_game_por_id()
+    testar_game_por_id_inexistente()
     testar_pesquisar_games()
     testar_games_por_developer()
     testar_games_por_genero()
