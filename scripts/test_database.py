@@ -5,8 +5,8 @@
 # Objetivo:
 # Testar se o Python consegue ler os dados do PostgreSQL.
 #
-# Agora este teste não pede mais a senha no terminal.
-# Ele usa as configurações do arquivo .env.
+# O teste funciona tanto com PostgreSQL local quanto com
+# PostgreSQL publicado, como o Neon.
 #
 # Autor: Kadu Almeida
 # ==========================================================
@@ -50,19 +50,23 @@ from database import (
 
 def testar_configuracao_env():
     """
-    Testa se as informações do .env foram carregadas corretamente.
+    Testa se as informações essenciais do .env foram carregadas.
 
-    Este teste não mostra a senha no terminal.
-    Ele apenas confirma que as configurações existem.
+    Não exige nomes específicos como aaa_archive, postgres ou
+    localhost, pois o projeto pode usar tanto o banco local quanto
+    um PostgreSQL publicado, como o Neon.
+
+    A senha nunca é exibida no terminal.
     """
 
     config = obter_configuracao_banco()
 
-    assert config["dbname"] == "aaa_archive", "O banco deveria ser aaa_archive."
-    assert config["user"] == "postgres", "O usuário deveria ser postgres."
-    assert config["host"] == "localhost", "O host deveria ser localhost."
-    assert config["port"] == 5432, "A porta deveria ser 5432."
-    assert config["password"] is not None, "A senha não foi carregada."
+    assert config["dbname"], "POSTGRES_DB não foi carregado."
+    assert config["user"], "POSTGRES_USER não foi carregado."
+    assert config["password"], "POSTGRES_PASSWORD não foi carregado."
+    assert config["host"], "POSTGRES_HOST não foi carregado."
+    assert isinstance(config["port"], int), "POSTGRES_PORT deveria ser um número inteiro."
+    assert config["port"] > 0, "POSTGRES_PORT deveria ser maior que zero."
 
     print("Configurações do .env carregadas com sucesso.")
 
@@ -114,7 +118,7 @@ def testar_carregamento_games():
         "nota_kadu",
         "nota_pavam",
         "historico_importante",
-        "historico_influente"
+        "historico_influente",
     ]
 
     for coluna in colunas_esperadas:
@@ -139,7 +143,7 @@ def testar_carregamento_awards():
         "ano",
         "premiacao",
         "jogo",
-        "status"
+        "status",
     ]
 
     for coluna in colunas_esperadas:
