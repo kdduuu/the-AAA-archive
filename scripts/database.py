@@ -267,7 +267,7 @@ def contar_games_do_banco():
     Conta quantos registros existem na tabela games.
 
     Retorno esperado atualmente:
-        66
+        105
     """
 
     sql = """

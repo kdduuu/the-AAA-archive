@@ -65,6 +65,15 @@ function normalizeTitle(title: string) {
   return title
     .trim()
     .toLocaleLowerCase()
+    .replace(
+      /^gta(?=\s*:|\s)/,
+      'grand theft auto',
+    )
+    .replace(
+      /^the walking dead(?:: season one)?$/,
+      'the walking dead',
+    )
+    .replace(/\s+/g, ' ')
 }
 
 

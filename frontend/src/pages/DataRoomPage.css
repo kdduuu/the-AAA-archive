@@ -1,0 +1,1080 @@
+/*
+===========================================================
+The AAA Archive
+Arquivo: DataRoomPage.css
+
+Objetivo:
+Estilizar a Data Room e suas métricas reais.
+
+Nesta etapa, o arquivo contém:
+- hero da área analítica;
+- métricas reais carregadas pela FastAPI;
+- gráficos reais da Foundation por década e gênero;
+- ranking das desenvolvedoras com mais registros;
+- gráfico real da presença dos vencedores na Foundation;
+- acesso local ao dashboard Streamlit;
+- informações técnicas do sistema;
+- responsividade inicial.
+===========================================================
+*/
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.data-room__hero {
+  display: grid;
+  min-height: 370px;
+  overflow: hidden;
+
+  grid-template-columns:
+    minmax(400px, 0.9fr)
+    minmax(440px, 1.1fr);
+}
+
+.data-room__hero-content {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+
+  padding:
+    clamp(
+      32px,
+      5vw,
+      64px
+    );
+}
+
+.data-room__hero h1 {
+  margin: 0;
+
+  color: var(--color-text);
+
+  font-size:
+    clamp(
+      2.2rem,
+      5vw,
+      4rem
+    );
+
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0.12em;
+}
+
+.data-room__description {
+  max-width: 620px;
+
+  margin:
+    var(--space-lg)
+    0
+    0;
+
+  color: var(--color-text-soft);
+
+  font-size: 0.82rem;
+  line-height: 1.9;
+}
+
+.data-room__hero .archive-system-message {
+  margin-top: var(--space-xl);
+}
+
+.data-room__status--error span {
+  color: var(--color-error);
+}
+
+
+/* =========================================================
+   ÁREA VISUAL TEMPORÁRIA
+========================================================= */
+
+.data-room__hero-visual {
+  position: relative;
+
+  display: flex;
+  min-height: 370px;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  border-left: 1px solid var(--color-border);
+
+  background:
+    radial-gradient(
+      circle at 50% 34%,
+      rgb(127 160 135 / 10%),
+      transparent 22%
+    ),
+    linear-gradient(
+      145deg,
+      #151715,
+      #070807 72%
+    );
+}
+
+.data-room__hero-visual::before {
+  position: absolute;
+  inset: 0;
+
+  content: '';
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--color-surface),
+      transparent 25%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 34px,
+      rgb(255 255 255 / 2%) 35px
+    );
+}
+
+.data-room__hero-visual::after {
+  position: absolute;
+  inset: 10%;
+
+  content: '';
+
+  border: 1px solid rgb(255 255 255 / 4%);
+
+  box-shadow:
+    inset
+    0
+    0
+    90px
+    rgb(0 0 0 / 78%);
+}
+
+.data-room__hero-grid {
+  position: absolute;
+  inset: 14% 10%;
+
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 56px,
+      rgb(255 255 255 / 2%) 57px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 42px,
+      rgb(255 255 255 / 2%) 43px
+    );
+}
+
+.data-room__hero-placeholder {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+
+  padding:
+    var(--space-lg)
+    var(--space-xl);
+
+  border: 1px solid var(--color-border);
+
+  background-color: rgb(4 5 4 / 80%);
+
+  text-align: center;
+}
+
+.data-room__hero-placeholder span {
+  color: var(--color-text-faint);
+
+  font-size: 0.54rem;
+  letter-spacing: 0.14em;
+}
+
+.data-room__hero-placeholder strong {
+  margin-top: var(--space-sm);
+
+  color: var(--color-stable);
+
+  font-size: 1.1rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+}
+
+.data-room__hero-placeholder small {
+  margin-top: var(--space-md);
+
+  color: var(--color-text-faint);
+
+  font-size: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+
+/* =========================================================
+   ESPAÇAMENTO ENTRE PAINÉIS
+========================================================= */
+
+.data-room__metrics-panel,
+.data-room__data-grid,
+.data-room__system-grid {
+  margin-top: var(--space-md);
+}
+
+.data-room__metrics-panel,
+.data-room__data-grid .archive-panel,
+.data-room__system-grid .archive-panel {
+  scroll-margin-top:
+    calc(
+      var(--header-height)
+      +
+      var(--space-md)
+    );
+}
+
+
+/* =========================================================
+   MÉTRICAS
+========================================================= */
+
+.data-room__metrics-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+}
+
+.data-room__metric {
+  display: grid;
+  align-content: center;
+  gap: var(--space-sm);
+
+  min-height: 150px;
+  padding: var(--space-xl);
+
+  border-right: 1px solid var(--color-border);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgb(255 255 255 / 2%),
+      transparent 58%
+    );
+}
+
+.data-room__metric:last-child {
+  border-right: 0;
+}
+
+.data-room__metric--error strong {
+  color: var(--color-error);
+}
+
+.data-room__metric span {
+  color: var(--color-text-faint);
+
+  font-size: 0.54rem;
+  letter-spacing: 0.11em;
+}
+
+.data-room__metric strong {
+  color: var(--color-text-soft);
+
+  font-size: 1.45rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+}
+
+.data-room__metric small {
+  color: var(--color-text-faint);
+
+  font-size: 0.5rem;
+  letter-spacing: 0.04em;
+}
+
+
+/* =========================================================
+   PAINÉIS DE DADOS
+========================================================= */
+
+.data-room__data-grid,
+.data-room__system-grid {
+  display: grid;
+  gap: var(--space-md);
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+}
+
+.data-room__awards-chart {
+  position: relative;
+
+  display: grid;
+  min-height: 300px;
+  align-content: center;
+  gap: var(--space-sm);
+
+  overflow: hidden;
+  padding: var(--space-xl);
+
+  background:
+    linear-gradient(
+      120deg,
+      rgb(255 255 255 / 2%),
+      transparent 62%
+    );
+}
+
+.data-room__dashboard-content > span {
+  color: var(--color-text-faint);
+
+  font-size: 0.54rem;
+  letter-spacing: 0.12em;
+}
+
+.data-room__dashboard-content > strong {
+  color: var(--color-text-soft);
+
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+}
+
+.data-room__dashboard-content > p {
+  max-width: 650px;
+
+  margin: 0;
+
+  color: var(--color-text-muted);
+
+  font-size: 0.66rem;
+  line-height: 1.8;
+}
+
+
+/* =========================================================
+   GRÁFICO DA FOUNDATION
+========================================================= */
+
+.data-room__foundation-chart {
+  display: grid;
+  min-height: 300px;
+  align-content: center;
+  gap: var(--space-lg);
+
+  padding: var(--space-xl);
+
+  background:
+    linear-gradient(
+      120deg,
+      rgb(255 255 255 / 2%),
+      transparent 62%
+    );
+}
+
+.data-room__chart-state {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.data-room__chart-state > span,
+.data-room__chart-header span {
+  color: var(--color-text-faint);
+
+  font-size: 0.54rem;
+  letter-spacing: 0.12em;
+}
+
+.data-room__chart-state > strong,
+.data-room__chart-header strong {
+  color: var(--color-text-soft);
+
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+}
+
+.data-room__chart-state > p {
+  max-width: 650px;
+
+  margin: 0;
+
+  color: var(--color-text-muted);
+
+  font-size: 0.66rem;
+  line-height: 1.8;
+}
+
+.data-room__chart-state--error > strong {
+  color: var(--color-error);
+}
+
+.data-room__chart-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-lg);
+}
+
+.data-room__chart-header > div {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.data-room__chart-header small {
+  color: var(--color-text-faint);
+
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+}
+
+.data-room__decade-chart {
+  display: grid;
+  height: 190px;
+  align-items: end;
+  gap: var(--space-md);
+
+  padding-top: var(--space-lg);
+
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(54px, 1fr)
+    );
+}
+
+.data-room__decade-column {
+  display: grid;
+  height: 100%;
+  align-items: end;
+  gap: var(--space-xs);
+
+  grid-template-rows:
+    auto
+    minmax(0, 1fr)
+    auto;
+
+  text-align: center;
+}
+
+.data-room__decade-column > strong {
+  color: var(--color-text-soft);
+
+  font-size: 0.6rem;
+  font-weight: 400;
+}
+
+.data-room__decade-column > small {
+  padding-bottom: var(--space-sm);
+
+  color: var(--color-text-faint);
+
+  font-size: 0.5rem;
+  letter-spacing: 0.06em;
+}
+
+.data-room__decade-track {
+  position: relative;
+
+  display: flex;
+  width: 100%;
+  min-height: 110px;
+  align-items: flex-end;
+  justify-content: center;
+
+  border-right: 1px solid rgb(255 255 255 / 3%);
+  border-left: 1px solid rgb(255 255 255 / 3%);
+}
+
+.data-room__decade-track span {
+  display: block;
+  width: min(34px, 64%);
+
+  border: 1px solid rgb(127 160 135 / 48%);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgb(127 160 135 / 36%),
+      rgb(127 160 135 / 10%)
+    );
+
+  box-shadow:
+    0
+    0
+    18px
+    rgb(127 160 135 / 6%);
+}
+
+.data-room__chart-summary {
+  margin: 0;
+
+  color: var(--color-text-muted);
+
+  font-size: 0.62rem;
+  line-height: 1.8;
+}
+
+
+/* =========================================================
+   DISTRIBUIÇÃO POR GÊNERO
+========================================================= */
+
+.data-room__genre-section {
+  display: grid;
+  gap: var(--space-lg);
+
+  margin-top: var(--space-lg);
+  padding-top: var(--space-xl);
+
+  border-top: 1px solid var(--color-border);
+}
+
+.data-room__genre-bars {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.data-room__genre-bar {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.data-room__genre-bar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-lg);
+}
+
+.data-room__genre-bar-header span {
+  min-width: 0;
+
+  color: var(--color-text-muted);
+
+  font-size: 0.55rem;
+  line-height: 1.5;
+  letter-spacing: 0.07em;
+  overflow-wrap: anywhere;
+}
+
+.data-room__genre-bar-header strong {
+  color: var(--color-text-soft);
+
+  font-size: 0.62rem;
+  font-weight: 400;
+}
+
+.data-room__genre-track {
+  height: 12px;
+  overflow: hidden;
+
+  border: 1px solid var(--color-border);
+
+  background-color: rgb(255 255 255 / 1.5%);
+}
+
+.data-room__genre-track span {
+  display: block;
+  min-width: 2px;
+  height: 100%;
+
+  border-right: 1px solid rgb(127 160 135 / 55%);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgb(127 160 135 / 10%),
+      rgb(127 160 135 / 34%)
+    );
+}
+
+
+/* =========================================================
+   DESENVOLVEDORAS COM MAIS REGISTROS
+========================================================= */
+
+.data-room__developer-section {
+  display: grid;
+  gap: var(--space-lg);
+
+  margin-top: var(--space-lg);
+  padding-top: var(--space-xl);
+
+  border-top: 1px solid var(--color-border);
+}
+
+.data-room__developer-bars {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.data-room__developer-bar {
+  display: grid;
+  align-items: center;
+  gap: var(--space-md);
+
+  grid-template-columns:
+    28px
+    minmax(0, 1fr);
+}
+
+.data-room__developer-position {
+  color: var(--color-text-faint);
+
+  font-size: 0.52rem;
+  letter-spacing: 0.07em;
+  text-align: center;
+}
+
+.data-room__developer-content {
+  display: grid;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.data-room__developer-bar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-lg);
+}
+
+.data-room__developer-bar-header span {
+  min-width: 0;
+
+  color: var(--color-text-muted);
+
+  font-size: 0.55rem;
+  line-height: 1.5;
+  letter-spacing: 0.07em;
+  overflow-wrap: anywhere;
+}
+
+.data-room__developer-bar-header strong {
+  color: var(--color-text-soft);
+
+  font-size: 0.62rem;
+  font-weight: 400;
+}
+
+.data-room__developer-track {
+  height: 12px;
+  overflow: hidden;
+
+  border: 1px solid var(--color-border);
+
+  background-color: rgb(255 255 255 / 1.5%);
+}
+
+.data-room__developer-track span {
+  display: block;
+  min-width: 2px;
+  height: 100%;
+
+  border-right: 1px solid rgb(127 160 135 / 55%);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgb(127 160 135 / 8%),
+      rgb(127 160 135 / 30%)
+    );
+}
+
+
+/* =========================================================
+   GRÁFICO DA AWARDS HISTORY
+========================================================= */
+
+.data-room__awards-chart {
+  display: grid;
+  min-height: 300px;
+  align-content: center;
+  gap: var(--space-lg);
+
+  padding: var(--space-xl);
+
+  background:
+    linear-gradient(
+      120deg,
+      rgb(255 255 255 / 2%),
+      transparent 62%
+    );
+}
+
+.data-room__awards-bars {
+  display: grid;
+  gap: var(--space-lg);
+
+  padding:
+    var(--space-lg)
+    0;
+
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.data-room__awards-bar {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.data-room__awards-bar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-lg);
+}
+
+.data-room__awards-bar-header span {
+  color: var(--color-text-muted);
+
+  font-size: 0.55rem;
+  letter-spacing: 0.09em;
+}
+
+.data-room__awards-bar-header strong {
+  color: var(--color-text-soft);
+
+  font-size: 0.66rem;
+  font-weight: 400;
+}
+
+.data-room__awards-track {
+  position: relative;
+
+  height: 18px;
+  overflow: hidden;
+
+  border: 1px solid var(--color-border);
+
+  background-color: rgb(255 255 255 / 1.5%);
+}
+
+.data-room__awards-fill {
+  display: block;
+  min-width: 2px;
+  height: 100%;
+}
+
+.data-room__awards-fill--confirmed {
+  border-right: 1px solid rgb(127 160 135 / 65%);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgb(127 160 135 / 12%),
+      rgb(127 160 135 / 42%)
+    );
+}
+
+.data-room__awards-fill--outside {
+  border-right: 1px solid rgb(255 255 255 / 26%);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgb(255 255 255 / 5%),
+      rgb(255 255 255 / 16%)
+    );
+}
+
+.data-room__awards-summary {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-md);
+}
+
+.data-room__awards-summary strong {
+  color: var(--color-stable);
+
+  font-size: 1.25rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+}
+
+.data-room__awards-summary p {
+  max-width: 520px;
+  margin: 0;
+
+  color: var(--color-text-muted);
+
+  font-size: 0.62rem;
+  line-height: 1.8;
+}
+
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+.data-room__dashboard-content {
+  display: grid;
+  min-height: 260px;
+  align-content: center;
+  gap: var(--space-sm);
+
+  padding: var(--space-xl);
+
+  background:
+    linear-gradient(
+      120deg,
+      rgb(255 255 255 / 2%),
+      transparent 62%
+    );
+}
+
+.data-room__dashboard-button {
+  width: fit-content;
+
+  margin-top: var(--space-lg);
+  padding:
+    var(--space-sm)
+    var(--space-md);
+
+  border: 1px solid var(--color-border);
+
+  background-color: transparent;
+
+  color: var(--color-text-muted);
+
+  font-size: 0.54rem;
+  letter-spacing: 0.09em;
+  text-decoration: none;
+
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.data-room__dashboard-button:hover {
+  border-color: rgb(127 160 135 / 55%);
+
+  background-color: rgb(127 160 135 / 7%);
+
+  color: var(--color-text);
+}
+
+.data-room__dashboard-button:focus-visible {
+  outline: 1px solid var(--color-text-soft);
+  outline-offset: 4px;
+}
+
+.data-room__dashboard-address {
+  margin-top: var(--space-sm);
+
+  color: var(--color-text-faint);
+
+  font-size: 0.48rem;
+  letter-spacing: 0.05em;
+}
+
+
+/* =========================================================
+   INFORMAÇÕES DO SISTEMA
+========================================================= */
+
+.data-room__system-information {
+  display: grid;
+  min-height: 260px;
+  align-content: center;
+
+  margin: 0;
+  padding: var(--space-xl);
+}
+
+.data-room__system-information > div {
+  display: grid;
+  align-items: center;
+  gap: var(--space-sm);
+
+  padding:
+    var(--space-sm)
+    0;
+
+  grid-template-columns:
+    auto
+    minmax(20px, 1fr)
+    auto;
+}
+
+.data-room__system-information dt,
+.data-room__system-information dd {
+  font-size: 0.56rem;
+  letter-spacing: 0.07em;
+}
+
+.data-room__system-information dt {
+  color: var(--color-text-muted);
+}
+
+.data-room__system-information dd {
+  margin: 0;
+
+  color: var(--color-text-soft);
+}
+
+.data-room__system-dots {
+  height: 1px;
+
+  background-image:
+    linear-gradient(
+      90deg,
+      var(--color-border) 50%,
+      transparent 50%
+    );
+
+  background-size: 5px 1px;
+}
+
+.data-room__system-value--stable {
+  color: var(--color-stable) !important;
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE
+========================================================= */
+
+@media (max-width: 1050px) {
+  .data-room__metrics-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .data-room__metric:nth-child(2) {
+    border-right: 0;
+  }
+
+  .data-room__metric:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--color-border);
+  }
+}
+
+@media (max-width: 900px) {
+  .data-room__hero {
+    grid-template-columns: 1fr;
+  }
+
+  .data-room__hero-visual {
+    min-height: 260px;
+
+    border-top: 1px solid var(--color-border);
+    border-left: 0;
+  }
+
+  .data-room__data-grid,
+  .data-room__system-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .data-room__hero-content {
+    padding:
+      var(--space-xl)
+      var(--space-lg);
+  }
+
+  .data-room__hero h1 {
+    font-size: 2rem;
+    letter-spacing: 0.08em;
+  }
+
+  .data-room__hero-visual {
+    min-height: 220px;
+  }
+
+  .data-room__hero-placeholder,
+  .data-room__foundation-chart,
+  .data-room__awards-chart,
+  .data-room__dashboard-content,
+  .data-room__system-information {
+    padding: var(--space-lg);
+  }
+
+  .data-room__chart-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .data-room__decade-chart {
+    height: 165px;
+    gap: var(--space-sm);
+  }
+
+  .data-room__decade-track {
+    min-height: 90px;
+  }
+
+  .data-room__genre-section,
+  .data-room__developer-section {
+    padding-top: var(--space-lg);
+  }
+
+  .data-room__awards-summary {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .data-room__metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .data-room__metric {
+    min-height: 120px;
+
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .data-room__metric:last-child {
+    border-bottom: 0;
+  }
+
+  .data-room__system-information > div {
+    align-items: start;
+    gap: var(--space-xs);
+
+    grid-template-columns: 1fr;
+  }
+
+  .data-room__system-dots {
+    display: none;
+  }
+}
+
+
+/* =========================================================
+   REDUÇÃO DE MOVIMENTO
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .data-room__dashboard-button {
+    transition: none;
+  }
+}

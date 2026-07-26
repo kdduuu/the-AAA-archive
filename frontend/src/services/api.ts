@@ -18,7 +18,8 @@ Nesta etapa, o serviço consegue:
 - carregar um único jogo pelo ID;
 - carregar todos os registros da Awards History;
 - carregar vencedor e indicados de um ano específico;
-- carregar vencedores presentes na Foundation Collection.
+- carregar vencedores presentes na Foundation Collection;
+- carregar as estatísticas gerais do arquivo.
 
 Arquitetura:
 
@@ -41,6 +42,7 @@ O React nunca acessa diretamente:
 
 import type { Award } from '../types/Award'
 import type { Game } from '../types/Game'
+import type { HomeStats } from '../types/HomeStats'
 
 
 // ==========================================================
@@ -57,7 +59,10 @@ FastAPI:
 http://127.0.0.1:8000
 */
 
-const API_BASE_URL = 'http://127.0.0.1:8000'
+const API_BASE_URL = (
+  import.meta.env.VITE_API_URL?.trim()
+  || 'http://127.0.0.1:8000'
+).replace(/\/+$/, '')
 
 
 // ==========================================================
@@ -413,4 +418,29 @@ export async function getFoundationAwardWinners(
   return requestAwards(
     '/awards/foundation/winners',
   )
+}
+
+// ==========================================================
+// ESTATÍSTICAS GERAIS DO ARQUIVO
+// ==========================================================
+
+/**
+ * Carrega as estatísticas consolidadas da Foundation.
+ *
+ * Endpoint:
+ * GET /stats/home
+ */
+
+export async function getHomeStats(
+): Promise<HomeStats> {
+  const response = await fetch(
+    `${API_BASE_URL}/stats/home`,
+  )
+
+  validateResponse(response)
+
+  const statistics: HomeStats =
+    await response.json()
+
+  return statistics
 }

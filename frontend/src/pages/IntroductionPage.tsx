@@ -32,7 +32,7 @@ const systemMessages = [
   'signal detected',
   'restoring archive node',
   'database integrity verified',
-  'foundation records: 66',
+  'foundation records: 105',
   'awards logs: 127',
   'access level: visitor',
 ]

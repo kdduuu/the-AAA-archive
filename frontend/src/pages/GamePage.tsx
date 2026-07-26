@@ -17,8 +17,11 @@ A página:
 - apresenta marcações históricas;
 - apresenta os dados arquivados do jogo.
 
+Nesta etapa, a página também:
+- reutiliza o cover.webp da Foundation;
+- preserva um fallback visual quando o asset falha.
+
 Ainda não são implementados:
-- imagens definitivas;
 - contexto detalhado da era;
 - relação com premiações;
 - registros relacionados.
@@ -72,6 +75,11 @@ function GamePage() {
     setRequestState,
   ] = useState<GameRequestState>('loading')
 
+  const [
+    imageHasFailed,
+    setImageHasFailed,
+  ] = useState(false)
+
 
   // ========================================================
   // CARREGAMENTO DO JOGO
@@ -96,6 +104,7 @@ function GamePage() {
     }
 
     setGame(null)
+    setImageHasFailed(false)
     setRequestState('loading')
 
     async function loadGame() {
@@ -229,6 +238,21 @@ function GamePage() {
 
 
   // ========================================================
+  // IMAGEM DO REGISTRO
+  // ========================================================
+
+  const gameImagePath =
+    game !== null
+      ? `/assets/games/${game.id}/cover.webp`
+      : ''
+
+  const imageCanBeDisplayed =
+    requestState === 'success'
+    && game !== null
+    && imageHasFailed === false
+
+
+  // ========================================================
   // INTERFACE
   // ========================================================
 
@@ -326,27 +350,43 @@ function GamePage() {
         </div>
 
         <div
-          className="game-page__hero-visual"
-          aria-label="Área temporária reservada para a imagem do jogo"
+          className={
+            imageCanBeDisplayed
+              ? 'game-page__hero-visual game-page__hero-visual--with-image'
+              : 'game-page__hero-visual'
+          }
         >
+          {imageCanBeDisplayed && game && (
+            <img
+              className="game-page__hero-image"
+              src={gameImagePath}
+              alt={`${game.nome} — archived visual record`}
+              onError={() => {
+                setImageHasFailed(true)
+              }}
+            />
+          )}
+
           <div
             className="game-page__hero-grid"
             aria-hidden="true"
           />
 
-          <div className="game-page__hero-placeholder">
-            <span>FOUNDATION IMAGE FEED</span>
+          {!imageCanBeDisplayed && (
+            <div className="game-page__hero-placeholder">
+              <span>FOUNDATION IMAGE FEED</span>
 
-            <strong>
-              {requestState === 'success'
-                ? recordCode
-                : 'AWAITING RECORD'}
-            </strong>
+              <strong>
+                {requestState === 'success'
+                  ? recordCode
+                  : 'AWAITING RECORD'}
+              </strong>
 
-            <small>
-              individual image awaiting local asset
-            </small>
-          </div>
+              <small>
+                individual image unavailable
+              </small>
+            </div>
+          )}
         </div>
       </section>
 

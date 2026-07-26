@@ -198,16 +198,25 @@ def _normalizar_coluna_texto(coluna):
     """
     Normaliza uma coluna de texto para comparação.
 
-    Isso ajuda a comparar nomes de jogos mesmo quando existem
-    diferenças simples de maiúsculas, minúsculas ou espaços.
+    Além de remover diferenças de maiúsculas, minúsculas e
+    espaços, a função reconhece a abreviação "GTA" como
+    equivalente a "Grand Theft Auto" e trata a primeira
+    temporada de The Walking Dead como o mesmo registro
+    usado no histórico de premiações.
 
-    Exemplo:
+    Exemplos:
         "God of War"
         " god of war "
         "GOD OF WAR"
 
     Todos passam a ser tratados como:
         "god of war"
+
+        "GTA: San Andreas"
+        "Grand Theft Auto: San Andreas"
+
+    Ambos passam a ser tratados como:
+        "grand theft auto: san andreas"
 
     Args:
         coluna: coluna de texto do DataFrame.
@@ -216,7 +225,23 @@ def _normalizar_coluna_texto(coluna):
         Series: coluna normalizada.
     """
 
-    return coluna.astype(str).str.strip().str.lower()
+    return (
+        coluna
+        .astype(str)
+        .str.strip()
+        .str.lower()
+        .str.replace(
+            r"^gta(?=\s*:|\s)",
+            "grand theft auto",
+            regex=True,
+        )
+        .str.replace(
+            r"^the walking dead(?:: season one)?$",
+            "the walking dead",
+            regex=True,
+        )
+        .str.replace(r"\s+", " ", regex=True)
+    )
 
 
 def listar_vencedores_na_foundation(df_awards, df_games):

@@ -11,7 +11,8 @@ Rotas atuais:
 - /home         → Home oficial;
 - /foundation   → Foundation Collection;
 - /games/:id    → página individual de um jogo;
-- /awards       → estrutura inicial da Awards History.
+- /awards       → Awards History;
+- /data-room    → estrutura inicial da Data Room.
 ===========================================================
 */
 
@@ -21,6 +22,7 @@ import {
 } from 'react-router'
 
 import AwardsPage from './pages/AwardsPage'
+import DataRoomPage from './pages/DataRoomPage'
 import FoundationPage from './pages/FoundationPage'
 import GamePage from './pages/GamePage'
 import HomePage from './pages/HomePage'
@@ -59,6 +61,11 @@ function App() {
       <Route
         path="/awards"
         element={<AwardsPage />}
+      />
+
+      <Route
+        path="/data-room"
+        element={<DataRoomPage />}
       />
     </Routes>
   )

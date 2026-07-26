@@ -11,9 +11,8 @@ Nesta etapa:
 - HOME navega para /home;
 - FOUNDATION navega para /foundation;
 - AWARDS navega para /awards;
-- o item correspondente à rota atual é marcado como ativo;
-- DATA ROOM permanece bloqueado porque sua página ainda não
-  foi implementada.
+- DATA ROOM navega para /data-room;
+- o item correspondente à rota atual é marcado como ativo.
 ===========================================================
 */
 
@@ -58,7 +57,7 @@ const navigationItems = [
   {
     label: 'DATA ROOM',
     path: '/data-room',
-    available: false,
+    available: true,
   },
 ]
 
@@ -80,8 +79,8 @@ function TopNavigation() {
       >
         {navigationItems.map((item) => {
           /*
-          Enquanto a página ainda não existe, mostramos
-          somente um elemento visual sem navegação.
+          Enquanto uma página ainda não existir, o item poderá
+          permanecer visualmente bloqueado.
           */
 
           if (!item.available) {

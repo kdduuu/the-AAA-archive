@@ -6,12 +6,13 @@ Arquivo: GameCard.css
 Objetivo:
 Estilizar o componente reutilizável GameCard.
 
-Nesta versão, o card funciona como um link para o registro
-individual do jogo e utiliza uma representação visual
-temporária no lugar das imagens definitivas.
+O card funciona como um link para o registro individual e
+carrega a imagem abaixo quando ela estiver disponível:
 
-Posteriormente, essa área poderá receber:
 frontend/public/assets/games/{id}/cover.webp
+
+Quando a imagem não existir, o placeholder visual continua
+sendo exibido automaticamente.
 ===========================================================
 */
 
@@ -21,7 +22,10 @@ frontend/public/assets/games/{id}/cover.webp
 ========================================================= */
 
 .game-card {
+  position: relative;
+
   display: grid;
+  height: 100%;
   min-width: 0;
   overflow: hidden;
 
@@ -30,8 +34,8 @@ frontend/public/assets/games/{id}/cover.webp
   background:
     linear-gradient(
       145deg,
-      rgb(255 255 255 / 2%),
-      transparent 45%
+      rgb(255 255 255 / 2.5%),
+      transparent 42%
     ),
     var(--color-surface);
 
@@ -39,22 +43,53 @@ frontend/public/assets/games/{id}/cover.webp
   text-decoration: none;
 
   transition:
-    border-color 160ms ease,
-    background-color 160ms ease,
-    transform 160ms ease;
+    border-color var(--transition-fast),
+    background-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
 }
 
-.game-card:hover {
-  border-color: rgb(255 255 255 / 22%);
+.game-card::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  height: 1px;
+
+  content: '';
+  pointer-events: none;
+
+  background-color: var(--color-text-faint);
+
+  opacity: 0;
+  transform: scaleX(0.35);
+  transform-origin: left;
+
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.game-card:hover,
+.game-card:focus-visible {
+  border-color: var(--color-border-light);
 
   background-color: rgb(255 255 255 / 2%);
 
-  transform: translateY(-2px);
+  box-shadow:
+    0 18px 42px rgb(0 0 0 / 26%);
+
+  transform: translateY(-3px);
+}
+
+.game-card:hover::after,
+.game-card:focus-visible::after {
+  opacity: 1;
+  transform: scaleX(1);
 }
 
 .game-card:focus-visible {
-  border-color: var(--color-text-soft);
-
   outline: 1px solid var(--color-text-soft);
   outline-offset: 4px;
 }
@@ -68,37 +103,56 @@ frontend/public/assets/games/{id}/cover.webp
   position: relative;
 
   display: grid;
-  aspect-ratio: 16 / 9;
-  place-items: center;
-
-  min-height: 150px;
+  min-height: 190px;
   overflow: hidden;
 
   border-bottom: 1px solid var(--color-border);
 
   background:
     radial-gradient(
-      circle at 50% 42%,
-      rgb(255 255 255 / 6%),
-      transparent 26%
+      circle at 50% 46%,
+      rgb(255 255 255 / 7%),
+      transparent 30%
     ),
     repeating-linear-gradient(
       90deg,
       transparent 0,
-      transparent 46px,
-      rgb(255 255 255 / 2%) 47px
+      transparent 54px,
+      rgb(255 255 255 / 2.2%) 55px
     ),
     repeating-linear-gradient(
       0deg,
       transparent 0,
-      transparent 30px,
-      rgb(255 255 255 / 2%) 31px
+      transparent 38px,
+      rgb(255 255 255 / 2%) 39px
     ),
     #080808;
+
+  aspect-ratio: 4 / 3;
+  isolation: isolate;
 }
 
 .game-card__visual::before {
   position: absolute;
+  z-index: 2;
+  inset: 0;
+
+  content: '';
+  pointer-events: none;
+
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgb(255 255 255 / 1.8%) 0,
+      rgb(255 255 255 / 1.8%) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+}
+
+.game-card__visual::after {
+  position: absolute;
+  z-index: 3;
   inset: 0;
 
   content: '';
@@ -107,34 +161,102 @@ frontend/public/assets/games/{id}/cover.webp
   background:
     linear-gradient(
       180deg,
-      rgb(0 0 0 / 10%),
-      rgb(0 0 0 / 72%)
+      rgb(0 0 0 / 12%),
+      transparent 42%,
+      rgb(0 0 0 / 72%) 100%
+    ),
+    radial-gradient(
+      ellipse at center,
+      transparent 22%,
+      rgb(0 0 0 / 42%) 100%
     );
 }
 
 
 /* =========================================================
-   IDENTIFICAÇÃO DO REGISTRO
+   IMAGEM DO JOGO
 ========================================================= */
 
-.game-card__record-id,
-.game-card__year {
+.game-card__cover {
   position: absolute;
-  z-index: 2;
+  z-index: 1;
+  inset: 0;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  object-position: center;
+
+  filter:
+    grayscale(1)
+    brightness(0.46)
+    contrast(0.94);
+
+  opacity: 0;
+  transform: scale(1.01);
+
+  transition:
+    filter var(--transition-normal),
+    opacity var(--transition-fast),
+    transform var(--transition-normal);
+}
+
+.game-card__visual--has-cover .game-card__cover {
+  opacity: 1;
+}
+
+.game-card:hover .game-card__cover,
+.game-card:focus-visible .game-card__cover {
+  filter:
+    grayscale(0.35)
+    brightness(0.68)
+    contrast(1.04);
+
+  transform: scale(1.04);
+}
+
+
+/* =========================================================
+   CABEÇALHO VISUAL
+========================================================= */
+
+.game-card__visual-header {
+  position: absolute;
+  z-index: 5;
   top: var(--space-sm);
+  right: var(--space-sm);
+  left: var(--space-sm);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
 
   color: var(--color-text-muted);
 
-  font-size: 0.56rem;
-  letter-spacing: 0.08em;
+  font-size: 0.53rem;
+  letter-spacing: 0.1em;
 }
 
-.game-card__record-id {
-  left: var(--space-sm);
+.game-card__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.game-card__year {
-  right: var(--space-sm);
+.game-card__status > span {
+  width: 5px;
+  height: 5px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+  background-color: var(--color-stable);
+
+  box-shadow:
+    0 0 7px rgb(127 160 135 / 42%);
 }
 
 
@@ -144,36 +266,81 @@ frontend/public/assets/games/{id}/cover.webp
 
 .game-card__placeholder {
   position: relative;
-  z-index: 1;
+  z-index: 4;
 
   display: flex;
+  align-self: center;
+  justify-self: center;
   align-items: center;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: 7px;
+
+  width: min(76%, 220px);
 
   padding:
     var(--space-md)
     var(--space-lg);
 
-  border: 1px solid rgb(255 255 255 / 7%);
+  border: 1px solid rgb(255 255 255 / 8%);
 
-  background-color: rgb(0 0 0 / 38%);
+  background-color: rgb(0 0 0 / 42%);
 
   text-align: center;
+
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast),
+    opacity var(--transition-fast),
+    transform var(--transition-fast),
+    visibility var(--transition-fast);
+}
+
+.game-card__visual--has-cover .game-card__placeholder {
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(5px);
+}
+
+.game-card:hover .game-card__placeholder,
+.game-card:focus-visible .game-card__placeholder {
+  border-color: rgb(255 255 255 / 14%);
+  background-color: rgb(0 0 0 / 54%);
+}
+
+.game-card__placeholder strong {
+  color: rgb(229 226 217 / 13%);
+
+  font-size: clamp(2.4rem, 4vw, 3.8rem);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: 0.04em;
 }
 
 .game-card__placeholder span {
   color: var(--color-text-muted);
 
-  font-size: 0.6rem;
+  font-size: 0.56rem;
   letter-spacing: 0.13em;
 }
 
 .game-card__placeholder small {
   color: var(--color-text-faint);
 
-  font-size: 0.48rem;
+  font-size: 0.46rem;
+  line-height: 1.4;
   letter-spacing: 0.09em;
+}
+
+.game-card__visual-year {
+  position: absolute;
+  z-index: 5;
+  right: var(--space-sm);
+  bottom: var(--space-sm);
+
+  color: var(--color-text-faint);
+
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
 }
 
 
@@ -183,7 +350,9 @@ frontend/public/assets/games/{id}/cover.webp
 
 .game-card__content {
   display: grid;
-  gap: var(--space-sm);
+  min-width: 0;
+  align-content: space-between;
+  gap: var(--space-md);
 
   padding:
     var(--space-md)
@@ -191,30 +360,113 @@ frontend/public/assets/games/{id}/cover.webp
     var(--space-lg);
 }
 
-.game-card__content h2 {
+.game-card__metadata {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+
+  color: var(--color-text-faint);
+
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+}
+
+.game-card__identity {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+}
+
+.game-card__identity h2 {
   min-width: 0;
 
   margin: 0;
 
   color: var(--color-text-soft);
 
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   font-weight: 400;
-  line-height: 1.5;
-  letter-spacing: 0.07em;
+  line-height: 1.45;
+  letter-spacing: 0.075em;
   overflow-wrap: anywhere;
+
+  transition:
+    color var(--transition-fast);
 }
 
-.game-card__content p {
+.game-card:hover .game-card__identity h2,
+.game-card:focus-visible .game-card__identity h2 {
+  color: var(--color-text);
+}
+
+.game-card__identity p {
   min-width: 0;
 
   margin: 0;
 
   color: var(--color-text-muted);
 
-  font-size: 0.61rem;
+  font-size: 0.6rem;
   line-height: 1.5;
   overflow-wrap: anywhere;
+}
+
+.game-card__footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-md);
+
+  padding-top: var(--space-sm);
+
+  border-top: 1px solid rgb(255 255 255 / 5%);
+
+  color: var(--color-text-faint);
+
+  font-size: 0.5rem;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+}
+
+.game-card__footer > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.game-card__action {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+
+  color: var(--color-text-muted);
+  white-space: nowrap;
+
+  transition:
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.game-card:hover .game-card__action,
+.game-card:focus-visible .game-card__action {
+  color: var(--color-text-soft);
+  transform: translateX(2px);
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE LOCAL
+========================================================= */
+
+@media (max-width: 700px) {
+  .game-card__visual {
+    min-height: 210px;
+  }
+
+  .game-card__placeholder {
+    width: min(72%, 240px);
+  }
 }
 
 
@@ -223,11 +475,21 @@ frontend/public/assets/games/{id}/cover.webp
 ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
-  .game-card {
+  .game-card,
+  .game-card::after,
+  .game-card__cover,
+  .game-card__placeholder,
+  .game-card__identity h2,
+  .game-card__action {
     transition: none;
   }
 
-  .game-card:hover {
+  .game-card:hover,
+  .game-card:focus-visible,
+  .game-card:hover .game-card__cover,
+  .game-card:focus-visible .game-card__cover,
+  .game-card:hover .game-card__action,
+  .game-card:focus-visible .game-card__action {
     transform: none;
   }
 }

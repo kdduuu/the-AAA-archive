@@ -125,8 +125,8 @@ def testar_listar_games():
     """
     Testa se o endpoint /games retorna uma lista de jogos.
 
-    Como a tabela games possui atualmente 66 registros,
-    esperamos receber 66 jogos.
+    Como a tabela games possui atualmente 105 registros,
+    esperamos receber 105 jogos.
     """
 
     resposta = client.get("/games")
@@ -136,7 +136,7 @@ def testar_listar_games():
     dados = resposta.json()
 
     assert isinstance(dados, list)
-    assert len(dados) == 66
+    assert len(dados) == 105
 
     assert "id" in dados[0]
     assert "nome" in dados[0]
@@ -453,7 +453,7 @@ def testar_estatisticas_home():
     assert "total_franquias" in dados
     assert "total_generos" in dados
 
-    assert dados["total_jogos"] == 66
+    assert dados["total_jogos"] == 105
     assert dados["total_developers"] > 0
     assert dados["total_franquias"] > 0
     assert dados["total_generos"] > 0
@@ -573,6 +573,7 @@ def testar_awards_vencedores_na_foundation():
     ]
 
     assert "God of War" in jogos
+    assert "Grand Theft Auto: San Andreas" in jogos
     assert "Elden Ring" in jogos
 
 
@@ -630,6 +631,8 @@ def testar_awards_fora_da_foundation():
 
     assert "Madden NFL 2004" in jogos
     assert "God of War" not in jogos
+    assert "Grand Theft Auto: San Andreas" not in jogos
+    assert "Grand Theft Auto: Vice City" not in jogos
 
 
 # ==========================================================

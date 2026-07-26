@@ -6,7 +6,7 @@ Arquivo: FoundationPage.tsx
 Objetivo:
 Representar a página principal da Foundation Collection.
 
-Nesta etapa, a página:
+A página:
 - utiliza a estrutura global ArchiveShell;
 - carrega os jogos reais pela FastAPI;
 - exibe os registros utilizando o componente GameCard;
@@ -14,18 +14,14 @@ Nesta etapa, a página:
 - envia filtros reais para os endpoints da FastAPI;
 - ordena localmente os registros exibidos;
 - representa loading, success, empty e error;
-- restaura a coleção completa ao limpar uma operação.
+- restaura a coleção completa ao limpar uma operação;
+- apresenta no hero um pequeno ranking pessoal do criador.
 
 Regras atuais:
 - busca e filtro não são combinados;
 - executar uma busca limpa o filtro ativo;
 - executar um filtro limpa a busca ativa;
 - a ordenação pode ser aplicada à coleção, busca ou filtro.
-
-Ainda não são implementados:
-- combinação entre busca e filtros;
-- imagens definitivas;
-- página individual dos jogos.
 ===========================================================
 */
 
@@ -1000,21 +996,73 @@ function FoundationPage() {
 
         <div
           className="foundation-hero__visual"
-          aria-label="Representação atmosférica do acervo da Foundation Collection"
+          aria-label="Ranking pessoal do criador do The AAA Archive"
         >
-          <div
-            className="foundation-hero__shelves"
-            aria-hidden="true"
-          />
+          <div className="foundation-hero__ranking">
+            <div className="foundation-hero__ranking-topline">
+              <span>CREATOR PROFILE // PERSONAL INDEX</span>
+              <span>03 RECORDS</span>
+            </div>
 
-          <div className="foundation-hero__visual-content">
-            <span>FOUNDATION STORAGE FEED</span>
+            <div className="foundation-hero__ranking-heading">
+              <p>CREATOR'S FAVORITE RECORDS</p>
 
-            <strong>ARCHIVE VAULT 01</strong>
+              <strong>PERSONAL RANKING</strong>
 
-            <small>
-              atmospheric image awaiting local asset
-            </small>
+              <small>three signals that remained</small>
+            </div>
+
+            <ol className="foundation-hero__ranking-list">
+              <li>
+                <span className="foundation-hero__ranking-position">
+                  01
+                </span>
+
+                <div className="foundation-hero__ranking-record">
+                  <strong>SILENT HILL 2</strong>
+                  <small>2001</small>
+                </div>
+
+                <span className="foundation-hero__ranking-status foundation-hero__ranking-status--archived">
+                  ARCHIVED
+                </span>
+              </li>
+
+              <li>
+                <span className="foundation-hero__ranking-position">
+                  02
+                </span>
+
+                <div className="foundation-hero__ranking-record">
+                  <strong>THE LAST OF US</strong>
+                  <small>2013</small>
+                </div>
+
+                <span className="foundation-hero__ranking-status foundation-hero__ranking-status--archived">
+                  ARCHIVED
+                </span>
+              </li>
+
+              <li>
+                <span className="foundation-hero__ranking-position">
+                  03
+                </span>
+
+                <div className="foundation-hero__ranking-record">
+                  <strong>LIFE IS STRANGE</strong>
+                  <small>2015</small>
+                </div>
+
+                <span className="foundation-hero__ranking-status foundation-hero__ranking-status--archived">
+                  ARCHIVED
+                </span>
+              </li>
+            </ol>
+
+            <div className="foundation-hero__ranking-footer">
+              <span>FOUNDATION MATCH</span>
+              <span>[ 03 / 03 ]</span>
+            </div>
           </div>
         </div>
       </section>

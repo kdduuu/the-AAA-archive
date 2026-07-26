@@ -76,7 +76,7 @@ def testar_contagem_games():
 
     print(f"Registros encontrados na tabela games: {total_games}")
 
-    assert total_games == 66, "A tabela games deveria ter 66 registros."
+    assert total_games == 105, "A tabela games deveria ter 105 registros."
 
 
 def testar_contagem_awards():
@@ -100,7 +100,7 @@ def testar_carregamento_games():
 
     print(f"DataFrame de games carregado com {len(df_games)} registros.")
 
-    assert len(df_games) == 66, "O DataFrame de games deveria ter 66 registros."
+    assert len(df_games) == 105, "O DataFrame de games deveria ter 105 registros."
 
     colunas_esperadas = [
         "id",

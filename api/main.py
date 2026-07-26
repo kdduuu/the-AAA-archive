@@ -48,6 +48,7 @@ Autor: Kadu Almeida
 # ==========================================================
 
 from pathlib import Path
+import os
 import sys
 
 import pandas as pd
@@ -172,11 +173,30 @@ O navegador considera esses endereços origens diferentes.
 Por isso, precisamos autorizar o front-end a acessar a API.
 """
 
+LOCAL_CORS_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+configured_cors_origins = os.getenv(
+    "CORS_ALLOWED_ORIGINS",
+    "",
+)
+
+DEPLOY_CORS_ORIGINS = [
+    origin.strip().rstrip("/")
+    for origin in configured_cors_origins.split(",")
+    if origin.strip()
+]
+
+ALLOWED_CORS_ORIGINS = list(dict.fromkeys([
+    *LOCAL_CORS_ORIGINS,
+    *DEPLOY_CORS_ORIGINS,
+]))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-    ],
+    allow_origins=ALLOWED_CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -296,7 +316,7 @@ def dados_para_json(dados):
     Exemplo:
 
         {
-            "total_jogos": 66,
+            "total_jogos": 105,
             "jogos_por_genero": DataFrame,
             "jogos_por_decada": DataFrame
         }

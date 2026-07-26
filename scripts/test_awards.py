@@ -278,6 +278,10 @@ def testar_vencedores_na_foundation():
     assert not resultado.empty
 
     assert "God of War" in resultado["jogo"].values
+    assert "Grand Theft Auto: San Andreas" in resultado["jogo"].values
+    assert "Grand Theft Auto IV" in resultado["jogo"].values
+    assert "The Walking Dead" in resultado["jogo"].values
+    assert "Clair Obscur: Expedition 33" in resultado["jogo"].values
     assert "Elden Ring" in resultado["jogo"].values
     assert "Baldur's Gate 3" in resultado["jogo"].values
 
@@ -318,6 +322,11 @@ def testar_jogos_awards_fora_da_foundation():
     assert "Hollow Knight: Silksong" in resultado["jogo"].values
 
     assert "God of War" not in resultado["jogo"].values
+    assert "Grand Theft Auto: San Andreas" not in resultado["jogo"].values
+    assert "Grand Theft Auto: Vice City" not in resultado["jogo"].values
+    assert "Grand Theft Auto IV" not in resultado["jogo"].values
+    assert "The Walking Dead" not in resultado["jogo"].values
+    assert "Clair Obscur: Expedition 33" not in resultado["jogo"].values
     assert "Elden Ring" not in resultado["jogo"].values
 
 
